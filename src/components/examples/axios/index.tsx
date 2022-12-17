@@ -54,9 +54,9 @@ export const AxiosExample = () => {
     }
 
     return (
-        <div>
+        <div className="flex justify-center items-center flex-col">
             <header>
-                <h2>Fetch Data Fetching Example</h2>
+                <h1>Fetch Data Fetching Example</h1>
             </header>
             <main data-testid="joke-container">
                 <p>Programmer Jokes {`#${data[0].id}`}</p>

@@ -15,7 +15,8 @@ export const useStore = create<Counter>((set) => ({
 export const ZustandExample = () => {
     const { count, inc, dec } = useStore();
     return (
-        <div>
+        <div className="flex justify-center items-center flex-col">
+            <h1>ZUSTAND EXAMPLE</h1>
             <button onClick={inc}>up</button>
             <span>{count}</span>
             <button onClick={dec}>down</button>
