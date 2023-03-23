@@ -1,3 +1,6 @@
-const withPlugins = require("next-compose-plugins");
+const moduleExports = {
+  reactStrictMode: false,
+  swcMinify: true,
+};
 
-module.exports = withPlugins([], {});
+module.exports = moduleExports;
