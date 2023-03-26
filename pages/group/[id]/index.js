@@ -36,7 +36,9 @@ import {
     createBBBClass,
     endMeeting,
     getMeetingInfo,
+    getRecordings,
     joinBBBClass,
+    publishRecordings,
 } from "../../../client/bbb-client";
 import {
     createInviteLinkGroup,
@@ -332,13 +334,21 @@ export default function GroupDetailPage() {
             <Grid item xs={12}>
                 <h1 style={{ textAlign: "center" }}>{group?.name}</h1>
             </Grid>
-            <Grid item xs={12}>
+            <Grid
+                item
+                xs={12}
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 20,
+                }}
+            >
                 <Button
                     onClick={() =>
                         createBBBClass({
                             meetingID: group?._id,
                             recordID: group?._id,
-                            name: group?._id,
+                            name: `Meeting of ${group?.name}`,
                             attendeePW: "123at",
                             moderatorPW: "123mo",
                             fullName: group?.owner?.name,
@@ -397,6 +407,29 @@ export default function GroupDetailPage() {
                     variant="contained"
                 >
                     End meeting
+                </Button>
+
+                <Button
+                    onClick={() =>
+                        getRecordings({
+                            meetingID: group?._id,
+                            recordID: group?._id,
+                        })
+                    }
+                    variant="contained"
+                >
+                    Get recordings
+                </Button>
+
+                <Button
+                    onClick={() =>
+                        publishRecordings({
+                            recordID: group?._id,
+                        })
+                    }
+                    variant="contained"
+                >
+                    Publish recordings
                 </Button>
             </Grid>
             <Grid item xs={12}>

@@ -129,3 +129,21 @@ export const endMeeting = async ({ meetingID, password }) => {
     const res = await makeBBBRequest("end", params);
     return res;
 };
+
+export const getRecordings = async ({ meetingID, recordID }) => {
+    const params = {
+        meetingID,
+        recordID,
+    };
+    const res = await makeBBBRequest("getRecordings", params);
+    return res;
+};
+
+export const publishRecordings = async ({ recordID }) => {
+    const params = {
+        recordID,
+        publish: false,
+    };
+    const res = await makeBBBRequest("publishRecordings", params);
+    return res;
+};
