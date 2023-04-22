@@ -5,7 +5,7 @@ import { BBB_SECRET, BBB_SERVER } from "../sysconfig";
 
 const axiosInstance = axios.create({
     baseURL: BBB_SERVER,
-    timeout: 5000,
+    timeout: 500000,
     headers: {
         "Accept-Version": 1,
         Accept: "application/json",
@@ -13,14 +13,19 @@ const axiosInstance = axios.create({
         "Content-Type": "application/json; charset=utf-8",
     },
     withCredentials: true,
+    maxContentLength: "Infinity",
+    maxBodyLength: "Infinity",
 });
 
 const createChecksum = (apiCall, params, secret = BBB_SECRET) => {
     const queryString = new URLSearchParams(params).toString();
+
+    console.log({ params, queryString });
+
     return sha1(`${apiCall}${queryString}${secret}`);
 };
 
-const makeBBBRequest = async (apiCall, params) => {
+const makeBBBRequest = async (apiCall, params, body = "") => {
     const checksum = createChecksum(apiCall, params);
 
     if (apiCall === "join") {
@@ -36,10 +41,13 @@ const makeBBBRequest = async (apiCall, params) => {
         return;
     }
 
-    const res = await axiosInstance(apiCall, {
+    const res = await axiosInstance.post(apiCall, body, {
         params: {
             ...params,
             checksum,
+        },
+        headers: {
+            "Content-Type": "application/xml",
         },
     });
 
@@ -56,21 +64,24 @@ const makeBBBRequest = async (apiCall, params) => {
     return finalObject;
 };
 
-export const createBBBClass = async ({
-    meetingID,
-    recordID,
-    name,
-    attendeePW,
-    moderatorPW,
-    fullName = "",
-    welcome = ``,
-    voiceBridge = 74236,
-    record = true,
-    autoStartRecording = false,
-    allowStartStopRecording = true,
-    publish = false,
-}) => {
-    const params = {
+export const createBBBClass = async (
+    {
+        meetingID,
+        recordID,
+        name,
+        attendeePW,
+        moderatorPW,
+        fullName = "",
+        welcome = ``,
+        voiceBridge = 74236,
+        record = true,
+        autoStartRecording = false,
+        allowStartStopRecording = true,
+        publish = false,
+    },
+    fileUpload,
+) => {
+    let params = {
         meetingID,
         recordID,
         name,
@@ -85,7 +96,21 @@ export const createBBBClass = async ({
         publish,
     };
 
-    const res = await makeBBBRequest("create", params);
+    let body = "";
+
+    if (fileUpload) {
+        const filesXML = fileUpload
+            .map(
+                (f) =>
+                    `<module name="presentation"><document url="${f.uploadUrl}" filename="${f.name}" downloadable="true" /></module>`,
+            )
+            .join("");
+
+        // body = `<?xml version="1.0" encoding="UTF-8"?><modules><module name="presentation"><document url="https://www.africau.edu/images/default/sample.pdf" /></module><module name="presentation"><document url="https://www.africau.edu/images/default/sample.pdf" /></module></modules>`;
+        body = `<?xml version="1.0" encoding="UTF-8"?><modules>${filesXML}</modules>`;
+    }
+
+    const res = await makeBBBRequest("create", params, body);
     return res;
 };
 
@@ -146,4 +171,29 @@ export const publishRecordings = async ({ recordID }) => {
     };
     const res = await makeBBBRequest("publishRecordings", params);
     return res;
+};
+
+export const insertDocument = async ({ meetingID, file }) => {
+    const params = {
+        meetingID,
+        checksum: createChecksum("insertDocument", { meetingID }),
+    };
+
+    const filesXML = file
+        .map(
+            (f) =>
+                `<module name="presentation"><document url="${f.uploadUrl}" filename="${f.name}" downloadable="true" /></module>`,
+        )
+        .join("");
+
+    const res = await axios.post(
+        BBB_SERVER + "/insertDocument?" + new URLSearchParams(params),
+        `<?xml version="1.0" encoding="UTF-8"?><modules>${filesXML}</modules>`,
+        {
+            headers: {
+                "Content-Type": "application/xml",
+            },
+        },
+    );
+    console.log(res);
 };
