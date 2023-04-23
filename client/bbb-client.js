@@ -41,6 +41,19 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
         return;
     }
 
+    if (apiCall === "learning-dashboard") {
+        window.open(
+            BBB_SERVER +
+                "/learning-dashboard?" +
+                new URLSearchParams({
+                    ...params,
+                    checksum,
+                }).toString(),
+            "_blank",
+        );
+        return;
+    }
+
     const res = await axiosInstance.post(apiCall, body, {
         params: {
             ...params,
@@ -197,3 +210,13 @@ export const insertDocument = async ({ meetingID, file }) => {
     );
     console.log(res);
 };
+
+export const getLearningAnalyticDashboard = async ({ meeting }) => {
+    const params = {
+        meeting,
+        // sessionToken,
+    };
+
+    const res = await makeBBBRequest("learning-dashboard", params);
+    return res;
+}

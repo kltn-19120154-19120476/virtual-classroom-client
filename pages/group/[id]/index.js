@@ -471,7 +471,7 @@ export default function GroupDetailPage() {
 
                 <Button
                     onClick={async () => {
-                        console.log(meetingInfo);
+                        console.log('meeting info:', meetingInfo);
                         const {
                             session_token: sessionToken,
                             meeting_id: meeting,
@@ -479,7 +479,7 @@ export default function GroupDetailPage() {
 
                         const analyticDashboard =
                             await getLearningAnalyticDashboard({
-                                sessionToken: "yh2orful8yptwn7p",
+                                meeting: group?._id,
                             });
 
                         console.log(analyticDashboard);
