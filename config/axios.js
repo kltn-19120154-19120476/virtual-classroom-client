@@ -3,7 +3,7 @@ import { SERVER_DOMAIN } from "../sysconfig";
 
 const instance = axios.create({
   baseURL: SERVER_DOMAIN,
-  timeout: 5000,
+  timeout: 500000,
   headers: {
     "Accept-Version": 1,
     Accept: "application/json",
