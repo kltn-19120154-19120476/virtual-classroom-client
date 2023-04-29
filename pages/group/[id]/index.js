@@ -1,3 +1,8 @@
+import {
+    CloseOutlined,
+    DocumentScannerRounded,
+    PersonAdd,
+} from "@mui/icons-material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -7,6 +12,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import SendIcon from "@mui/icons-material/Send";
 import {
     Button,
+    Card,
     Chip,
     Grid,
     IconButton,
@@ -268,7 +274,13 @@ export default function GroupDetailPage() {
             },
             fileUpload,
         );
-        if (res?.returncode === "SUCCESS") setMeetingInfo(res);
+        if (res?.returncode === "SUCCESS") {
+            const meetingInfo = await getMeetingInfo({
+                meetingID: res.meetingID,
+                password: group?._id,
+            });
+            setMeetingInfo(meetingInfo);
+        }
         customToast("INFO", res?.message);
     };
 
@@ -410,48 +422,69 @@ export default function GroupDetailPage() {
                 }}
             >
                 {meetingInfo?.returncode === "SUCCESS" ? (
-                    <div className={styles.meetingInfoWrapper}>
+                    <Card className={styles.meetingInfoWrapper}>
                         <h2>Current meeting: {meetingInfo.meetingName}</h2>
 
-                        <Button
-                            onClick={async () => {
-                                const joinedMeetingInfo = await joinBBBClass({
-                                    meetingID: group?._id,
-                                    password: user?._id,
-                                    fullName: user?.name,
-                                });
-                            }}
-                            variant="contained"
-                        >
-                            Join meeting as moderator
-                        </Button>
-
-                        <Button
-                            onClick={() => setOpenJoinMeetingForm(true)}
-                            variant="contained"
-                        >
-                            Join meeting as attendee
-                        </Button>
-
-                        <Button
-                            onClick={() => setOpenInsertDocumentsForm(true)}
-                            variant="contained"
-                        >
-                            Insert document
-                        </Button>
-
-                        <Button
-                            onClick={() =>
-                                endMeeting({
-                                    meetingID: group?._id,
-                                    password: user?._id,
-                                })
-                            }
-                            variant="contained"
-                        >
-                            End meeting
-                        </Button>
-                    </div>
+                        <Grid container spacing={3} maxWidth="sm">
+                            <Grid item xs={12} md={6}>
+                                {" "}
+                                <Button
+                                    onClick={async () => {
+                                        const joinedMeetingInfo =
+                                            await joinBBBClass({
+                                                meetingID: group?._id,
+                                                password: user?._id,
+                                                fullName: user?.name,
+                                            });
+                                    }}
+                                    variant="contained"
+                                    color="success"
+                                    startIcon={<PersonAdd />}
+                                >
+                                    Join meeting as moderator
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Button
+                                    onClick={() => setOpenJoinMeetingForm(true)}
+                                    variant="contained"
+                                    color="warning"
+                                    startIcon={<PersonAdd />}
+                                >
+                                    Join meeting as attendee
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Button
+                                    onClick={() =>
+                                        setOpenInsertDocumentsForm(true)
+                                    }
+                                    variant="contained"
+                                    color="info"
+                                    startIcon={<DocumentScannerRounded />}
+                                >
+                                    Insert document
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Button
+                                    onClick={async () => {
+                                        const res = await endMeeting({
+                                            meetingID: group?._id,
+                                            password: user?._id,
+                                        });
+                                        if (res?.returncode === "SUCCESS")
+                                            setMeetingInfo(null);
+                                    }}
+                                    variant="contained"
+                                    color="error"
+                                    startIcon={<CloseOutlined />}
+                                >
+                                    End meeting
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Card>
                 ) : (
                     <div>
                         <Button
