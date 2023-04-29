@@ -27,6 +27,8 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import InsertDocumentsForm from "components/InsertDocumentsForm";
+import JoinMeetingForm from "components/JoinMeetingForm";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
@@ -35,13 +37,9 @@ import { toast } from "react-toastify";
 import {
     createBBBClass,
     endMeeting,
-    getLearningAnalyticDashboard,
     getMeetingInfo,
-    getMeetings,
-    getRecordings,
     insertDocument,
     joinBBBClass,
-    publishRecordings,
 } from "../../../client/bbb-client";
 import {
     createInviteLinkGroup,
@@ -54,12 +52,12 @@ import {
 import { getPresentationByIds } from "../../../client/presentation";
 import { getUserByIds } from "../../../client/user";
 import Breadcrumb from "../../../components/Breadcrumb";
+import CreateMeetingForm from "../../../components/CreateMeetingForm";
 import LoadingScreen from "../../../components/LoadingScreen";
 import { AuthContext } from "../../../context/authContext";
 import { SocketContext } from "../../../context/socketContext";
-import { customToast, uploadImageToFirebase } from "../../../utils";
+import { customToast } from "../../../utils";
 import styles from "./styles.module.scss";
-import FileBase64 from "react-file-base64";
 
 export default function GroupDetailPage() {
     const [group, setGroup] = useState(null);
@@ -84,8 +82,6 @@ export default function GroupDetailPage() {
     const [openInviteMemberForm, setOpenInviteMemberForm] = useState(false);
 
     const [meetingInfo, setMeetingInfo] = useState({});
-
-    const [fileUpload, setFileUpload] = useState(null);
 
     const handleInviteMember = async (data) => {
         try {
@@ -139,14 +135,19 @@ export default function GroupDetailPage() {
                     if (inviteLink) setInviteLink(inviteLink);
                 }
 
-                const [userListRes, presentationListRes] = await Promise.all([
-                    getUserByIds([
-                        groupInfo.ownerId,
-                        ...groupInfo.memberIds,
-                        ...groupInfo.coOwnerIds,
-                    ]),
-                    getPresentationByIds([]),
-                ]);
+                const [userListRes, presentationListRes, meetingInfoRes] =
+                    await Promise.all([
+                        getUserByIds([
+                            groupInfo.ownerId,
+                            ...groupInfo.memberIds,
+                            ...groupInfo.coOwnerIds,
+                        ]),
+                        getPresentationByIds([]),
+                        getMeetingInfo({
+                            meetingID: groupInfo?._id,
+                            password: user?._id,
+                        }),
+                    ]);
 
                 const userListMap = {};
 
@@ -171,6 +172,10 @@ export default function GroupDetailPage() {
                 );
 
                 setGroup(groupInfo);
+
+                if (meetingInfoRes?.returncode === "SUCCESS")
+                    setMeetingInfo(meetingInfoRes);
+
                 setIsLoading(false);
             } else {
                 router.push("/");
@@ -247,10 +252,63 @@ export default function GroupDetailPage() {
         }
     };
 
+    const [openCreateMeetingForm, setOpenCreateMeetingForm] = useState(false);
+    const [openJoinMeetingForm, setOpenJoinMeetingForm] = useState(false);
+    const [openInsertDocumentsForm, setOpenInsertDocumentsForm] =
+        useState(false);
+
+    const handleCreateMeeting = async (data, fileUpload) => {
+        const res = await createBBBClass(
+            {
+                meetingID: group?._id,
+                recordID: group?._id,
+                moderatorPW: group?.owner?._id,
+                fullName: group?.owner?.name,
+                ...data,
+            },
+            fileUpload,
+        );
+        if (res?.returncode === "SUCCESS") setMeetingInfo(res);
+        customToast("INFO", res?.message);
+    };
+
+    const handleJoinMeeting = async (data) => {
+        const res = await joinBBBClass({
+            meetingID: group?._id,
+            ...data,
+        });
+        customToast("INFO", res?.message);
+    };
+
+    const handleUploadDocuments = async (data) => {
+        const res = await insertDocument({
+            meetingID: group?._id,
+            file: data,
+        });
+
+        console.log(res);
+        customToast("INFO", res?.message);
+    };
+
     return isLoading || isLoadingAuth || !user ? (
         <LoadingScreen />
     ) : (
         <Grid container spacing={6} className={styles.wrapper}>
+            <CreateMeetingForm
+                handleClose={() => setOpenCreateMeetingForm(false)}
+                open={openCreateMeetingForm}
+                handleOK={handleCreateMeeting}
+            />
+            <JoinMeetingForm
+                handleClose={() => setOpenJoinMeetingForm(false)}
+                open={openJoinMeetingForm}
+                handleOK={handleJoinMeeting}
+            />
+            <InsertDocumentsForm
+                handleClose={() => setOpenInsertDocumentsForm(false)}
+                open={openInsertDocumentsForm}
+                handleOK={handleUploadDocuments}
+            />
             <Breadcrumb
                 paths={[
                     { label: "Home", href: "/" },
@@ -351,168 +409,60 @@ export default function GroupDetailPage() {
                     gap: 20,
                 }}
             >
-                <Button
-                    onClick={async () => {
-                        const meetingInfo = await createBBBClass(
-                            {
-                                meetingID: group?._id,
-                                recordID: group?._id,
-                                name: `Meeting of ${group?.name}`,
-                                attendeePW: "123at",
-                                moderatorPW: "123mo",
-                                fullName: group?.owner?.name,
-                            },
-                            fileUpload,
-                        );
+                {meetingInfo?.returncode === "SUCCESS" ? (
+                    <div className={styles.meetingInfoWrapper}>
+                        <h2>Current meeting: {meetingInfo.meetingName}</h2>
 
-                        setMeetingInfo(meetingInfo);
-                    }}
-                    variant="contained"
-                >
-                    Create meeting
-                </Button>
+                        <Button
+                            onClick={async () => {
+                                const joinedMeetingInfo = await joinBBBClass({
+                                    meetingID: group?._id,
+                                    password: user?._id,
+                                    fullName: user?.name,
+                                });
+                            }}
+                            variant="contained"
+                        >
+                            Join meeting as moderator
+                        </Button>
 
-                <Button
-                    onClick={async () => {
-                        const joinedMeetingInfo = await joinBBBClass({
-                            meetingID: group?._id,
-                            password: "123mo",
-                            fullName: user?.name,
-                            userID: user?._id,
-                        });
+                        <Button
+                            onClick={() => setOpenJoinMeetingForm(true)}
+                            variant="contained"
+                        >
+                            Join meeting as attendee
+                        </Button>
 
-                        console.log(joinedMeetingInfo);
+                        <Button
+                            onClick={() => setOpenInsertDocumentsForm(true)}
+                            variant="contained"
+                        >
+                            Insert document
+                        </Button>
 
-                        setMeetingInfo({
-                            ...meetingInfo,
-                            ...joinedMeetingInfo,
-                        });
-                    }}
-                    variant="contained"
-                >
-                    Join meeting as moderator
-                </Button>
-
-                <Button
-                    onClick={() =>
-                        joinBBBClass({
-                            meetingID: group?._id,
-                            password: "123at",
-                            fullName: user?.name,
-                        })
-                    }
-                    variant="contained"
-                >
-                    Join meeting as attendee
-                </Button>
-
-                <Button
-                    onClick={() =>
-                        getMeetingInfo({
-                            meetingID: group?._id,
-                            password: "123mo",
-                        })
-                    }
-                    variant="contained"
-                >
-                    Get meeting info
-                </Button>
-
-                <Button onClick={() => getMeetings()} variant="contained">
-                    Get meeting info
-                </Button>
-
-                <Button
-                    onClick={() =>
-                        endMeeting({
-                            meetingID: group?._id,
-                            password: "123mo",
-                        })
-                    }
-                    variant="contained"
-                >
-                    End meeting
-                </Button>
-
-                <Button
-                    onClick={() =>
-                        getRecordings({
-                            meetingID: group?._id,
-                            recordID: group?._id,
-                        })
-                    }
-                    variant="contained"
-                >
-                    Get recordings
-                </Button>
-
-                <Button
-                    onClick={() =>
-                        publishRecordings({
-                            recordID: group?._id,
-                        })
-                    }
-                    variant="contained"
-                >
-                    Publish recordings
-                </Button>
-
-                <Button
-                    onClick={() =>
-                        insertDocument({
-                            meetingID: group?._id,
-                            file: fileUpload,
-                        })
-                    }
-                    variant="contained"
-                >
-                    Insert document
-                </Button>
-
-                <Button
-                    onClick={async () => {
-                        console.log(meetingInfo);
-                        const {
-                            session_token: sessionToken,
-                            meeting_id: meeting,
-                        } = meetingInfo;
-
-                        const analyticDashboard =
-                            await getLearningAnalyticDashboard({
-                                sessionToken: "yh2orful8yptwn7p",
-                            });
-
-                        console.log(analyticDashboard);
-                    }}
-                    variant="contained"
-                >
-                    Get learning dashboard
-                </Button>
+                        <Button
+                            onClick={() =>
+                                endMeeting({
+                                    meetingID: group?._id,
+                                    password: user?._id,
+                                })
+                            }
+                            variant="contained"
+                        >
+                            End meeting
+                        </Button>
+                    </div>
+                ) : (
+                    <div>
+                        <Button
+                            onClick={() => setOpenCreateMeetingForm(true)}
+                            variant="contained"
+                        >
+                            Create meeting
+                        </Button>
+                    </div>
+                )}
             </Grid>
-
-            <Grid item xs={12}>
-                <FileBase64
-                    multiple={true}
-                    onDone={async (files) => {
-                        const uploadUrls = await Promise.all(
-                            files.map((file) => uploadImageToFirebase(file)),
-                        );
-
-                        files.forEach(
-                            (file, index) =>
-                                (file.uploadUrl = uploadUrls[index].substring(
-                                    0,
-                                    uploadUrls[index].lastIndexOf("&token"),
-                                )),
-                        );
-
-                        console.log(files);
-
-                        setFileUpload(files);
-                    }}
-                />
-            </Grid>
-
             <Grid item xs={12}>
                 <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">

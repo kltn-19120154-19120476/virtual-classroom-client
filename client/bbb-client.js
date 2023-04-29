@@ -25,6 +25,18 @@ const createChecksum = (apiCall, params, secret = BBB_SECRET) => {
     return sha1(`${apiCall}${queryString}${secret}`);
 };
 
+const resToObject = (res) => {
+    const rawObject = convert.xml2js(res.data, { compact: true, spaces: 4 });
+
+    const finalObject = {};
+
+    Object.keys(rawObject.response).forEach(
+        (key) => (finalObject[key] = rawObject.response[key]._text),
+    );
+
+    return finalObject;
+};
+
 const makeBBBRequest = async (apiCall, params, body = "") => {
     const checksum = createChecksum(apiCall, params);
 
@@ -51,17 +63,7 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
         },
     });
 
-    const rawObject = convert.xml2js(res.data, { compact: true, spaces: 4 });
-
-    const finalObject = {};
-
-    Object.keys(rawObject.response).forEach(
-        (key) => (finalObject[key] = rawObject.response[key]._text),
-    );
-
-    console.log(finalObject);
-
-    return finalObject;
+    return resToObject(res);
 };
 
 export const createBBBClass = async (
@@ -195,5 +197,6 @@ export const insertDocument = async ({ meetingID, file }) => {
             },
         },
     );
-    console.log(res);
+
+    return resToObject(res);
 };

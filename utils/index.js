@@ -1,7 +1,6 @@
 import { toast } from "react-toastify";
 
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { v4 as uuid } from "uuid";
 
 import { storage } from "../firebase";
 
@@ -43,10 +42,11 @@ export const dataURLtoFile = (dataurl, filename) => {
 
 export const uploadImageToFirebase = async (file) => {
     const imageRef = ref(storage, `${file.name}`);
-    const fileToUpload = dataURLtoFile(file.base64, file.name);
+    const fileToUpload = dataURLtoFile(file.path, file.name);
     await uploadBytes(imageRef, fileToUpload);
     const url = await getDownloadURL(imageRef);
-    return url;
+    const removedTokenUrl = url.substring(0, url.lastIndexOf("&token"));
+    return removedTokenUrl;
 };
 
 export const stringToSlug = (str) => {
