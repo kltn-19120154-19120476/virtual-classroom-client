@@ -2,6 +2,7 @@ import {
     CloseOutlined,
     DocumentScannerRounded,
     PersonAdd,
+    LocalLibrary,
 } from "@mui/icons-material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -46,6 +47,7 @@ import {
     getMeetingInfo,
     insertDocument,
     joinBBBClass,
+    getLearningDashboard,
 } from "../../../client/bbb-client";
 import {
     createInviteLinkGroup,
@@ -481,6 +483,20 @@ export default function GroupDetailPage() {
                                     startIcon={<CloseOutlined />}
                                 >
                                     End meeting
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Button
+                                    onClick={async () => {
+                                        await getLearningDashboard({
+                                            meeting: meetingInfo.internalMeetingID,
+                                        })
+                                    }}
+                                    variant="contained"
+                                    color="info"
+                                    startIcon={<LocalLibrary />}
+                                >
+                                    Get learning dashboard
                                 </Button>
                             </Grid>
                         </Grid>

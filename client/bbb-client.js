@@ -63,6 +63,8 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
         },
     });
 
+    if (apiCall === 'learningDashboardFromMeetingId') return res;
+
     return resToObject(res);
 };
 
@@ -199,4 +201,10 @@ export const insertDocument = async ({ meetingID, file }) => {
     );
 
     return resToObject(res);
+};
+
+export const getLearningDashboard = async ({ meeting }) => {
+    const params = { meeting };
+    const res = await makeBBBRequest("learningDashboardFromMeetingId", params);
+    return res;
 };
