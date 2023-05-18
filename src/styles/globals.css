@@ -2,35 +2,35 @@
 
 html,
 body {
-    padding: 0;
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-        Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 a {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 * {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-    font-family: "Open Sans", sans-serif;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: "Open Sans", sans-serif;
 }
 
 .fullscreen-enabled {
-    background: #fff;
+  background: #fff;
 }
 
 .custom-button {
-    background-color: #4e4e4e !important;
+  background-color: #4e4e4e !important;
 }
 
 .custom-button-outlined {
-    border-color: #4e4e4e !important;
-    color: #4e4e4e !important;
+  border-color: #4e4e4e !important;
+  color: #4e4e4e !important;
 }
 
 h1,
@@ -38,5 +38,5 @@ h2,
 h3,
 h4,
 h5 {
-    color: #222222;
+  color: #222222;
 }

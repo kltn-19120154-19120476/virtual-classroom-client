@@ -1,4 +1,5 @@
 # Advanced Web Application Development - Final project
+
 ## Getting Started
 
 First, install the packages:
@@ -7,7 +8,7 @@ First, install the packages:
 npm install
 ```
 
-Create the file *.env.local* at the root folder:
+Create the file _.env.local_ at the root folder:
 
 ```
 NEXT_PUBLIC_GOOGLE_CLIENT_ID = your_google_client_id

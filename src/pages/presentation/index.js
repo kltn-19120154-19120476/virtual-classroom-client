@@ -6,26 +6,26 @@ import Presentation from "src/features/Presentation";
 import { getLinkWithPrefix } from "src/utils";
 
 const PresentationPage = () => {
-    const { user, getUser, isLoadingAuth, isAuthenticated } =
-        useContext(AuthContext);
+  const { user, getUser, isLoadingAuth, isAuthenticated } =
+    useContext(AuthContext);
 
-    if (!isAuthenticated) {
-        window.location.href = getLinkWithPrefix("/login");
-    }
+  if (!isAuthenticated) {
+    window.location.href = getLinkWithPrefix("/login");
+  }
 
-    return isLoadingAuth || !user ? (
-        <LoadingScreen />
-    ) : (
-        <>
-            <Breadcrumb
-                paths={[
-                    { label: "Home", href: "/" },
-                    { label: "Presentation", href: "/presentation" },
-                ]}
-            />
-            <Presentation user={user} getUser={getUser} />
-        </>
-    );
+  return isLoadingAuth || !user ? (
+    <LoadingScreen />
+  ) : (
+    <>
+      <Breadcrumb
+        paths={[
+          { label: "Home", href: "/" },
+          { label: "Presentation", href: "/presentation" },
+        ]}
+      />
+      <Presentation user={user} getUser={getUser} />
+    </>
+  );
 };
 
 export default PresentationPage;

@@ -5,18 +5,18 @@ import { WS_DOMAIN } from "src/sysconfig";
 const SocketContext = createContext();
 
 const SocketProvider = ({ children }) => {
-    const socketRef = useRef(null);
-    socketRef.current = io.connect(WS_DOMAIN, { transports: ["websocket"] });
+  const socketRef = useRef(null);
+  socketRef.current = io.connect(WS_DOMAIN, { transports: ["websocket"] });
 
-    return (
-        <SocketContext.Provider
-            value={{
-                socket: socketRef.current,
-            }}
-        >
-            {children}
-        </SocketContext.Provider>
-    );
+  return (
+    <SocketContext.Provider
+      value={{
+        socket: socketRef.current,
+      }}
+    >
+      {children}
+    </SocketContext.Provider>
+  );
 };
 
 export { SocketProvider, SocketContext };
