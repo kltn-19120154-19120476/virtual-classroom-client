@@ -12,7 +12,6 @@ const axiosInstance = axios.create({
     "Access-Control-Allow-Origin": "*",
     "Content-Type": "application/json; charset=utf-8",
   },
-  withCredentials: true,
   maxContentLength: "Infinity",
   maxBodyLength: "Infinity",
 });
