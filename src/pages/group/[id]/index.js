@@ -46,6 +46,7 @@ import {
   endMeeting,
   getMeetingInfo,
   insertDocument,
+  getRecordings,
   joinBBBClass,
   getLearningDashboard,
 } from "src/client/bbb-client";
@@ -482,6 +483,22 @@ export default function GroupDetailPage() {
                   startIcon={<LocalLibrary />}
                 >
                   Get learning dashboard
+                </Button>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Button
+                  onClick={async () => {
+                    const res = await getRecordings({
+                      meetingID: meetingInfo.meetingID,
+                    });
+                    console.log('recordings', res.recordings);
+                    console.log('recording playback url', res.recordings.recording.playback.format.url._text);
+                  }}
+                  variant="contained"
+                  color="info"
+                  startIcon={<LocalLibrary />}
+                >
+                  Get recordings
                 </Button>
               </Grid>
               <Grid item xs={12} md={6}>

@@ -64,6 +64,7 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
   });
 
   if (apiCall === "learningDashboardFromMeetingId") return res;
+  if (apiCall === "getRecordings") return convert.xml2js(res.data, { compact: true, spaces: 4 }).response;
 
   return resToObject(res);
 };
@@ -159,10 +160,9 @@ export const endMeeting = async ({ meetingID, password }) => {
   return res;
 };
 
-export const getRecordings = async ({ meetingID, recordID }) => {
+export const getRecordings = async ({ meetingID }) => {
   const params = {
     meetingID,
-    recordID,
   };
   const res = await makeBBBRequest("getRecordings", params);
   return res;
