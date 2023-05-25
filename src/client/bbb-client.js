@@ -29,9 +29,7 @@ const resToObject = (res) => {
 
   const finalObject = {};
 
-  Object.keys(rawObject.response).forEach(
-    (key) => (finalObject[key] = rawObject.response[key]._text),
-  );
+  Object.keys(rawObject.response).forEach((key) => (finalObject[key] = rawObject.response[key]._text));
 
   return finalObject;
 };
@@ -104,10 +102,7 @@ export const createBBBClass = async (
 
   if (fileUpload) {
     const filesXML = fileUpload
-      .map(
-        (f) =>
-          `<module name="presentation"><document url="${f.uploadUrl}" filename="${f.name}" downloadable="true" /></module>`,
-      )
+      .map((f) => `<module name="presentation"><document url="${f.uploadUrl}" filename="${f.name}" downloadable="true" /></module>`)
       .join("");
 
     // body = `<?xml version="1.0" encoding="UTF-8"?><modules><module name="presentation"><document url="https://www.africau.edu/images/default/sample.pdf" /></module><module name="presentation"><document url="https://www.africau.edu/images/default/sample.pdf" /></module></modules>`;
@@ -118,12 +113,7 @@ export const createBBBClass = async (
   return res;
 };
 
-export const joinBBBClass = async ({
-  meetingID,
-  password,
-  fullName = "",
-  redirect = true,
-}) => {
+export const joinBBBClass = async ({ meetingID, password, fullName = "", redirect = true }) => {
   const params = {
     meetingID,
     password,
@@ -164,6 +154,14 @@ export const getRecordings = async ({ meetingID }) => {
     meetingID,
   };
   const res = await makeBBBRequest("getRecordings", params);
+  return res?.recordings?.recording || [];
+};
+
+export const deleteRecordings = async ({ recordID }) => {
+  const params = {
+    recordID,
+  };
+  const res = await makeBBBRequest("deleteRecordings", params);
   return res;
 };
 
@@ -183,10 +181,7 @@ export const insertDocument = async ({ meetingID, file }) => {
   };
 
   const filesXML = file
-    .map(
-      (f) =>
-        `<module name="presentation"><document url="${f.uploadUrl}" filename="${f.name}" downloadable="true" /></module>`,
-    )
+    .map((f) => `<module name="presentation"><document url="${f.uploadUrl}" filename="${f.name}" downloadable="true" /></module>`)
     .join("");
 
   const res = await axios.post(
