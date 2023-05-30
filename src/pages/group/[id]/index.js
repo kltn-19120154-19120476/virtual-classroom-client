@@ -31,6 +31,7 @@ import {
   endMeeting,
   getMeetingInfo,
   insertDocument,
+  insertDocumentToCommonLibrary,
   getRecordings,
   joinBBBClass,
   getLearningDashboard,
@@ -268,8 +269,7 @@ export default function GroupDetailPage() {
   };
 
   const handleUploadDocuments = async (data) => {
-    const res = await insertDocument({
-      meetingID: group?._id,
+    const res = await insertDocumentToCommonLibrary({
       file: data,
     });
 

@@ -197,6 +197,28 @@ export const insertDocument = async ({ meetingID, file }) => {
   return resToObject(res);
 };
 
+export const insertDocumentToCommonLibrary = async ({ file }) => {
+  const params = {
+    checksum: createChecksum("insertDocumentToCommonLibrary", {}),
+  };
+
+  const filesXML = file
+    .map((f) => `<module name="presentation"><document url="${f.uploadUrl}" filename="${f.name}" downloadable="true" /></module>`)
+    .join("");
+
+  const res = await axios.post(
+    BBB_SERVER + "/insertDocumentToCommonLibrary?" + new URLSearchParams(params),
+    `<?xml version="1.0" encoding="UTF-8"?><modules>${filesXML}</modules>`,
+    {
+      headers: {
+        "Content-Type": "application/xml",
+      },
+    },
+  );
+
+  return resToObject(res);
+};
+
 export const getLearningDashboard = async ({ meeting }) => {
   const params = { meeting };
   const res = await makeBBBRequest("learningDashboardFromMeetingId", params);
