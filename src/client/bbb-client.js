@@ -7,13 +7,13 @@ const axiosInstance = axios.create({
   baseURL: BBB_SERVER,
   timeout: 500000,
   headers: {
-    "Accept-Version": 1,
-    Accept: "application/json",
     "Access-Control-Allow-Origin": "*",
-    "Content-Type": "application/json; charset=utf-8",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+    "Access-Control-Allow-Headers": "Content-Type",
   },
   maxContentLength: "Infinity",
   maxBodyLength: "Infinity",
+  withCredentials: true
 });
 
 const createChecksum = (apiCall, params, secret = BBB_SECRET) => {
