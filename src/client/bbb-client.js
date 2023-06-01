@@ -2,6 +2,7 @@ import axios from "axios";
 import sha1 from "js-sha1";
 import { BBB_SECRET, BBB_SERVER } from "src/sysconfig";
 import convert from "xml-js";
+import { createDocument, getDocumentByIds } from "./document"
 
 const axiosInstance = axios.create({
   baseURL: BBB_SERVER,
@@ -100,13 +101,25 @@ export const createBBBClass = async (
 
   let body = "";
 
+  const docsRes = await getDocumentByIds();
+  const docs = docsRes.data;
+  console.log(docs);
+
+  let docsXML = "";
+  if (docs) {
+    docsXML = docs
+      .map((doc) => `<module name="library-document"><document presId="${doc.presId}" filename="${doc.filename}"/></module>`)
+      .join("");
+  }
+
+  let filesXML = "";
   if (fileUpload) {
-    const filesXML = fileUpload
+    filesXML = fileUpload
       .map((f) => `<module name="presentation"><document url="${f.uploadUrl}" filename="${f.name}" downloadable="true" /></module>`)
       .join("");
 
     // body = `<?xml version="1.0" encoding="UTF-8"?><modules><module name="presentation"><document url="https://www.africau.edu/images/default/sample.pdf" /></module><module name="presentation"><document url="https://www.africau.edu/images/default/sample.pdf" /></module></modules>`;
-    body = `<?xml version="1.0" encoding="UTF-8"?><modules>${filesXML}</modules>`;
+    body = `<?xml version="1.0" encoding="UTF-8"?><modules>${filesXML}${docsXML}</modules>`;
   }
 
   const res = await makeBBBRequest("create", params, body);
@@ -216,7 +229,16 @@ export const insertDocumentToCommonLibrary = async ({ file }) => {
     },
   );
 
-  return resToObject(res);
+  const newDocs = res.data.response.data
+  console.log(newDocs);
+
+  await Promise.all(
+    newDocs.map(async (doc) => {
+      await createDocument(doc);
+    })
+  )
+
+  // return resToObject(res);
 };
 
 export const getLearningDashboard = async ({ meeting }) => {
