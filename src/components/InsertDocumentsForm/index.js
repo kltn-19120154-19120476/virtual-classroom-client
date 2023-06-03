@@ -23,8 +23,8 @@ export default function InsertDocumentsForm({ open, handleClose, handleOK }) {
           );
 
           const uploadedFiles = files.map((file, index) => ({
-            ...file,
-            uploadUrl: fileUrls[index],
+            name: file.name,
+            url: fileUrls[index],
           }));
 
           handleOK(uploadedFiles);

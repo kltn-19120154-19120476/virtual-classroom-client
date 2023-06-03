@@ -29,7 +29,7 @@ export default function JoinMeetingForm({ open, handleClose, handleOK }) {
     <Dialog open={open} onClose={handleClose}>
       <form
         onSubmit={handleSubmit(async (data) => {
-          handleOK(data);
+          handleOK({ ...data, role: "attendee" });
           reset();
           handleClose();
         })}
