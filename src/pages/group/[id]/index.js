@@ -26,16 +26,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import {
-  createBBBClass,
-  endMeeting,
-  getMeetingInfo,
-  insertDocument,
-  getRecordings,
-  joinBBBClass,
-  getLearningDashboard,
-  deleteRecordings,
-} from "src/client/bbb-client";
+import { callBBBProxy } from "src/client/bbb-client";
 import {
   createInviteLinkGroup,
   deleteGroupById,
@@ -128,12 +119,15 @@ export default function GroupDetailPage() {
         const [userListRes, presentationListRes, meetingInfoRes, recordingRes] = await Promise.all([
           getUserByIds([groupInfo.ownerId, ...groupInfo.memberIds, ...groupInfo.coOwnerIds]),
           getPresentationByIds([]),
-          getMeetingInfo({
+          callBBBProxy({
             meetingID: groupInfo?._id,
             password: user?._id,
+            role: "moderator",
+            apiCall: "getMeetingInfo",
           }),
-          getRecordings({
+          callBBBProxy({
             meetingID: groupInfo?._id,
+            apiCall: "getRecordings",
           }),
         ]);
 
@@ -145,21 +139,24 @@ export default function GroupDetailPage() {
         groupInfo.members = groupInfo.memberIds.map((id) => userListMap[id]);
         groupInfo.coOwners = groupInfo.coOwnerIds.map((id) => userListMap[id]);
         groupInfo.total = groupInfo.memberIds.length + groupInfo.coOwnerIds.length + 1;
+
         groupInfo.recordings =
-          recordingRes?.map((recording) => {
-            const { startTime, endTime, name, state, meetingID, internalMeetingID, participants, playback, recordID } = recording;
-            return {
-              startTime: new Date(+startTime._text).toLocaleString("vi-VN"),
-              endTime: new Date(+endTime._text).toLocaleString("vi-VN"),
-              name: name._text,
-              state: state._text,
-              meetingID: meetingID._text,
-              meetingID: internalMeetingID._text,
-              participants: +participants._text,
-              url: playback.format.url._text,
-              recordID: recordID._text,
-            };
-          }) || [];
+          recordingRes?.recordings?.recording?.length > 0
+            ? recordingRes.recordings.recording.map((recording) => {
+                const { startTime, endTime, published, participants, size, isBreakout, playback } = recording;
+                return {
+                  ...recording,
+                  startTime: new Date(+startTime).toLocaleString("vi-VN"),
+                  endTime: new Date(+endTime).toLocaleString("vi-VN"),
+                  published: published === "true",
+                  participants: +participants,
+                  size: +size,
+                  isBreakout: isBreakout === "true",
+                  url: playback.format.url,
+                };
+              })
+            : [];
+
         groupInfo.currentPresentation = presentationListRes?.data?.find((presentation) => presentation.groupId === groupInfo._id);
 
         setGroup(groupInfo);
@@ -238,21 +235,17 @@ export default function GroupDetailPage() {
   const [openJoinMeetingForm, setOpenJoinMeetingForm] = useState(false);
   const [openInsertDocumentsForm, setOpenInsertDocumentsForm] = useState(false);
 
-  const handleCreateMeeting = async (data, fileUpload) => {
-    const res = await createBBBClass(
-      {
-        meetingID: group?._id,
-        recordID: group?._id,
-        moderatorPW: group?.owner?._id,
-        fullName: group?.owner?.name,
-        ...data,
-      },
-      fileUpload,
+  const handleCreateMeeting = async (data, files) => {
+    const res = await callBBBProxy(
+      { ...data, apiCall: "create", meetingID: group?._id, moderatorPW: user?._id, record: true },
+      { files: JSON.stringify(files) },
     );
+
     if (res?.returncode === "SUCCESS") {
-      const meetingInfo = await getMeetingInfo({
+      const meetingInfo = await callBBBProxy({
         meetingID: res.meetingID,
-        password: group?._id,
+        password: user?._id,
+        apiCall: "getMeetingInfo",
       });
       setMeetingInfo(meetingInfo);
     }
@@ -260,20 +253,25 @@ export default function GroupDetailPage() {
   };
 
   const handleJoinMeeting = async (data) => {
-    const res = await joinBBBClass({
+    const res = await callBBBProxy({
       meetingID: group?._id,
       ...data,
+      apiCall: "join",
     });
     customToast("INFO", res?.message);
+    if (res?.joinUrl) {
+      window.open(res.joinUrl, "_blank");
+    }
   };
 
   const handleUploadDocuments = async (data) => {
-    const res = await insertDocument({
-      meetingID: group?._id,
-      file: data,
-    });
-
-    console.log(res);
+    const res = await callBBBProxy(
+      {
+        meetingID: group?._id,
+        apiCall: "insertDocument",
+      },
+      { files: JSON.stringify(data) },
+    );
     customToast("INFO", res?.message);
   };
 
@@ -389,15 +387,8 @@ export default function GroupDetailPage() {
 
             <Grid container spacing={3} maxWidth="sm">
               <Grid item xs={12} md={6}>
-                {" "}
                 <Button
-                  onClick={async () => {
-                    const joinedMeetingInfo = await joinBBBClass({
-                      meetingID: group?._id,
-                      password: user?._id,
-                      fullName: user?.name,
-                    });
-                  }}
+                  onClick={() => handleJoinMeeting({ password: user?._id, fullName: user?.name, role: "moderator" })}
                   variant="contained"
                   color="success"
                   startIcon={<PersonAdd />}
@@ -423,9 +414,10 @@ export default function GroupDetailPage() {
               <Grid item xs={12} md={6}>
                 <Button
                   onClick={async () => {
-                    const res = await endMeeting({
+                    await callBBBProxy({
                       meetingID: group?._id,
                       password: user?._id,
+                      apiCall: "end",
                     });
                     setMeetingInfo(null);
                   }}
@@ -439,10 +431,10 @@ export default function GroupDetailPage() {
               <Grid item xs={12} md={6}>
                 <Button
                   onClick={async () => {
-                    const res = await getLearningDashboard({
+                    const res = await callBBBProxy({
                       meeting: meetingInfo.internalMeetingID,
+                      apiCall: "getLearningDashboard",
                     });
-                    console.log(JSON.parse(res.data));
                   }}
                   variant="contained"
                   color="info"
@@ -454,26 +446,32 @@ export default function GroupDetailPage() {
               <Grid item xs={12} md={6}>
                 <Button
                   onClick={async () => {
-                    const res = await getRecordings({
+                    const recordingRes = await callBBBProxy({
                       meetingID: meetingInfo.meetingID,
+                      apiCall: "getRecordings",
                     });
-                    console.log(
-                      res?.map((recording) => {
-                        const { startTime, endTime, name, state, meetingID, internalMeetingID, participants, playback, recordID } =
-                          recording;
-                        return {
-                          startTime: new Date(+startTime._text).toLocaleString("vi-VN"),
-                          endTime: new Date(+endTime._text).toLocaleString("vi-VN"),
-                          name: name._text,
-                          state: state._text,
-                          meetingID: meetingID._text,
-                          meetingID: internalMeetingID._text,
-                          participants: +participants._text,
-                          url: playback.format.url._text,
-                          recordID: recordID._text,
-                        };
-                      }),
-                    );
+
+                    const recordings =
+                      recordingRes?.recordings?.recording?.length > 0
+                        ? recordingRes.recordings.recording.map((recording) => {
+                            const { startTime, endTime, published, participants, size, isBreakout, playback } = recording;
+                            return {
+                              ...recording,
+                              startTime: new Date(+startTime).toLocaleString("vi-VN"),
+                              endTime: new Date(+endTime).toLocaleString("vi-VN"),
+                              published: published === "true",
+                              participants: +participants,
+                              size: +size,
+                              isBreakout: isBreakout === "true",
+                              url: playback.format.url,
+                            };
+                          })
+                        : [];
+
+                    setGroup({
+                      ...group,
+                      recordings,
+                    });
                   }}
                   variant="contained"
                   color="info"
@@ -536,8 +534,7 @@ export default function GroupDetailPage() {
                       <IconButton
                         color="error"
                         onClick={async () => {
-                          console.log(recording);
-                          const res = await deleteRecordings({ recordID: recording.recordID });
+                          const res = await callBBBProxy({ recordID: recording.recordID, apiCall: "deleteRecordings" });
                           if (res?.returncode === "SUCCESS") {
                             toast.info("Recordings deleted successfully");
                             getInfoOfGroup();

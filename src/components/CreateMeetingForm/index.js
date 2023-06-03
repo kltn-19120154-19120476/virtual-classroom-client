@@ -37,13 +37,11 @@ export default function CreateMeetingForm({ open, handleClose, handleOK }) {
       <form
         onSubmit={handleSubmit(async (data) => {
           setLoading(true);
-          const fileUrls = await Promise.all(
-            files.map((file) => uploadImageToFirebase(file, file.name)),
-          );
+          const fileUrls = await Promise.all(files.map((file) => uploadImageToFirebase(file, file.name)));
 
           const uploadedFiles = files.map((file, index) => ({
-            ...file,
-            uploadUrl: fileUrls[index],
+            name: file.name,
+            url: fileUrls[index],
           }));
 
           setLoading(false);
@@ -110,13 +108,7 @@ export default function CreateMeetingForm({ open, handleClose, handleOK }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <LoadingButton
-            type="submit"
-            variant="outlined"
-            color="primary"
-            disabled={loading}
-            loading={loading}
-          >
+          <LoadingButton type="submit" variant="outlined" color="primary" disabled={loading} loading={loading}>
             Create meeting
           </LoadingButton>
         </DialogActions>
