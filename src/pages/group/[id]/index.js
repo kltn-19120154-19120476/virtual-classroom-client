@@ -433,7 +433,7 @@ export default function GroupDetailPage() {
                   onClick={async () => {
                     const res = await callBBBProxy({
                       meeting: meetingInfo.internalMeetingID,
-                      apiCall: "getLearningDashboard",
+                      apiCall: "learningDashboardFromMeetingId",
                     });
                   }}
                   variant="contained"
