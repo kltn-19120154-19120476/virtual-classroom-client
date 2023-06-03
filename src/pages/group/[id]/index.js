@@ -45,6 +45,7 @@ import { SocketContext } from "src/context/socketContext";
 import { customToast, getLinkWithPrefix } from "src/utils";
 import styles from "./styles.module.scss";
 import GoogleDriveUploader from "src/components/GoogleDriveUploader";
+import { createDocument, getDocumentByIds } from "src/client/document";
 
 export default function GroupDetailPage() {
   const [group, setGroup] = useState(null);
@@ -234,11 +235,40 @@ export default function GroupDetailPage() {
   const [openCreateMeetingForm, setOpenCreateMeetingForm] = useState(false);
   const [openJoinMeetingForm, setOpenJoinMeetingForm] = useState(false);
   const [openInsertDocumentsForm, setOpenInsertDocumentsForm] = useState(false);
+  const [openInsertDocumentsToLibraryForm, setOpenInsertDocumentsToLibraryForm] = useState(false);
 
   const handleCreateMeeting = async (data, files) => {
+    let body = "";
+
+    const docsRes = await getDocumentByIds();
+    const docs = docsRes.data;
+    console.log(docs);
+
+    let docsXML = "";
+    if (docs) {
+      docsXML = docs
+        .map((doc) => `<module name="library-document"><document presId="${doc.presId}" filename="${doc.filename}"/></module>`)
+        .join("");
+    }
+
+    let filesXML = "";
+    if (files) {
+      filesXML = files
+        .map((f) => `<module name="presentation"><document url="${f.url}" filename="${f.name}" downloadable="true" /></module>`)
+        .join("");
+
+      body = `<?xml version="1.0" encoding="UTF-8"?><modules>${filesXML}${docsXML}</modules>`;
+    }
+
+    // const filesXML = JSON.parse(files)?.map(
+    //   (f) => `<module name="presentation"><document url="${f.url}" filename="${f.name}" downloadable="true" /></module>`
+    // )?.join("");
+    // bbbBody = `<?xml version="1.0" encoding="UTF-8"?><modules>${filesXML}${docsXML}</modules>`;
+
     const res = await callBBBProxy(
       { ...data, apiCall: "create", meetingID: group?._id, moderatorPW: user?._id, record: true },
-      { files: JSON.stringify(files) },
+      // { files: JSON.stringify(files) },
+      body,
     );
 
     if (res?.returncode === "SUCCESS") {
@@ -275,6 +305,24 @@ export default function GroupDetailPage() {
     customToast("INFO", res?.message);
   };
 
+  const handleUploadDocumentsToLibrary = async (data) => {
+    const res = await callBBBProxy(
+      { apiCall: "insertDocumentToCommonLibrary" },
+      { files: JSON.stringify(data) },
+    );
+
+    const newDocs = res.data.response.data
+    console.log(newDocs);
+  
+    await Promise.all(
+      newDocs.map(async (doc) => {
+        await createDocument(doc);
+      })
+    )
+
+    customToast("INFO", res?.message);
+  };
+
   return isLoading || isLoadingAuth || !user ? (
     <LoadingScreen />
   ) : (
@@ -285,6 +333,11 @@ export default function GroupDetailPage() {
         handleClose={() => setOpenInsertDocumentsForm(false)}
         open={openInsertDocumentsForm}
         handleOK={handleUploadDocuments}
+      />
+      <InsertDocumentsForm
+        handleClose={() => setOpenInsertDocumentsToLibraryForm(false)}
+        open={openInsertDocumentsToLibraryForm}
+        handleOK={handleUploadDocumentsToLibrary}
       />
       <Breadcrumb
         paths={[
@@ -409,6 +462,16 @@ export default function GroupDetailPage() {
                   startIcon={<DocumentScannerRounded />}
                 >
                   Insert document
+                </Button>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Button
+                  onClick={() => setOpenInsertDocumentsToLibraryForm(true)}
+                  variant="contained"
+                  color="info"
+                  startIcon={<DocumentScannerRounded />}
+                >
+                  Insert document to library
                 </Button>
               </Grid>
               <Grid item xs={12} md={6}>
