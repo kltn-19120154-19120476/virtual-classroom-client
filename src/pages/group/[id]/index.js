@@ -26,7 +26,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { callBBBProxy } from "src/client/bbb-client";
+import { callBBBClient } from "src/client/bbb-client";
 import {
   createInviteLinkGroup,
   deleteGroupById,
@@ -119,13 +119,13 @@ export default function GroupDetailPage() {
         const [userListRes, presentationListRes, meetingInfoRes, recordingRes] = await Promise.all([
           getUserByIds([groupInfo.ownerId, ...groupInfo.memberIds, ...groupInfo.coOwnerIds]),
           getPresentationByIds([]),
-          callBBBProxy({
+          callBBBClient({
             meetingID: groupInfo?._id,
             password: user?._id,
             role: "moderator",
             apiCall: "getMeetingInfo",
           }),
-          callBBBProxy({
+          callBBBClient({
             meetingID: groupInfo?._id,
             apiCall: "getRecordings",
           }),
@@ -236,24 +236,25 @@ export default function GroupDetailPage() {
   const [openInsertDocumentsForm, setOpenInsertDocumentsForm] = useState(false);
 
   const handleCreateMeeting = async (data, files) => {
-    const res = await callBBBProxy(
+    const res = await callBBBClient(
       { ...data, apiCall: "create", meetingID: group?._id, moderatorPW: user?._id, record: true },
       { files: JSON.stringify(files) },
     );
 
     if (res?.returncode === "SUCCESS") {
-      const meetingInfo = await callBBBProxy({
+      const meetingInfo = await callBBBClient({
         meetingID: res.meetingID,
         password: user?._id,
         apiCall: "getMeetingInfo",
       });
+
       setMeetingInfo(meetingInfo);
     }
     customToast("INFO", res?.message);
   };
 
   const handleJoinMeeting = async (data) => {
-    const res = await callBBBProxy({
+    const res = await callBBBClient({
       meetingID: group?._id,
       ...data,
       apiCall: "join",
@@ -265,7 +266,7 @@ export default function GroupDetailPage() {
   };
 
   const handleUploadDocuments = async (data) => {
-    const res = await callBBBProxy(
+    const res = await callBBBClient(
       {
         meetingID: group?._id,
         apiCall: "insertDocument",
@@ -414,7 +415,7 @@ export default function GroupDetailPage() {
               <Grid item xs={12} md={6}>
                 <Button
                   onClick={async () => {
-                    await callBBBProxy({
+                    await callBBBClient({
                       meetingID: group?._id,
                       password: user?._id,
                       apiCall: "end",
@@ -431,7 +432,7 @@ export default function GroupDetailPage() {
               <Grid item xs={12} md={6}>
                 <Button
                   onClick={async () => {
-                    const res = await callBBBProxy({
+                    const res = await callBBBClient({
                       meeting: meetingInfo.internalMeetingID,
                       apiCall: "learningDashboardFromMeetingId",
                     });
@@ -446,7 +447,7 @@ export default function GroupDetailPage() {
               <Grid item xs={12} md={6}>
                 <Button
                   onClick={async () => {
-                    const recordingRes = await callBBBProxy({
+                    const recordingRes = await callBBBClient({
                       meetingID: meetingInfo.meetingID,
                       apiCall: "getRecordings",
                     });
@@ -534,7 +535,7 @@ export default function GroupDetailPage() {
                       <IconButton
                         color="error"
                         onClick={async () => {
-                          const res = await callBBBProxy({ recordID: recording.recordID, apiCall: "deleteRecordings" });
+                          const res = await callBBBClient({ recordID: recording.recordID, apiCall: "deleteRecordings" });
                           if (res?.returncode === "SUCCESS") {
                             toast.info("Recordings deleted successfully");
                             getInfoOfGroup();
