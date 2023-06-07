@@ -1,20 +1,11 @@
 import { useRouter } from "next/router";
-import React, { createContext, useEffect, useState } from "react";
-import {
-  loginFunc,
-  loginGoogleFunc,
-  registerFunc,
-  resetAccount,
-} from "src/client/auth";
+import { createContext, useContext, useEffect, useState } from "react";
+import { loginFunc, loginGoogleFunc, registerFunc, resetAccount } from "src/client/auth";
 import { getGroupByIds } from "src/client/group";
-import { getPresentationByIds } from "src/client/presentation";
 import { getUserInfo } from "src/client/user";
 import LoadingScreen from "src/components/LoadingScreen";
 import { customToast, getLinkWithPrefix } from "src/utils";
-import { useContext } from "react";
 import { SocketContext } from "./socketContext";
-import { toast } from "react-toastify";
-import { Button } from "@mui/material";
 
 const AuthContext = createContext();
 
@@ -36,58 +27,25 @@ const AuthContextProvider = ({ children }) => {
         if (res?.status === "OK") {
           const userInfo = res?.data?.[0];
 
-          const [groupListRes, presentationListRes] = await Promise.all([
-            getGroupByIds([...userInfo.myGroupIds, ...userInfo.joinedGroupIds]),
-            getPresentationByIds([]),
-          ]);
+          const [groupListRes] = await Promise.all([getGroupByIds([...userInfo.myGroupIds, ...userInfo.joinedGroupIds])]);
 
           const groupListMap = {};
 
-          const presentationListMap = {};
+          groupListRes?.data?.forEach((group) => (groupListMap[group?._id] = group));
 
-          groupListRes?.data?.forEach(
-            (group) => (groupListMap[group?._id] = group),
-          );
+          userInfo.myGroups = userInfo.myGroupIds?.map((code) => groupListMap[code]) || [];
 
-          presentationListRes?.data?.forEach(
-            (presentation) =>
-              (presentationListMap[presentation?._id] = presentation),
-          );
+          userInfo.joinedGroups = userInfo.joinedGroupIds?.map((code) => groupListMap[code]) || [];
 
-          userInfo.myGroups =
-            userInfo.myGroupIds?.map((code) => groupListMap[code]) || [];
+          userInfo.coOwnerGroups = userInfo.joinedGroups?.filter((group) => group.coOwnerIds?.includes(userInfo._id)) || [];
 
-          userInfo.joinedGroups =
-            userInfo.joinedGroupIds?.map((code) => groupListMap[code]) || [];
-
-          userInfo.myPresentations =
-            userInfo.presentationIds?.map(
-              (code) => presentationListMap[code],
-            ) || [];
-
-          userInfo.collabPresentations =
-            presentationListRes?.data?.filter((presentation) =>
-              presentation?.collaborators?.includes(userInfo._id),
-            ) || [];
-
-          userInfo.coOwnerGroups =
-            userInfo.joinedGroups?.filter((group) =>
-              group.coOwnerIds?.includes(userInfo._id),
-            ) || [];
-
-          userInfo.memberGroups =
-            userInfo.joinedGroups?.filter((group) =>
-              group.memberIds?.includes(userInfo._id),
-            ) || [];
+          userInfo.memberGroups = userInfo.joinedGroups?.filter((group) => group.memberIds?.includes(userInfo._id)) || [];
 
           setIsAuthenticated(true);
 
           setUser({ ...user, ...userInfo });
 
-          localStorage.setItem(
-            "access_token",
-            res?.data?.[0]?.access_token || "",
-          );
+          localStorage.setItem("access_token", res?.data?.[0]?.access_token || "");
         } else {
           router.push("/login");
           setIsAuthenticated(false);
@@ -112,71 +70,12 @@ const AuthContextProvider = ({ children }) => {
     }
   }, [router.asPath]);
 
-  useEffect(() => {
-    socket.on("startPresent", async (data) => {
-      if (
-        !window?.location?.pathname?.includes("presentation") &&
-        data?.groupId &&
-        (user?.myGroupIds?.includes(data.groupId) ||
-          user?.joinedGroupIds?.includes(data.groupId))
-      ) {
-        toast(
-          <div>
-            <p>
-              Presentation {data?.presentationName} is presenting, do you want
-              to join now?
-            </p>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
-            >
-              <Button
-                variant="contained"
-                color="success"
-                sx={{ marginLeft: 3, marginTop: 1 }}
-                onClick={() =>
-                  (window.location.href = `/presentation/${data.presentationId}/slideshow`)
-                }
-              >
-                JOIN
-              </Button>
-              <Button
-                variant="outlined"
-                color="error"
-                sx={{ marginLeft: 3, marginTop: 1 }}
-                onClick={() => {
-                  toast.dismiss();
-                  router.reload();
-                }}
-              >
-                NOT NOW
-              </Button>
-            </div>
-          </div>,
-          {
-            autoClose: false,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: false,
-            draggable: true,
-            progress: undefined,
-          },
-        );
-      }
-    });
-  }, [user]);
-
   const login = async (data) => {
     try {
       setIsLoadingAuth(true);
       const res = await loginFunc(data);
       if (res?.status === "OK") {
-        localStorage.setItem(
-          "access_token",
-          res?.data?.[0]?.access_token || "",
-        );
+        localStorage.setItem("access_token", res?.data?.[0]?.access_token || "");
         await customToast("SUCCESS", "Login successful!");
         if (!res?.data?.[0]?.isActive) {
           window.location.href = getLinkWithPrefix("/active");
@@ -200,10 +99,7 @@ const AuthContextProvider = ({ children }) => {
       if (res?.status === "OK") {
         setUser(res?.data?.[0]);
         setIsAuthenticated(true);
-        localStorage.setItem(
-          "access_token",
-          res?.data?.[0]?.access_token || "",
-        );
+        localStorage.setItem("access_token", res?.data?.[0]?.access_token || "");
         await customToast("SUCCESS", "Login successful!");
         window.location.href = getLinkWithPrefix("/");
       } else {
@@ -225,10 +121,7 @@ const AuthContextProvider = ({ children }) => {
       await customToast("SUCCESS", "Register successful!");
       window.location.href = getLinkWithPrefix("/active");
     } catch (e) {
-      await customToast(
-        "ERROR",
-        e?.response?.data?.message || "Register failed!",
-      );
+      await customToast("ERROR", e?.response?.data?.message || "Register failed!");
       setIsLoadingAuth(false);
     }
   };
@@ -237,19 +130,12 @@ const AuthContextProvider = ({ children }) => {
     try {
       const res = await resetAccount(data);
       if (res?.status === "OK") {
-        await customToast(
-          "INFO",
-          "Your password has been reset, please check your email!",
-          5000,
-        );
+        await customToast("INFO", "Your password has been reset, please check your email!", 5000);
       } else {
         await customToast("ERROR", res?.message || "Reset password failed!");
       }
     } catch (e) {
-      await customToast(
-        "ERROR",
-        e?.response?.data?.message || "Reset password failed!",
-      );
+      await customToast("ERROR", e?.response?.data?.message || "Reset password failed!");
       setIsLoadingAuth(false);
     }
   };
@@ -280,4 +166,4 @@ const AuthContextProvider = ({ children }) => {
   );
 };
 
-export { AuthContextProvider, AuthContext };
+export { AuthContext, AuthContextProvider };

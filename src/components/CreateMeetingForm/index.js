@@ -6,9 +6,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import FileUpload from "src/components/FileUpload";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import FileUpload from "src/components/FileUpload";
 import { customToast, uploadImageToFirebase } from "src/utils";
 import * as yup from "yup";
 

@@ -1,6 +1,6 @@
 import axios from "axios";
-import { BBB_SECRET, BBB_SERVER } from "src/sysconfig";
 import sha1 from "js-sha1";
+import { BBB_SECRET, BBB_SERVER } from "src/sysconfig";
 import convert from "xml-js";
 
 const INTERNAL_SERVER_STATUS_CODE = 500,
@@ -113,7 +113,7 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
   return resToObject(res);
 };
 
-export const callBBBClient = async (params = {}, body = '') => {
+export const callBBBClient = async (params = {}, body = "") => {
   try {
     const bbbParams = params;
 

@@ -30,7 +30,7 @@ function MyApp({ Component, pageProps }) {
           <AuthContextProvider>
             <NextNProgress color="#1976d2" />
             <Head>
-              <title>DEMO CLASSROOM</title>
+              <title>Big Blue Button</title>
             </Head>
             <div className="wrapper">
               <AppLayout>

@@ -6,10 +6,10 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Container } from "@mui/system";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import styles from "./styles.module.scss";
-import { getLinkWithPrefix } from "src/utils";
 
 const Header = ({ logout, user }) => {
   const [anchorEllAvatar, setanchorEllAvatar] = React.useState(null);
@@ -22,16 +22,10 @@ const Header = ({ logout, user }) => {
   };
   return (
     <div className={styles.headerWrapper}>
-      <Container
-        container
-        className={styles.content}
-        maxWidth="xl"
-        sx={{ display: "flex" }}
-      >
+      <Container container className={styles.content} maxWidth="xl" sx={{ display: "flex" }}>
         <div className={styles.leftContent}>
           <a href="/" className={styles.logo}>
-            <img src={getLinkWithPrefix("/images/logo.png")} />
-            <span>DEMO CLASSROOM</span>
+            <Image src={"/images/bbb-logo.png"} width={220} height={40} objectFit="contain" alt="bbb-logo" />
           </a>
         </div>
 

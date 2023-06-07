@@ -1,5 +1,4 @@
 import useDrivePicker from "react-google-drive-picker";
-import React from "react";
 
 function GoogleDriveUploader({ onSelectFile }) {
   const [openPicker, authResponse] = useDrivePicker();

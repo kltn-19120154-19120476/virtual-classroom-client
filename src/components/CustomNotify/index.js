@@ -1,12 +1,7 @@
-import { Button, Link } from "@mui/material";
 import InputIcon from "@mui/icons-material/Input";
+import { Button } from "@mui/material";
 
-export const CustomNotifyComponent = ({
-  closeToast,
-  toastProps,
-  content,
-  onChatClick,
-}) => {
+export const CustomNotifyComponent = ({ closeToast, toastProps, content, onChatClick }) => {
   const buttonSX = {
     "&:hover": {
       color: "white",

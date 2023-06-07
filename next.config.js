@@ -3,10 +3,6 @@ const isGithubActions = process.env.GITHUB_ACTIONS || false;
 let config = {
   reactStrictMode: false,
   swcMinify: true,
-  images: {
-    loader: "imgix",
-    path: "https://kltn19120154-19120476.imgix.net",
-  },
 };
 
 if (isGithubActions) {

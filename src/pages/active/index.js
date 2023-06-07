@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { activeAccount } from "src/client/auth";
 import { sendVerificationEmail } from "src/client/user";
 import styles from "src/features/Login/styles.module.scss";
@@ -63,12 +63,7 @@ const ActivePage = () => {
           : "We sent a verification link to your email to verify your email address and activate your account."}
 
         {!isVerifying && (
-          <Button
-            className="custom-button"
-            onClick={handleResendVerificationEmail}
-            variant="contained"
-            style={{ marginTop: 20 }}
-          >
+          <Button onClick={handleResendVerificationEmail} variant="contained" style={{ marginTop: 20 }}>
             RE-SEND VERIFICATION EMAIL
           </Button>
         )}

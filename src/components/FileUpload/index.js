@@ -5,17 +5,7 @@ import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
-import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Grid,
-  Hidden,
-  IconButton,
-  Paper,
-  Typography,
-} from "@mui/material";
+import { Alert, Avatar, Box, Button, Grid, Hidden, IconButton, Paper, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -34,22 +24,14 @@ function FileAttachment(props) {
     fontSize: "large",
   }); // Set icon for compressed files
 
-  if (
-    /\.(g?zip|tar|gz|rar)$/i.test(
-      file === null || file === void 0 ? void 0 : file.name,
-    )
-  ) {
+  if (/\.(g?zip|tar|gz|rar)$/i.test(file === null || file === void 0 ? void 0 : file.name)) {
     icon = /*#__PURE__*/ React.createElement(ArchiveOutlinedIcon, {
       color: "primary",
       fontSize: "large",
     });
   } // Set icon for media files
 
-  if (
-    /\.(mp.|midi|mkv|avi)$/i.test(
-      file === null || file === void 0 ? void 0 : file.name,
-    )
-  ) {
+  if (/\.(mp.|midi|mkv|avi)$/i.test(file === null || file === void 0 ? void 0 : file.name)) {
     icon = /*#__PURE__*/ React.createElement(PlayCircleOutlineIcon, {
       color: "primary",
       fontSize: "large",
@@ -123,8 +105,7 @@ function FileAttachment(props) {
             null,
             file === null || file === void 0
               ? void 0
-              : (_file$extension = file.extension) === null ||
-                _file$extension === void 0
+              : (_file$extension = file.extension) === null || _file$extension === void 0
               ? void 0
               : _file$extension.toLowerCase(),
           ),
@@ -259,8 +240,7 @@ function FileUpload(props) {
       filesTab =
         event === null || event === void 0
           ? void 0
-          : (_event$target2 = event.target) === null ||
-            _event$target2 === void 0
+          : (_event$target2 = event.target) === null || _event$target2 === void 0
           ? void 0
           : _event$target2.files;
     }
@@ -271,12 +251,8 @@ function FileUpload(props) {
 
     if (maxUploadFiles) {
       if (maxUploadFiles - files.length <= 0) {
-        setError(
-          "You cannot attach more than ".concat(maxUploadFiles, " files"),
-        );
-        return onError(
-          "You cannot attach more than ".concat(maxUploadFiles, " files"),
-        );
+        setError("You cannot attach more than ".concat(maxUploadFiles, " files"));
+        return onError("You cannot attach more than ".concat(maxUploadFiles, " files"));
       }
     }
 
@@ -296,34 +272,21 @@ function FileUpload(props) {
 
         if (maxFileSize && maxFileSize > 0) {
           if (file.size > 1024 * 1024 * maxFileSize) {
-            var message =
-              errorSizeMessage ||
-              "The size of files cannot exceed ".concat(maxFileSize, "Mb");
+            var message = errorSizeMessage || "The size of files cannot exceed ".concat(maxFileSize, "Mb");
             setError(message);
             onError(message);
             return "break";
           }
         }
 
-        if (
-          (allowedExtensions === null || allowedExtensions === void 0
-            ? void 0
-            : allowedExtensions.length) > 0
-        ) {
+        if ((allowedExtensions === null || allowedExtensions === void 0 ? void 0 : allowedExtensions.length) > 0) {
           var isAllowed =
             allowedExtensions.findIndex(function (ext) {
-              return (
-                (ext === null || ext === void 0
-                  ? void 0
-                  : ext.toLowerCase()) === extension.toLowerCase()
-              );
+              return (ext === null || ext === void 0 ? void 0 : ext.toLowerCase()) === extension.toLowerCase();
             }) !== -1;
 
           if (!isAllowed) {
-            var _message = "Extension .".concat(
-              extension,
-              " has been excluded",
-            );
+            var _message = "Extension .".concat(extension, " has been excluded");
 
             setError(_message);
             onError(_message);
@@ -341,10 +304,7 @@ function FileUpload(props) {
               path: this.result,
               contentType: file.type,
               lastModified: file.lastModified,
-              extension:
-                extension === null || extension === void 0
-                  ? void 0
-                  : extension.toLowerCase(),
+              extension: extension === null || extension === void 0 ? void 0 : extension.toLowerCase(),
             };
             files.push(obj);
             setFiles(_toConsumableArray(files));
@@ -354,14 +314,7 @@ function FileUpload(props) {
         reader.readAsDataURL(file);
       };
 
-      for (
-        var i = 0;
-        i <
-        ((_filesTab = filesTab) === null || _filesTab === void 0
-          ? void 0
-          : _filesTab.length);
-        i++
-      ) {
+      for (var i = 0; i < ((_filesTab = filesTab) === null || _filesTab === void 0 ? void 0 : _filesTab.length); i++) {
         var _filesTab;
 
         var _ret = _loop(i);
@@ -371,8 +324,7 @@ function FileUpload(props) {
 
       event === null || event === void 0
         ? void 0
-        : (_event$dataTransfer = event.dataTransfer) === null ||
-          _event$dataTransfer === void 0
+        : (_event$dataTransfer = event.dataTransfer) === null || _event$dataTransfer === void 0
         ? void 0
         : _event$dataTransfer.clearData();
     }
@@ -457,11 +409,7 @@ function FileUpload(props) {
   );
   useEffect(
     function () {
-      if (
-        (defaultFiles === null || defaultFiles === void 0
-          ? void 0
-          : defaultFiles.length) > 0
-      ) {
+      if ((defaultFiles === null || defaultFiles === void 0 ? void 0 : defaultFiles.length) > 0) {
         setFiles(defaultFiles);
       } // eslint-disable-next-line
     },
@@ -475,9 +423,7 @@ function FileUpload(props) {
     },
     [files],
   );
-  var background = animate
-    ? theme.palette.secondary.light
-    : theme.palette.primary.light;
+  var background = animate ? theme.palette.secondary.light : theme.palette.primary.light;
   return /*#__PURE__*/ React.createElement(
     Paper,
     _extends(
@@ -522,8 +468,7 @@ function FileUpload(props) {
           files.length,
           maxUploadFiles > 0 && "/".concat(maxUploadFiles),
           " file",
-          (files === null || files === void 0 ? void 0 : files.length) > 0 &&
-            "s",
+          (files === null || files === void 0 ? void 0 : files.length) > 0 && "s",
           " joined",
         ),
     ),

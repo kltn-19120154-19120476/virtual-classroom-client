@@ -1,9 +1,9 @@
 import { useRouter } from "next/router";
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { inviteToGroup } from "src/client/group";
+import LoadingScreen from "src/components/LoadingScreen";
 import { AuthContext } from "src/context/authContext";
 import { customToast, getLinkWithPrefix } from "src/utils";
-import LoadingScreen from "src/components/LoadingScreen";
 
 const InvitePage = () => {
   const router = useRouter();

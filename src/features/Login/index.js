@@ -1,29 +1,21 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-} from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { GoogleLogin } from "@react-oauth/google";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
 import { AuthContext } from "src/context/authContext";
+import * as yup from "yup";
 import styles from "./styles.module.scss";
 
 function Login() {
   const router = useRouter();
   const schema = yup.object().shape({
     email: yup.string().email("Email is invalid").required("Email is required"),
-    password: yup
-      .string()
-      .min(3, "Password must be at least 3 characters long"),
+    password: yup.string().min(3, "Password must be at least 3 characters long"),
   });
 
   const {
@@ -32,8 +24,7 @@ function Login() {
     handleSubmit,
   } = useForm({ resolver: yupResolver(schema), mode: "onChange" });
 
-  const { login, loginWithGoogle, isLoadingAuth, forgotPassword } =
-    useContext(AuthContext);
+  const { login, loginWithGoogle, isLoadingAuth, forgotPassword } = useContext(AuthContext);
 
   const [openModal, setOpenModal] = useState(false);
 
@@ -49,8 +40,11 @@ function Login() {
 
   return (
     <div className={styles.wrapper}>
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+        <Image src={"/images/bbb-logo.png"} width={250} height={55} objectFit="contain" alt="bbb-logo" />
+      </div>
       <div className={styles.loginwrapper}>
-        <h2 className={styles.loginTitle}>Welcome back</h2>
+        <h2 className={styles.loginTitle}>Sign in</h2>
         <div className={styles.formWrapper}>
           <form onSubmit={handleSubmit(login)} className={styles.form}>
             <TextField
@@ -73,18 +67,11 @@ function Login() {
               error={!!errors.password}
               helperText={errors.password?.message}
             />
-            <LoadingButton
-              loading={isLoadingAuth}
-              variant="contained"
-              type="submit"
-            >
+            <LoadingButton loading={isLoadingAuth} variant="contained" type="submit">
               LOGIN
             </LoadingButton>
 
-            <span
-              className={styles.forgotPasswordBtn}
-              onClick={() => setOpenModal(true)}
-            >
+            <span className={styles.forgotPasswordBtn} onClick={() => setOpenModal(true)}>
               Forgot password?
             </span>
           </form>
@@ -113,11 +100,7 @@ function Login() {
         </div>
       </div>
 
-      <Dialog
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        style={{ width: "100%" }}
-      >
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} style={{ width: "100%" }}>
         <form onSubmit={forgotPasswordForm.handleSubmit(handleForgotPassword)}>
           <DialogTitle id="alert-dialog-title">Enter your email</DialogTitle>
           <DialogContent style={{ overflowY: "initial" }}>
@@ -131,14 +114,10 @@ function Login() {
             />
           </DialogContent>
           <DialogActions>
-            <Button
-              className="custom-button"
-              variant="contained"
-              onClick={() => setOpenCreateGroupForm(false)}
-            >
+            <Button variant="contained" onClick={() => setOpenCreateGroupForm(false)}>
               Cancel
             </Button>
-            <Button className="custom-button" variant="contained" type="submit">
+            <Button variant="contained" type="submit">
               Submit
             </Button>
           </DialogActions>

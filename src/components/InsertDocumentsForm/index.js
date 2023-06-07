@@ -4,8 +4,8 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import FileUpload from "src/components/FileUpload";
 import { useState } from "react";
+import FileUpload from "src/components/FileUpload";
 import { customToast, uploadImageToFirebase } from "src/utils";
 
 export default function InsertDocumentsForm({ open, handleClose, handleOK }) {
@@ -18,9 +18,7 @@ export default function InsertDocumentsForm({ open, handleClose, handleOK }) {
         onSubmit={async (e) => {
           e.preventDefault();
           setLoading(true);
-          const fileUrls = await Promise.all(
-            files.map((file) => uploadImageToFirebase(file, file.name)),
-          );
+          const fileUrls = await Promise.all(files.map((file) => uploadImageToFirebase(file, file.name)));
 
           const uploadedFiles = files.map((file, index) => ({
             name: file.name,
@@ -60,12 +58,7 @@ export default function InsertDocumentsForm({ open, handleClose, handleOK }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <LoadingButton
-            loading={loading}
-            type="submit"
-            variant="outlined"
-            color="primary"
-          >
+          <LoadingButton loading={loading} type="submit" variant="outlined" color="primary">
             Upload
           </LoadingButton>
         </DialogActions>

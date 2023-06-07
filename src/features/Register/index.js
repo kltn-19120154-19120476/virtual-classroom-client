@@ -1,12 +1,13 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { TextField } from "@mui/material";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext } from "react";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
 import { AuthContext } from "src/context/authContext";
+import * as yup from "yup";
 import styles from "../Login/styles.module.scss";
 
 function Register() {
@@ -15,15 +16,8 @@ function Register() {
   const schema = yup.object().shape({
     name: yup.string().required("Name is required"),
     email: yup.string().email("Email is invalid").required("Email is required"),
-    password: yup
-      .string()
-      .min(3, "Password must be at least 3 characters long"),
-    confirmPassword: yup
-      .string()
-      .oneOf(
-        [yup.ref("password"), null],
-        "Password and confirm password does not match",
-      ),
+    password: yup.string().min(3, "Password must be at least 3 characters long"),
+    confirmPassword: yup.string().oneOf([yup.ref("password"), null], "Password and confirm password does not match"),
   });
 
   const {
@@ -36,8 +30,11 @@ function Register() {
 
   return (
     <div className={styles.wrapper}>
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+        <Image src={"/images/bbb-logo.png"} width={250} height={55} objectFit="contain" alt="bbb-logo" />
+      </div>
       <div className={styles.loginwrapper}>
-        <h2 className={styles.loginTitle}>Welcome to Demo Classroom</h2>
+        <h2 className={styles.loginTitle}>Create an Account</h2>
         <div className={styles.formWrapper}>
           <form onSubmit={handleSubmit(signup)} className={styles.form}>
             <TextField
@@ -78,11 +75,7 @@ function Register() {
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword?.message}
             />
-            <LoadingButton
-              loading={isLoadingAuth}
-              variant="contained"
-              type="submit"
-            >
+            <LoadingButton loading={isLoadingAuth} variant="contained" type="submit">
               REGISTER
             </LoadingButton>
           </form>

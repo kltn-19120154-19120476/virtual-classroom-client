@@ -1,4 +1,4 @@
-import React, { createContext, useRef } from "react";
+import { createContext, useRef } from "react";
 import io from "socket.io-client";
 import { WS_DOMAIN } from "src/sysconfig";
 
@@ -19,4 +19,4 @@ const SocketProvider = ({ children }) => {
   );
 };
 
-export { SocketProvider, SocketContext };
+export { SocketContext, SocketProvider };

@@ -1,4 +1,4 @@
-import { CloseOutlined, DocumentScannerRounded, PersonAdd, LocalLibrary } from "@mui/icons-material";
+import { CloseOutlined, DocumentScannerRounded, LocalLibrary, PersonAdd } from "@mui/icons-material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -6,7 +6,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import Person2Icon from "@mui/icons-material/Person2";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import SendIcon from "@mui/icons-material/Send";
-import { Button, Card, Chip, Grid, IconButton, Menu, MenuItem, TextField, Tooltip } from "@mui/material";
+import { Button, Card, Grid, IconButton, Menu, MenuItem, TextField, Tooltip } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -19,8 +19,6 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import InsertDocumentsForm from "src/components/InsertDocumentsForm";
-import JoinMeetingForm from "src/components/JoinMeetingForm";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
@@ -35,16 +33,17 @@ import {
   sendInviteEmail,
   updateRoleInGroup,
 } from "src/client/group";
-import { getPresentationByIds } from "src/client/presentation";
 import { getUserByIds } from "src/client/user";
 import Breadcrumb from "src/components/Breadcrumb";
 import CreateMeetingForm from "src/components/CreateMeetingForm";
+import GoogleDriveUploader from "src/components/GoogleDriveUploader";
+import InsertDocumentsForm from "src/components/InsertDocumentsForm";
+import JoinMeetingForm from "src/components/JoinMeetingForm";
 import LoadingScreen from "src/components/LoadingScreen";
 import { AuthContext } from "src/context/authContext";
 import { SocketContext } from "src/context/socketContext";
-import { customToast, getLinkWithPrefix } from "src/utils";
+import { customToast } from "src/utils";
 import styles from "./styles.module.scss";
-import GoogleDriveUploader from "src/components/GoogleDriveUploader";
 
 export default function GroupDetailPage() {
   const [group, setGroup] = useState(null);
@@ -116,9 +115,8 @@ export default function GroupDetailPage() {
           if (inviteLink) setInviteLink(inviteLink);
         }
 
-        const [userListRes, presentationListRes, meetingInfoRes, recordingRes] = await Promise.all([
+        const [userListRes, meetingInfoRes, recordingRes] = await Promise.all([
           getUserByIds([groupInfo.ownerId, ...groupInfo.memberIds, ...groupInfo.coOwnerIds]),
-          getPresentationByIds([]),
           callBBBClient({
             meetingID: groupInfo?._id,
             password: user?._id,
@@ -157,8 +155,6 @@ export default function GroupDetailPage() {
               })
             : [];
 
-        groupInfo.currentPresentation = presentationListRes?.data?.find((presentation) => presentation.groupId === groupInfo._id);
-
         setGroup(groupInfo);
 
         if (meetingInfoRes?.returncode === "SUCCESS") setMeetingInfo(meetingInfoRes);
@@ -177,20 +173,6 @@ export default function GroupDetailPage() {
   useEffect(() => {
     getInfoOfGroup();
   }, []);
-
-  useEffect(() => {
-    socket.on("startPresent", (data) => {
-      if (data.presentationId === group?.currentPresentation?._id) router.reload();
-    });
-
-    socket.on("stopPresent", (data) => {
-      if (data === group?.currentPresentation?._id) router.reload();
-    });
-
-    socket.on("stopPresentByUpdateGroup", (data) => {
-      if (data?.find((p) => p._id === group?.currentPresentation?._id)) router.reload();
-    });
-  }, [group]);
 
   const handleUpgradeRole = async (member, isUpgrade) => {
     try {
@@ -294,13 +276,7 @@ export default function GroupDetailPage() {
         ]}
       />
       <Grid item xs={12} style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button
-          className="custom-button"
-          variant="contained"
-          ref={anchorElButton}
-          onClick={handleClickButton}
-          startIcon={<PersonAddIcon />}
-        >
+        <Button variant="contained" ref={anchorElButton} onClick={handleClickButton} startIcon={<PersonAddIcon />}>
           Invite
         </Button>
         <Button
@@ -643,42 +619,6 @@ export default function GroupDetailPage() {
         </TableContainer>
       </Grid>
 
-      {group?.currentPresentation && (
-        <>
-          <Grid item xs={12}>
-            <h1>Current presentations</h1>
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <div className={styles.card}>
-              <span>
-                Name: <b>{group.currentPresentation?.name}</b>
-              </span>
-              <p>
-                Status:{" "}
-                <span>
-                  {group.currentPresentation?.isPresent ? (
-                    <Chip label="Presenting" color="success" />
-                  ) : (
-                    <Chip label="Not started" color="error" />
-                  )}
-                </span>
-              </p>
-              {group.currentPresentation?.isPresent && (
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    window.location.href = getLinkWithPrefix(`/presentation/${group.currentPresentation._id}/slideshow`);
-                  }}
-                >
-                  Join
-                </Button>
-              )}
-            </div>
-          </Grid>
-        </>
-      )}
-
       <Dialog open={openInviteMemberForm} onClose={() => setOpenInviteMemberForm(false)} style={{ width: "100%" }}>
         <form onSubmit={handleSubmit(handleInviteMember)}>
           <DialogTitle id="alert-dialog-title">Invite a member by email</DialogTitle>
@@ -693,7 +633,7 @@ export default function GroupDetailPage() {
             />
           </DialogContent>
           <DialogActions>
-            <Button className="custom-button" variant="contained" onClick={() => setOpenInviteMemberForm(false)}>
+            <Button variant="contained" onClick={() => setOpenInviteMemberForm(false)}>
               Cancel
             </Button>
             <Button variant="contained" type="submit">
@@ -706,7 +646,7 @@ export default function GroupDetailPage() {
         <DialogTitle id="alert-dialog-title">Please confirm to delete this group</DialogTitle>
 
         <DialogActions>
-          <Button className="custom-button-outlined" variant="outlined" onClick={() => setOpenConfirmDelete(false)}>
+          <Button variant="outlined" onClick={() => setOpenConfirmDelete(false)}>
             Cancel
           </Button>
           <Button color="error" variant="contained" type="submit" onClick={handleDeleteGroup}>

@@ -4,11 +4,11 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SaveIcon from "@mui/icons-material/Save";
 import { Avatar, Button, TextField } from "@mui/material";
 import Box from "@mui/material/Box";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import * as yup from "yup";
 import { updateUserInfo } from "src/client/user";
 import { customToast } from "src/utils";
+import * as yup from "yup";
 import styles from "./styles.module.scss";
 
 const UserProfile = ({ user }) => {
@@ -19,12 +19,7 @@ const UserProfile = ({ user }) => {
     .object({
       password: yup.string().required("Password is required"),
       newPassword: yup.string().required("New password is required"),
-      confirmedNewPassword: yup
-        .string()
-        .oneOf(
-          [yup.ref("newPassword"), null],
-          "Password and confirm password does not match",
-        ),
+      confirmedNewPassword: yup.string().oneOf([yup.ref("newPassword"), null], "Password and confirm password does not match"),
     })
     .required();
   const {
@@ -89,14 +84,7 @@ const UserProfile = ({ user }) => {
                 />
               )}
             />
-            <TextField
-              className={styles.infoField}
-              id="email"
-              label="Email"
-              variant="outlined"
-              value={user?.email}
-              disabled
-            />
+            <TextField className={styles.infoField} id="email" label="Email" variant="outlined" value={user?.email} disabled />
             <Controller
               name="password"
               defaultValue=""
@@ -181,7 +169,6 @@ const UserProfile = ({ user }) => {
             {!updateMode && (
               <Button
                 variant="contained"
-                className="btnPrimary custom-button"
                 type="button"
                 sx={{ marginRight: "20px" }}
                 onClick={() => {
@@ -193,12 +180,7 @@ const UserProfile = ({ user }) => {
               </Button>
             )}
             {updateMode && (
-              <Button
-                variant="contained"
-                className="btnPrimary custom-button"
-                type="submit"
-                sx={{ marginRight: "20px" }}
-              >
+              <Button variant="contained" type="submit" sx={{ marginRight: "20px" }}>
                 <SaveIcon />
                 &nbsp;Save
               </Button>
@@ -206,7 +188,6 @@ const UserProfile = ({ user }) => {
             {updateMode && (
               <Button
                 variant="contained"
-                className="btnLightPrimiary custom-button"
                 type="button"
                 onClick={() => {
                   handleChangeMode(false);

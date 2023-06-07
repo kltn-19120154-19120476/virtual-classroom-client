@@ -1,9 +1,8 @@
 .headerWrapper {
   width: 100%;
-  padding: 0 50px;
   display: fixed;
   height: 70px;
-  background-color: #222222;
+  background-color: #fff;
   @media (max-width: 576px) {
     padding: 0 20px;
   }
@@ -26,15 +25,13 @@
     align-items: center;
     cursor: pointer;
     img {
-      border-radius: 10px;
-      height: 100%;
+      object-position: left !important;
     }
     span {
       font-size: 24px;
       font-weight: 700;
       color: #fbfdff;
-      font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-        sans-serif;
+      font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
       @media (max-width: 768px) {
         font-size: 1.3rem;
       }

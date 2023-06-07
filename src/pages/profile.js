@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import LoadingScreen from "src/components/LoadingScreen";
 import UserProfile from "src/components/UserProfile";
 import { AuthContext } from "src/context/authContext";
@@ -11,11 +11,7 @@ const Profile = () => {
     window.location.href = getLinkWithPrefix("/login");
   }
 
-  return !user || isLoadingAuth ? (
-    <LoadingScreen />
-  ) : (
-    <UserProfile user={user} />
-  );
+  return !user || isLoadingAuth ? <LoadingScreen /> : <UserProfile user={user} />;
 };
 
 export default Profile;
