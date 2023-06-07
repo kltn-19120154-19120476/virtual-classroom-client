@@ -53,9 +53,6 @@ const AuthContextProvider = ({ children }) => {
       }
       setIsLoadingAuth(false);
     } catch (e) {
-      if (e.code === "ERR_BAD_REQUEST") {
-        router.push("/active");
-      }
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
     }
@@ -77,11 +74,7 @@ const AuthContextProvider = ({ children }) => {
       if (res?.status === "OK") {
         localStorage.setItem("access_token", res?.data?.[0]?.access_token || "");
         await customToast("SUCCESS", "Login successful!");
-        if (!res?.data?.[0]?.isActive) {
-          window.location.href = getLinkWithPrefix("/active");
-        } else {
-          window.location.href = getLinkWithPrefix("/");
-        }
+        window.location.href = getLinkWithPrefix("/");
       } else {
         await customToast("ERROR", res?.message);
         setIsLoadingAuth(false);
@@ -119,7 +112,6 @@ const AuthContextProvider = ({ children }) => {
       localStorage.setItem("access_token", res?.data?.[0]?.access_token || "");
       setIsLoadingAuth(false);
       await customToast("SUCCESS", "Register successful!");
-      window.location.href = getLinkWithPrefix("/active");
     } catch (e) {
       await customToast("ERROR", e?.response?.data?.message || "Register failed!");
       setIsLoadingAuth(false);
