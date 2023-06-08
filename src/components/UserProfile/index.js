@@ -6,15 +6,14 @@ import { Avatar, Button, TextField } from "@mui/material";
 import Box from "@mui/material/Box";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { updateUserInfo } from "src/client/user";
-import { customToast } from "src/utils";
+import { isValid } from "src/utils";
 import * as yup from "yup";
 import styles from "./styles.module.scss";
 
 const UserProfile = ({ user }) => {
   const [updateMode, setUpdateMode] = useState(false);
-  const [name, setName] = useState(user?.name || "default-name");
-
   const schema = yup
     .object({
       password: yup.string().required("Password is required"),
@@ -26,7 +25,8 @@ const UserProfile = ({ user }) => {
     formState: { errors },
     control,
     handleSubmit,
-  } = useForm({ resolver: yupResolver(schema) });
+    reset,
+  } = useForm({ resolver: yupResolver(schema), defaultValues: { name: user.name, email: user.email } });
 
   const handleUpdateUserInfo = async (data) => {
     if (!updateMode) {
@@ -39,15 +39,15 @@ const UserProfile = ({ user }) => {
       };
       try {
         const res = await updateUserInfo(formData);
-        if (res.status === "OK") {
-          await customToast("Update information successfully!");
+        if (isValid(res)) {
+          toast.success("Update information successfully!");
+          setUpdateMode(false);
+          reset();
         } else {
-          await customToast("ERROR", res.message);
+          toast.error(res.message);
         }
-        setUpdateMode(false);
       } catch (error) {
-        await customToast("ERROR", error.response.data.message);
-        setUpdateMode(false);
+        toast.error(error.response.data.message);
       }
     }
   };
@@ -165,12 +165,10 @@ const UserProfile = ({ user }) => {
               )}
             />
           </Box>
-          <Box sx={{ width: "100%", textAlign: "center" }}>
-            {!updateMode && (
+          <div className={styles.btnWrapper}>
+            {!updateMode ? (
               <Button
                 variant="contained"
-                type="button"
-                sx={{ marginRight: "20px" }}
                 onClick={() => {
                   handleChangeMode(true);
                 }}
@@ -178,26 +176,25 @@ const UserProfile = ({ user }) => {
                 <ModeEditIcon />
                 &nbsp;Edit
               </Button>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    handleChangeMode(false);
+                  }}
+                  color="secondary"
+                >
+                  <DisabledByDefaultIcon />
+                  &nbsp;Cancel
+                </Button>
+                <Button variant="contained" type="submit">
+                  <SaveIcon />
+                  &nbsp;Save
+                </Button>
+              </>
             )}
-            {updateMode && (
-              <Button variant="contained" type="submit" sx={{ marginRight: "20px" }}>
-                <SaveIcon />
-                &nbsp;Save
-              </Button>
-            )}
-            {updateMode && (
-              <Button
-                variant="contained"
-                type="button"
-                onClick={() => {
-                  handleChangeMode(false);
-                }}
-              >
-                <DisabledByDefaultIcon />
-                &nbsp;Cancel
-              </Button>
-            )}
-          </Box>
+          </div>
         </Box>
       </div>
     </div>

@@ -1,20 +1,17 @@
 import { useRouter } from "next/router";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { loginFunc, loginGoogleFunc, registerFunc, resetAccount } from "src/client/auth";
-import { getGroupByIds } from "src/client/group";
+import { getRoomByIds } from "src/client/room";
 import { getUserInfo } from "src/client/user";
 import LoadingScreen from "src/components/LoadingScreen";
 import { customToast, getLinkWithPrefix } from "src/utils";
-import { SocketContext } from "./socketContext";
 
 const AuthContext = createContext();
 
 const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-
-  const { socket } = useContext(SocketContext);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(false);
 
   const router = useRouter();
 
@@ -27,7 +24,7 @@ const AuthContextProvider = ({ children }) => {
         if (res?.status === "OK") {
           const userInfo = res?.data?.[0];
 
-          const [groupListRes] = await Promise.all([getGroupByIds([...userInfo.myGroupIds, ...userInfo.joinedGroupIds])]);
+          const [groupListRes] = await Promise.all([getRoomByIds([...userInfo.myGroupIds, ...userInfo.joinedGroupIds])]);
 
           const groupListMap = {};
 
@@ -59,11 +56,8 @@ const AuthContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (!["/login", "/register"].includes(window.location.pathname)) {
+    if (router.pathname !== "/login") {
       getUser();
-    } else {
-      setIsLoadingAuth(false);
-      setIsAuthenticated(false);
     }
   }, [router.asPath]);
 
@@ -73,8 +67,7 @@ const AuthContextProvider = ({ children }) => {
       const res = await loginFunc(data);
       if (res?.status === "OK") {
         localStorage.setItem("access_token", res?.data?.[0]?.access_token || "");
-        await customToast("SUCCESS", "Login successful!");
-        window.location.href = getLinkWithPrefix("/");
+        window.location.href = "/";
       } else {
         await customToast("ERROR", res?.message);
         setIsLoadingAuth(false);
@@ -134,8 +127,6 @@ const AuthContextProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("access_token");
-    setIsAuthenticated(false);
-    setUser(null);
     window.location.href = getLinkWithPrefix("/login");
   };
 

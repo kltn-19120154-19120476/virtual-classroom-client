@@ -4,13 +4,13 @@ export default function Document() {
   return (
     <Html>
       <Head>
-        <meta name="title" content="Big Blue Button" />
-        <meta name="description" content="Big Blue Button" />
-        <meta property="og:title" content="Big Blue Button" />
-        <meta property="og:description" content="Big Blue Button" />
+        <meta name="title" content="BigBlueButton" />
+        <meta name="description" content="BigBlueButton" />
+        <meta property="og:title" content="BigBlueButton" />
+        <meta property="og:description" content="BigBlueButton" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="/images/bbb-logo.png" />
-        <link rel="shortcut icon" href="/images/bbb-logo.png"></link>
+        <link rel="shortcut icon" href="/images/logo.png"></link>
       </Head>
       <body>
         <Main />

@@ -1,16 +1,14 @@
 .footerWrapper {
-  width: 100%;
-  display: fixed;
-  background-color: #222222;
   .content {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 30px;
+    height: 50px;
     width: 100%;
+    border-top: 1px solid #ccc;
     .copyRight {
-      color: #fbfdff;
+      color: #ccc;
       text-align: center;
       width: 100%;
     }

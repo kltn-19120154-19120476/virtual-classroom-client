@@ -9,7 +9,7 @@ export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const customToast = async (type, content, timeout = 2000) => {
+export const customToast = async (type, content, timeout = 1000) => {
   switch (type) {
     case "SUCCESS":
       toast.success(content);
@@ -72,3 +72,5 @@ export const shuffle = (array) => {
 };
 
 export const getLinkWithPrefix = (src) => WEB_HOST + src;
+
+export const isValid = (res) => res?.status === "OK" || res?.returncode === "SUCCESS";

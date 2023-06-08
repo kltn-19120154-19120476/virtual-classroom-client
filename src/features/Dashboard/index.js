@@ -7,7 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { createGroup } from "src/client/group";
+import { createRoom } from "src/client/room";
 import { customToast, getLinkWithPrefix } from "src/utils";
 import styles from "./styles.module.scss";
 
@@ -21,7 +21,7 @@ const Dashboard = ({ user, getUser }) => {
 
   const handleCreateGroup = async (data) => {
     try {
-      const res = await createGroup(data);
+      const res = await createRoom(data);
       if (res?.status === "OK") {
         await customToast("SUCCESS", "Create meeting successfully!");
         await getUser();
@@ -59,7 +59,7 @@ const Dashboard = ({ user, getUser }) => {
               {user?.myGroups?.map((group) => (
                 <>
                   <Grid item xs={12} md={6} lg={3} xl={3} key={group?._id}>
-                    <Link href={`/group/${group?._id}`}>
+                    <Link href={`/rooms/${group?._id}`}>
                       <div className={styles.card}>
                         <span>{group?.name}</span>
                       </div>
@@ -86,7 +86,7 @@ const Dashboard = ({ user, getUser }) => {
           <Grid container spacing={3}>
             {user.coOwnerGroups.map((group) => (
               <Grid item xs={12} md={6} lg={3} xl={3} key={group?._id}>
-                <Link href={`/group/${group?._id}`}>
+                <Link href={`/rooms/${group?._id}`}>
                   <div className={styles.card}>
                     <span>{group?.name}</span>
                   </div>
@@ -111,7 +111,7 @@ const Dashboard = ({ user, getUser }) => {
           <Grid container spacing={3}>
             {user.memberGroups.map((group) => (
               <Grid item xs={12} md={6} lg={3} xl={3} key={group?._id}>
-                <Link href={`/group/${group?._id}`}>
+                <Link href={`/rooms/${group?._id}`}>
                   <div className={styles.card}>
                     <span>{group?.name}</span>
                   </div>

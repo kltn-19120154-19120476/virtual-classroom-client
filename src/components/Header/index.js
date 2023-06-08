@@ -22,7 +22,7 @@ const Header = ({ logout, user }) => {
   };
   return (
     <div className={styles.headerWrapper}>
-      <Container container className={styles.content} maxWidth="xl" sx={{ display: "flex" }}>
+      <Container className={styles.content} maxWidth="xl" sx={{ display: "flex" }}>
         <div className={styles.leftContent}>
           <a href="/" className={styles.logo}>
             <Image src={"/images/bbb-logo.png"} width={220} height={40} objectFit="contain" alt="bbb-logo" />

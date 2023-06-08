@@ -25,35 +25,24 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
-import {
-  createInviteLinkGroup,
-  deleteGroupById,
-  getGroupDetail,
-  removeFromGroup,
-  sendInviteEmail,
-  updateRoleInGroup,
-} from "src/client/group";
+import { createInviteLinkRoom, deleteRoomById, getRoomDetail, removeFromRoom, sendInviteEmail, updateRoleInRoom } from "src/client/room";
 import { getUserByIds } from "src/client/user";
 import Breadcrumb from "src/components/Breadcrumb";
 import CreateMeetingForm from "src/components/CreateMeetingForm";
 import GoogleDriveUploader from "src/components/GoogleDriveUploader";
+import { withLogin } from "src/components/HOC/withLogin";
 import InsertDocumentsForm from "src/components/InsertDocumentsForm";
 import JoinMeetingForm from "src/components/JoinMeetingForm";
-import LoadingScreen from "src/components/LoadingScreen";
 import { AuthContext } from "src/context/authContext";
-import { SocketContext } from "src/context/socketContext";
 import { customToast } from "src/utils";
 import styles from "./styles.module.scss";
 
-export default function GroupDetailPage() {
-  const [group, setGroup] = useState(null);
+const RoomDetailPage = () => {
+  const [room, setRoom] = useState(null);
   const [inviteLink, setInviteLink] = useState("");
   const router = useRouter();
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
-  const { user, isLoadingAuth } = useContext(AuthContext);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const { socket } = useContext(SocketContext);
+  const { user } = useContext(AuthContext);
 
   const [anchorElButton, setAnchorElButton] = React.useState(null);
   const openMenu = Boolean(anchorElButton);
@@ -71,10 +60,10 @@ export default function GroupDetailPage() {
 
   const handleInviteMember = async (data) => {
     try {
-      const inviteLink = await getInviteLink(group?._id);
+      const inviteLink = await getInviteLink(room?._id);
       const submitData = {
         email: data.memberEmail,
-        ownerName: group?.owner?.name,
+        ownerName: room?.owner?.name,
         link: inviteLink,
       };
 
@@ -93,7 +82,7 @@ export default function GroupDetailPage() {
 
   const getInviteLink = async (id) => {
     try {
-      const inviteLinkRes = await createInviteLinkGroup({ groupId: id });
+      const inviteLinkRes = await createInviteLinkRoom({ groupId: id });
       if (inviteLinkRes?.status === "OK") {
         const { code = "", groupId = "" } = inviteLinkRes?.data[0];
         const inviteLink = window.location.origin + "/invite?" + "groupId=" + groupId + "&code=" + code;
@@ -106,7 +95,7 @@ export default function GroupDetailPage() {
 
   const getInfoOfGroup = async () => {
     try {
-      const res = await getGroupDetail(router.query.id);
+      const res = await getRoomDetail(router.query.id);
       if (res.status === "OK") {
         const groupInfo = res.data[0];
 
@@ -155,19 +144,15 @@ export default function GroupDetailPage() {
               })
             : [];
 
-        setGroup(groupInfo);
+        setRoom(groupInfo);
 
         if (meetingInfoRes?.returncode === "SUCCESS") setMeetingInfo(meetingInfoRes);
-
-        setIsLoading(false);
       } else {
         // router.push("/");
       }
     } catch (e) {
       console.log(e);
-      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -178,10 +163,10 @@ export default function GroupDetailPage() {
     try {
       const data = {
         memberId: member?._id,
-        groupId: group?._id,
+        groupId: room?._id,
         isUpgrade,
       };
-      await updateRoleInGroup(data);
+      await updateRoleInRoom(data);
       await customToast("SUCCESS", "Update role successfully!");
       router.reload();
     } catch (e) {
@@ -191,8 +176,8 @@ export default function GroupDetailPage() {
 
   const handleRemove = async (member) => {
     try {
-      const data = { userId: member?._id, groupId: group?._id };
-      await removeFromGroup(data);
+      const data = { userId: member?._id, groupId: room?._id };
+      await removeFromRoom(data);
       await customToast("SUCCESS", `Remove member ${member.name} successfully!`);
       router.reload();
     } catch (e) {
@@ -202,9 +187,8 @@ export default function GroupDetailPage() {
 
   const handleDeleteGroup = async () => {
     try {
-      // const data = { userId: member?._id, groupId: group?._id };
-      await deleteGroupById(group?._id);
-      await customToast("SUCCESS", `Delete group ${group.name} successfully!`);
+      await deleteRoomById(room?._id);
+      await customToast("SUCCESS", `Delete room ${room.name} successfully!`);
       setOpenConfirmDelete(false);
       router.reload();
     } catch (e) {
@@ -219,7 +203,7 @@ export default function GroupDetailPage() {
 
   const handleCreateMeeting = async (data, files) => {
     const res = await callBBBClient(
-      { ...data, apiCall: "create", meetingID: group?._id, moderatorPW: user?._id, record: true },
+      { ...data, apiCall: "create", meetingID: room?._id, moderatorPW: user?._id, record: true },
       { files: JSON.stringify(files) },
     );
 
@@ -237,7 +221,7 @@ export default function GroupDetailPage() {
 
   const handleJoinMeeting = async (data) => {
     const res = await callBBBClient({
-      meetingID: group?._id,
+      meetingID: room?._id,
       ...data,
       apiCall: "join",
     });
@@ -250,7 +234,7 @@ export default function GroupDetailPage() {
   const handleUploadDocuments = async (data) => {
     const res = await callBBBClient(
       {
-        meetingID: group?._id,
+        meetingID: room?._id,
         apiCall: "insertDocument",
       },
       { files: JSON.stringify(data) },
@@ -258,9 +242,7 @@ export default function GroupDetailPage() {
     customToast("INFO", res?.message);
   };
 
-  return isLoading || isLoadingAuth || !user ? (
-    <LoadingScreen />
-  ) : (
+  return (
     <Grid container spacing={6} className={styles.wrapper}>
       <CreateMeetingForm handleClose={() => setOpenCreateMeetingForm(false)} open={openCreateMeetingForm} handleOK={handleCreateMeeting} />
       <JoinMeetingForm handleClose={() => setOpenJoinMeetingForm(false)} open={openJoinMeetingForm} handleOK={handleJoinMeeting} />
@@ -269,12 +251,14 @@ export default function GroupDetailPage() {
         open={openInsertDocumentsForm}
         handleOK={handleUploadDocuments}
       />
-      <Breadcrumb
-        paths={[
-          { label: "Home", href: "/" },
-          { label: group?.name, href: `/group/${group?._id}` },
-        ]}
-      />
+      <Grid item xs={12}>
+        <Breadcrumb
+          paths={[
+            { label: "Home", href: "/" },
+            { label: room?.name, href: `/rooms/${room?._id}` },
+          ]}
+        />
+      </Grid>
       <Grid item xs={12} style={{ display: "flex", justifyContent: "flex-end" }}>
         <Button variant="contained" ref={anchorElButton} onClick={handleClickButton} startIcon={<PersonAddIcon />}>
           Invite
@@ -298,7 +282,7 @@ export default function GroupDetailPage() {
           MenuListProps={{
             "aria-labelledby": "basic-button",
           }}
-          anchorPosition="left"
+          anchorPosition={{ top: 50, left: 200 }}
           PaperProps={{
             elevation: 0,
             sx: {
@@ -315,7 +299,7 @@ export default function GroupDetailPage() {
               onClick={() => {
                 toast.promise(
                   async () => {
-                    const newInviteLink = await getInviteLink(group?._id);
+                    const newInviteLink = await getInviteLink(room?._id);
                     setInviteLink(newInviteLink);
                   },
                   {
@@ -347,7 +331,7 @@ export default function GroupDetailPage() {
         </Menu>
       </Grid>
       <Grid item xs={12}>
-        <h1 style={{ textAlign: "center" }}>{group?.name}</h1>
+        <h1 style={{ textAlign: "center" }}>{room?.name}</h1>
       </Grid>
       <Grid
         item
@@ -392,7 +376,7 @@ export default function GroupDetailPage() {
                 <Button
                   onClick={async () => {
                     await callBBBClient({
-                      meetingID: group?._id,
+                      meetingID: room?._id,
                       password: user?._id,
                       apiCall: "end",
                     });
@@ -445,8 +429,8 @@ export default function GroupDetailPage() {
                           })
                         : [];
 
-                    setGroup({
-                      ...group,
+                    setRoom({
+                      ...room,
                       recordings,
                     });
                   }}
@@ -490,7 +474,7 @@ export default function GroupDetailPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {group?.recordings?.map((recording) => (
+              {room?.recordings?.map((recording) => (
                 <TableRow key={recording?.internalMeetingID}>
                   <TableCell align="center">{recording?.name}</TableCell>
                   <TableCell align="left">
@@ -539,15 +523,15 @@ export default function GroupDetailPage() {
                 <TableCell align="center">Name</TableCell>
                 <TableCell align="center">Email</TableCell>
                 <TableCell align="center">Role</TableCell>
-                {user?._id === group?.ownerId && <TableCell align="center">Action</TableCell>}
+                {user?._id === room?.ownerId && <TableCell align="center">Action</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow key={group?.ownerId} className={styles.ownerRow}>
-                <TableCell align="center">{group?.owner?.name}</TableCell>
-                <TableCell align="center">{group?.owner?.email}</TableCell>
+              <TableRow key={room?.ownerId} className={styles.ownerRow}>
+                <TableCell align="center">{room?.owner?.name}</TableCell>
+                <TableCell align="center">{room?.owner?.email}</TableCell>
                 <TableCell align="center">OWNER</TableCell>
-                {user?._id === group?.ownerId && (
+                {user?._id === room?.ownerId && (
                   <TableCell align="center">
                     <Tooltip title="Add new member">
                       <IconButton onClick={() => setOpenInviteMemberForm(true)}>
@@ -558,12 +542,12 @@ export default function GroupDetailPage() {
                 )}
               </TableRow>
 
-              {group?.coOwners?.map((coOwner) => (
+              {room?.coOwners?.map((coOwner) => (
                 <TableRow key={coOwner?._id} className={styles.coOwnerRow}>
                   <TableCell align="center">{coOwner?.name}</TableCell>
                   <TableCell align="center">{coOwner?.email}</TableCell>
                   <TableCell align="center">CO OWNER</TableCell>
-                  {user?._id === group?.ownerId && (
+                  {user?._id === room?.ownerId && (
                     <TableCell align="center">
                       <Tooltip title="Become member">
                         <IconButton
@@ -587,12 +571,12 @@ export default function GroupDetailPage() {
                 </TableRow>
               ))}
 
-              {group?.members?.map((member) => (
+              {room?.members?.map((member) => (
                 <TableRow key={member?._id} className={styles.memberRow}>
                   <TableCell align="center">{member?.name}</TableCell>
                   <TableCell align="center">{member?.email}</TableCell>
                   <TableCell align="center">MEMBER</TableCell>
-                  {user?._id === group?.ownerId && (
+                  {user?._id === room?.ownerId && (
                     <TableCell align="center">
                       <Tooltip title="Become co-owner">
                         <IconButton
@@ -643,7 +627,7 @@ export default function GroupDetailPage() {
         </form>
       </Dialog>
       <Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)}>
-        <DialogTitle id="alert-dialog-title">Please confirm to delete this group</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Delete this room?</DialogTitle>
 
         <DialogActions>
           <Button variant="outlined" onClick={() => setOpenConfirmDelete(false)}>
@@ -656,4 +640,6 @@ export default function GroupDetailPage() {
       </Dialog>
     </Grid>
   );
-}
+};
+
+export default withLogin(RoomDetailPage);
