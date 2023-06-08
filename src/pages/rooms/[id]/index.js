@@ -34,7 +34,7 @@ import { withLogin } from "src/components/HOC/withLogin";
 import InsertDocumentsForm from "src/components/InsertDocumentsForm";
 import JoinMeetingForm from "src/components/JoinMeetingForm";
 import { AuthContext } from "src/context/authContext";
-import { customToast } from "src/utils";
+import { customToast, isValid } from "src/utils";
 import styles from "./styles.module.scss";
 
 const RoomDetailPage = () => {
@@ -96,7 +96,7 @@ const RoomDetailPage = () => {
   const getInfoOfGroup = async () => {
     try {
       const res = await getRoomDetail(router.query.id);
-      if (res.status === "OK") {
+      if (isValid(res)) {
         const groupInfo = res.data[0];
 
         if (user?._id === groupInfo.ownerId) {
@@ -148,10 +148,11 @@ const RoomDetailPage = () => {
 
         if (meetingInfoRes?.returncode === "SUCCESS") setMeetingInfo(meetingInfoRes);
       } else {
-        // router.push("/");
+        window.location.href = "/rooms";
       }
     } catch (e) {
       console.log(e);
+      window.location.href = "/rooms";
     }
   };
 
@@ -190,7 +191,7 @@ const RoomDetailPage = () => {
       await deleteRoomById(room?._id);
       await customToast("SUCCESS", `Delete room ${room.name} successfully!`);
       setOpenConfirmDelete(false);
-      router.reload();
+      window.location.href = "/rooms";
     } catch (e) {
       await customToast("ERROR", e.response?.data?.message);
       setOpenConfirmDelete(false);
@@ -243,402 +244,410 @@ const RoomDetailPage = () => {
   };
 
   return (
-    <Grid container spacing={6} className={styles.wrapper}>
-      <CreateMeetingForm handleClose={() => setOpenCreateMeetingForm(false)} open={openCreateMeetingForm} handleOK={handleCreateMeeting} />
-      <JoinMeetingForm handleClose={() => setOpenJoinMeetingForm(false)} open={openJoinMeetingForm} handleOK={handleJoinMeeting} />
-      <InsertDocumentsForm
-        handleClose={() => setOpenInsertDocumentsForm(false)}
-        open={openInsertDocumentsForm}
-        handleOK={handleUploadDocuments}
-      />
-      <Grid item xs={12}>
-        <Breadcrumb
-          paths={[
-            { label: "Home", href: "/" },
-            { label: room?.name, href: `/rooms/${room?._id}` },
-          ]}
-        />
-      </Grid>
-      <Grid item xs={12} style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button variant="contained" ref={anchorElButton} onClick={handleClickButton} startIcon={<PersonAddIcon />}>
-          Invite
-        </Button>
-        <Button
-          variant="outlined"
-          color="error"
-          ref={anchorElButton}
-          onClick={() => setOpenConfirmDelete(true)}
-          startIcon={<DeleteForeverIcon />}
-          style={{ marginLeft: "20px" }}
-        >
-          Delete Group
-        </Button>
-
-        <Menu
-          id="basic-menu"
-          anchorEl={anchorElButton}
-          open={openMenu}
-          onClose={() => setAnchorElButton(null)}
-          MenuListProps={{
-            "aria-labelledby": "basic-button",
-          }}
-          anchorPosition={{ top: 50, left: 200 }}
-          PaperProps={{
-            elevation: 0,
-            sx: {
-              overflow: "visible",
-              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-              mt: 1.5,
-            },
-          }}
-          transformOrigin={{ horizontal: "right", vertical: "top" }}
-          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        >
-          <CopyToClipboard text={inviteLink}>
-            <MenuItem
-              onClick={() => {
-                toast.promise(
-                  async () => {
-                    const newInviteLink = await getInviteLink(room?._id);
-                    setInviteLink(newInviteLink);
-                  },
-                  {
-                    pending: "Getting invite link...",
-                    success: "Invite link copied!",
-                    error: "Unexpected error",
-                  },
-                );
-                setAnchorElButton(null);
-              }}
-            >
-              <ListItemIcon>
-                <ContentCopyIcon fontSize="small" />
-              </ListItemIcon>
-              Copy invite link
-            </MenuItem>
-          </CopyToClipboard>
-          <MenuItem
-            onClick={() => {
-              setOpenInviteMemberForm(true);
-              setAnchorElButton(null);
-            }}
-          >
-            <ListItemIcon>
-              <SendIcon fontSize="small" />
-            </ListItemIcon>
-            Invite a member
-          </MenuItem>
-        </Menu>
-      </Grid>
-      <Grid item xs={12}>
-        <h1 style={{ textAlign: "center" }}>{room?.name}</h1>
-      </Grid>
-      <Grid
-        item
-        xs={12}
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: 20,
-        }}
-      >
-        {meetingInfo?.returncode === "SUCCESS" ? (
-          <Card className={styles.meetingInfoWrapper}>
-            <h2>Current meeting: {meetingInfo.meetingName}</h2>
-
-            <Grid container spacing={3} maxWidth="sm">
-              <Grid item xs={12} md={6}>
-                <Button
-                  onClick={() => handleJoinMeeting({ password: user?._id, fullName: user?.name, role: "moderator" })}
-                  variant="contained"
-                  color="success"
-                  startIcon={<PersonAdd />}
-                >
-                  Join meeting as moderator
-                </Button>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Button onClick={() => setOpenJoinMeetingForm(true)} variant="contained" color="warning" startIcon={<PersonAdd />}>
-                  Join meeting as attendee
-                </Button>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Button
-                  onClick={() => setOpenInsertDocumentsForm(true)}
-                  variant="contained"
-                  color="info"
-                  startIcon={<DocumentScannerRounded />}
-                >
-                  Insert document
-                </Button>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Button
-                  onClick={async () => {
-                    await callBBBClient({
-                      meetingID: room?._id,
-                      password: user?._id,
-                      apiCall: "end",
-                    });
-                    setMeetingInfo(null);
-                  }}
-                  variant="contained"
-                  color="error"
-                  startIcon={<CloseOutlined />}
-                >
-                  End meeting
-                </Button>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Button
-                  onClick={async () => {
-                    const res = await callBBBClient({
-                      meeting: meetingInfo.internalMeetingID,
-                      apiCall: "learningDashboardFromMeetingId",
-                    });
-                  }}
-                  variant="contained"
-                  color="info"
-                  startIcon={<LocalLibrary />}
-                >
-                  Get learning dashboard
-                </Button>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Button
-                  onClick={async () => {
-                    const recordingRes = await callBBBClient({
-                      meetingID: meetingInfo.meetingID,
-                      apiCall: "getRecordings",
-                    });
-
-                    const recordings =
-                      recordingRes?.recordings?.recording?.length > 0
-                        ? recordingRes.recordings.recording.map((recording) => {
-                            const { startTime, endTime, published, participants, size, isBreakout, playback } = recording;
-                            return {
-                              ...recording,
-                              startTime: new Date(+startTime).toLocaleString("vi-VN"),
-                              endTime: new Date(+endTime).toLocaleString("vi-VN"),
-                              published: published === "true",
-                              participants: +participants,
-                              size: +size,
-                              isBreakout: isBreakout === "true",
-                              url: playback.format.url,
-                            };
-                          })
-                        : [];
-
-                    setRoom({
-                      ...room,
-                      recordings,
-                    });
-                  }}
-                  variant="contained"
-                  color="info"
-                  startIcon={<LocalLibrary />}
-                >
-                  Get recordings
-                </Button>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <GoogleDriveUploader
-                  onSelectFile={async (files) => {
-                    handleUploadDocuments(files);
-                  }}
-                />
-              </Grid>
-            </Grid>
-          </Card>
-        ) : (
-          <div>
-            <Button onClick={() => setOpenCreateMeetingForm(true)} variant="contained">
-              Create meeting
-            </Button>
-          </div>
-        )}
-      </Grid>
-
-      <Grid item xs={12}>
-        <h2 style={{ marginBottom: 10 }}>RECORDINGS</h2>
-
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead className={styles.tableHead}>
-              <TableRow>
-                <TableCell align="center">Name</TableCell>
-                <TableCell align="left">Time</TableCell>
-                <TableCell align="left">State</TableCell>
-                <TableCell align="left">Participants</TableCell>
-                <TableCell align="center">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {room?.recordings?.map((recording) => (
-                <TableRow key={recording?.internalMeetingID}>
-                  <TableCell align="center">{recording?.name}</TableCell>
-                  <TableCell align="left">
-                    From: {recording?.startTime} <br /> To: {recording?.endTime}{" "}
-                  </TableCell>
-                  <TableCell align="left">{recording?.state}</TableCell>
-                  <TableCell align="left">{recording?.participants}</TableCell>
-                  <TableCell align="center">
-                    <CopyToClipboard text={recording?.url} onCopy={() => toast.success("Copied recording url")}>
-                      <Tooltip title="Copy recording urls">
-                        <IconButton>
-                          <ContentCopyIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </CopyToClipboard>
-
-                    <Tooltip title="Delete recording">
-                      <IconButton
-                        color="error"
-                        onClick={async () => {
-                          const res = await callBBBClient({ recordID: recording.recordID, apiCall: "deleteRecordings" });
-                          if (res?.returncode === "SUCCESS") {
-                            toast.info("Recordings deleted successfully");
-                            getInfoOfGroup();
-                          }
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Grid>
-
-      <Grid item xs={12}>
-        <h2 style={{ marginBottom: 10 }}>MEMBERS</h2>
-
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead className={styles.tableHead}>
-              <TableRow>
-                <TableCell align="center">Name</TableCell>
-                <TableCell align="center">Email</TableCell>
-                <TableCell align="center">Role</TableCell>
-                {user?._id === room?.ownerId && <TableCell align="center">Action</TableCell>}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow key={room?.ownerId} className={styles.ownerRow}>
-                <TableCell align="center">{room?.owner?.name}</TableCell>
-                <TableCell align="center">{room?.owner?.email}</TableCell>
-                <TableCell align="center">OWNER</TableCell>
-                {user?._id === room?.ownerId && (
-                  <TableCell align="center">
-                    <Tooltip title="Add new member">
-                      <IconButton onClick={() => setOpenInviteMemberForm(true)}>
-                        <PersonAddIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                )}
-              </TableRow>
-
-              {room?.coOwners?.map((coOwner) => (
-                <TableRow key={coOwner?._id} className={styles.coOwnerRow}>
-                  <TableCell align="center">{coOwner?.name}</TableCell>
-                  <TableCell align="center">{coOwner?.email}</TableCell>
-                  <TableCell align="center">CO OWNER</TableCell>
-                  {user?._id === room?.ownerId && (
-                    <TableCell align="center">
-                      <Tooltip title="Become member">
-                        <IconButton
-                          color="secondary"
-                          onClick={() => handleUpgradeRole(coOwner, false)}
-                          style={{
-                            marginRight: "10px",
-                          }}
-                        >
-                          <Person2Icon />
-                        </IconButton>
-                      </Tooltip>
-
-                      <Tooltip title="Kick this co-owner out">
-                        <IconButton color="error" onClick={() => handleRemove(coOwner)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-
-              {room?.members?.map((member) => (
-                <TableRow key={member?._id} className={styles.memberRow}>
-                  <TableCell align="center">{member?.name}</TableCell>
-                  <TableCell align="center">{member?.email}</TableCell>
-                  <TableCell align="center">MEMBER</TableCell>
-                  {user?._id === room?.ownerId && (
-                    <TableCell align="center">
-                      <Tooltip title="Become co-owner">
-                        <IconButton
-                          color="primary"
-                          onClick={() => handleUpgradeRole(member, true)}
-                          style={{
-                            marginRight: "10px",
-                          }}
-                        >
-                          <PeopleIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Kick this member out">
-                        <IconButton color="error" onClick={() => handleRemove(member)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Grid>
-
-      <Dialog open={openInviteMemberForm} onClose={() => setOpenInviteMemberForm(false)} style={{ width: "100%" }}>
-        <form onSubmit={handleSubmit(handleInviteMember)}>
-          <DialogTitle id="alert-dialog-title">Invite a member by email</DialogTitle>
-          <DialogContent style={{ overflowY: "initial" }}>
-            <TextField
-              label="Member's email"
-              placeholder="Enter member's email"
-              {...register("memberEmail")}
-              type="email"
-              required
-              fullWidth
+    <>
+      {room && (
+        <Grid container spacing={6} className={styles.wrapper}>
+          <CreateMeetingForm
+            handleClose={() => setOpenCreateMeetingForm(false)}
+            open={openCreateMeetingForm}
+            handleOK={handleCreateMeeting}
+          />
+          <JoinMeetingForm handleClose={() => setOpenJoinMeetingForm(false)} open={openJoinMeetingForm} handleOK={handleJoinMeeting} />
+          <InsertDocumentsForm
+            handleClose={() => setOpenInsertDocumentsForm(false)}
+            open={openInsertDocumentsForm}
+            handleOK={handleUploadDocuments}
+          />
+          <Grid item xs={12}>
+            <Breadcrumb
+              paths={[
+                { label: "Home", href: "/" },
+                { label: room?.name, href: `/rooms/${room?._id}` },
+              ]}
             />
-          </DialogContent>
-          <DialogActions>
-            <Button variant="contained" onClick={() => setOpenInviteMemberForm(false)}>
-              Cancel
-            </Button>
-            <Button variant="contained" type="submit">
+          </Grid>
+          <Grid item xs={12} style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button variant="contained" ref={anchorElButton} onClick={handleClickButton} startIcon={<PersonAddIcon />}>
               Invite
             </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
-      <Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)}>
-        <DialogTitle id="alert-dialog-title">Delete this room?</DialogTitle>
+            <Button
+              variant="outlined"
+              color="error"
+              ref={anchorElButton}
+              onClick={() => setOpenConfirmDelete(true)}
+              startIcon={<DeleteForeverIcon />}
+              style={{ marginLeft: "20px" }}
+            >
+              Delete Room
+            </Button>
 
-        <DialogActions>
-          <Button variant="outlined" onClick={() => setOpenConfirmDelete(false)}>
-            Cancel
-          </Button>
-          <Button color="error" variant="contained" type="submit" onClick={handleDeleteGroup}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Grid>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorElButton}
+              open={openMenu}
+              onClose={() => setAnchorElButton(null)}
+              MenuListProps={{
+                "aria-labelledby": "basic-button",
+              }}
+              anchorPosition={{ top: 50, left: 200 }}
+              PaperProps={{
+                elevation: 0,
+                sx: {
+                  overflow: "visible",
+                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                  mt: 1.5,
+                },
+              }}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+            >
+              <CopyToClipboard text={inviteLink}>
+                <MenuItem
+                  onClick={() => {
+                    toast.promise(
+                      async () => {
+                        const newInviteLink = await getInviteLink(room?._id);
+                        setInviteLink(newInviteLink);
+                      },
+                      {
+                        pending: "Getting invite link...",
+                        success: "Invite link copied!",
+                        error: "Unexpected error",
+                      },
+                    );
+                    setAnchorElButton(null);
+                  }}
+                >
+                  <ListItemIcon>
+                    <ContentCopyIcon fontSize="small" />
+                  </ListItemIcon>
+                  Copy invite link
+                </MenuItem>
+              </CopyToClipboard>
+              <MenuItem
+                onClick={() => {
+                  setOpenInviteMemberForm(true);
+                  setAnchorElButton(null);
+                }}
+              >
+                <ListItemIcon>
+                  <SendIcon fontSize="small" />
+                </ListItemIcon>
+                Invite a member
+              </MenuItem>
+            </Menu>
+          </Grid>
+          <Grid item xs={12}>
+            <h1 style={{ textAlign: "center" }}>{room?.name}</h1>
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 20,
+            }}
+          >
+            {meetingInfo?.returncode === "SUCCESS" ? (
+              <Card className={styles.meetingInfoWrapper}>
+                <h2>Current meeting: {meetingInfo.meetingName}</h2>
+
+                <Grid container spacing={3} maxWidth="sm">
+                  <Grid item xs={12} md={6}>
+                    <Button
+                      onClick={() => handleJoinMeeting({ password: user?._id, fullName: user?.name, role: "moderator" })}
+                      variant="contained"
+                      color="success"
+                      startIcon={<PersonAdd />}
+                    >
+                      Join meeting as moderator
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Button onClick={() => setOpenJoinMeetingForm(true)} variant="contained" color="warning" startIcon={<PersonAdd />}>
+                      Join meeting as attendee
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Button
+                      onClick={() => setOpenInsertDocumentsForm(true)}
+                      variant="contained"
+                      color="info"
+                      startIcon={<DocumentScannerRounded />}
+                    >
+                      Insert document
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Button
+                      onClick={async () => {
+                        await callBBBClient({
+                          meetingID: room?._id,
+                          password: user?._id,
+                          apiCall: "end",
+                        });
+                        setMeetingInfo(null);
+                      }}
+                      variant="contained"
+                      color="error"
+                      startIcon={<CloseOutlined />}
+                    >
+                      End meeting
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Button
+                      onClick={async () => {
+                        const res = await callBBBClient({
+                          meeting: meetingInfo.internalMeetingID,
+                          apiCall: "learningDashboardFromMeetingId",
+                        });
+                      }}
+                      variant="contained"
+                      color="info"
+                      startIcon={<LocalLibrary />}
+                    >
+                      Get learning dashboard
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Button
+                      onClick={async () => {
+                        const recordingRes = await callBBBClient({
+                          meetingID: meetingInfo.meetingID,
+                          apiCall: "getRecordings",
+                        });
+
+                        const recordings =
+                          recordingRes?.recordings?.recording?.length > 0
+                            ? recordingRes.recordings.recording.map((recording) => {
+                                const { startTime, endTime, published, participants, size, isBreakout, playback } = recording;
+                                return {
+                                  ...recording,
+                                  startTime: new Date(+startTime).toLocaleString("vi-VN"),
+                                  endTime: new Date(+endTime).toLocaleString("vi-VN"),
+                                  published: published === "true",
+                                  participants: +participants,
+                                  size: +size,
+                                  isBreakout: isBreakout === "true",
+                                  url: playback.format.url,
+                                };
+                              })
+                            : [];
+
+                        setRoom({
+                          ...room,
+                          recordings,
+                        });
+                      }}
+                      variant="contained"
+                      color="info"
+                      startIcon={<LocalLibrary />}
+                    >
+                      Get recordings
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <GoogleDriveUploader
+                      onSelectFile={async (files) => {
+                        handleUploadDocuments(files);
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </Card>
+            ) : (
+              <div>
+                <Button onClick={() => setOpenCreateMeetingForm(true)} variant="contained">
+                  Create meeting
+                </Button>
+              </div>
+            )}
+          </Grid>
+
+          <Grid item xs={12}>
+            <h2 style={{ marginBottom: 10 }}>RECORDINGS</h2>
+
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead className={styles.tableHead}>
+                  <TableRow>
+                    <TableCell align="center">Name</TableCell>
+                    <TableCell align="left">Time</TableCell>
+                    <TableCell align="left">State</TableCell>
+                    <TableCell align="left">Participants</TableCell>
+                    <TableCell align="center">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {room?.recordings?.map((recording) => (
+                    <TableRow key={recording?.internalMeetingID}>
+                      <TableCell align="center">{recording?.name}</TableCell>
+                      <TableCell align="left">
+                        From: {recording?.startTime} <br /> To: {recording?.endTime}{" "}
+                      </TableCell>
+                      <TableCell align="left">{recording?.state}</TableCell>
+                      <TableCell align="left">{recording?.participants}</TableCell>
+                      <TableCell align="center">
+                        <CopyToClipboard text={recording?.url} onCopy={() => toast.success("Copied recording url")}>
+                          <Tooltip title="Copy recording urls">
+                            <IconButton>
+                              <ContentCopyIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </CopyToClipboard>
+
+                        <Tooltip title="Delete recording">
+                          <IconButton
+                            color="error"
+                            onClick={async () => {
+                              const res = await callBBBClient({ recordID: recording.recordID, apiCall: "deleteRecordings" });
+                              if (res?.returncode === "SUCCESS") {
+                                toast.info("Recordings deleted successfully");
+                                getInfoOfGroup();
+                              }
+                            }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+
+          <Grid item xs={12}>
+            <h2 style={{ marginBottom: 10 }}>MEMBERS</h2>
+
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead className={styles.tableHead}>
+                  <TableRow>
+                    <TableCell align="center">Name</TableCell>
+                    <TableCell align="center">Email</TableCell>
+                    <TableCell align="center">Role</TableCell>
+                    {user?._id === room?.ownerId && <TableCell align="center">Action</TableCell>}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow key={room?.ownerId} className={styles.ownerRow}>
+                    <TableCell align="center">{room?.owner?.name}</TableCell>
+                    <TableCell align="center">{room?.owner?.email}</TableCell>
+                    <TableCell align="center">OWNER</TableCell>
+                    {user?._id === room?.ownerId && (
+                      <TableCell align="center">
+                        <Tooltip title="Add new member">
+                          <IconButton onClick={() => setOpenInviteMemberForm(true)}>
+                            <PersonAddIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    )}
+                  </TableRow>
+
+                  {room?.coOwners?.map((coOwner) => (
+                    <TableRow key={coOwner?._id} className={styles.coOwnerRow}>
+                      <TableCell align="center">{coOwner?.name}</TableCell>
+                      <TableCell align="center">{coOwner?.email}</TableCell>
+                      <TableCell align="center">CO OWNER</TableCell>
+                      {user?._id === room?.ownerId && (
+                        <TableCell align="center">
+                          <Tooltip title="Become member">
+                            <IconButton
+                              color="secondary"
+                              onClick={() => handleUpgradeRole(coOwner, false)}
+                              style={{
+                                marginRight: "10px",
+                              }}
+                            >
+                              <Person2Icon />
+                            </IconButton>
+                          </Tooltip>
+
+                          <Tooltip title="Kick this co-owner out">
+                            <IconButton color="error" onClick={() => handleRemove(coOwner)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+
+                  {room?.members?.map((member) => (
+                    <TableRow key={member?._id} className={styles.memberRow}>
+                      <TableCell align="center">{member?.name}</TableCell>
+                      <TableCell align="center">{member?.email}</TableCell>
+                      <TableCell align="center">MEMBER</TableCell>
+                      {user?._id === room?.ownerId && (
+                        <TableCell align="center">
+                          <Tooltip title="Become co-owner">
+                            <IconButton
+                              color="primary"
+                              onClick={() => handleUpgradeRole(member, true)}
+                              style={{
+                                marginRight: "10px",
+                              }}
+                            >
+                              <PeopleIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Kick this member out">
+                            <IconButton color="error" onClick={() => handleRemove(member)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+
+          <Dialog open={openInviteMemberForm} onClose={() => setOpenInviteMemberForm(false)} style={{ width: "100%" }}>
+            <form onSubmit={handleSubmit(handleInviteMember)}>
+              <DialogTitle id="alert-dialog-title">Invite a member by email</DialogTitle>
+              <DialogContent style={{ overflowY: "initial" }}>
+                <TextField
+                  label="Member's email"
+                  placeholder="Enter member's email"
+                  {...register("memberEmail")}
+                  type="email"
+                  required
+                  fullWidth
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button variant="contained" onClick={() => setOpenInviteMemberForm(false)}>
+                  Cancel
+                </Button>
+                <Button variant="contained" type="submit">
+                  Invite
+                </Button>
+              </DialogActions>
+            </form>
+          </Dialog>
+          <Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)}>
+            <DialogTitle id="alert-dialog-title">Delete this room?</DialogTitle>
+
+            <DialogActions>
+              <Button variant="outlined" onClick={() => setOpenConfirmDelete(false)}>
+                Cancel
+              </Button>
+              <Button color="error" variant="contained" type="submit" onClick={handleDeleteGroup}>
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </Grid>
+      )}
+    </>
   );
 };
 

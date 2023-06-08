@@ -4,9 +4,11 @@ import { loginFunc, loginGoogleFunc, registerFunc, resetAccount } from "src/clie
 import { getRoomByIds } from "src/client/room";
 import { getUserInfo } from "src/client/user";
 import LoadingScreen from "src/components/LoadingScreen";
-import { customToast, getLinkWithPrefix } from "src/utils";
+import { customToast, getFirst, getLinkWithPrefix, isValid } from "src/utils";
 
 const AuthContext = createContext();
+
+const notGetUserPaths = ["/login", "/register"];
 
 const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -20,11 +22,10 @@ const AuthContextProvider = ({ children }) => {
       if (localStorage?.getItem("access_token")) {
         setIsLoadingAuth(true);
         const res = await getUserInfo();
+        if (isValid(res)) {
+          const userInfo = getFirst(res);
 
-        if (res?.status === "OK") {
-          const userInfo = res?.data?.[0];
-
-          const [groupListRes] = await Promise.all([getRoomByIds([...userInfo.myGroupIds, ...userInfo.joinedGroupIds])]);
+          const groupListRes = await getRoomByIds([...userInfo.myGroupIds, ...userInfo.joinedGroupIds]);
 
           const groupListMap = {};
 
@@ -42,7 +43,7 @@ const AuthContextProvider = ({ children }) => {
 
           setUser({ ...user, ...userInfo });
 
-          localStorage.setItem("access_token", res?.data?.[0]?.access_token || "");
+          localStorage.setItem("access_token", userInfo?.access_token || "");
         } else {
           router.push("/login");
           setIsAuthenticated(false);
@@ -56,7 +57,7 @@ const AuthContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (router.pathname !== "/login") {
+    if (!notGetUserPaths.includes(router.pathname)) {
       getUser();
     }
   }, [router.asPath]);
@@ -66,7 +67,7 @@ const AuthContextProvider = ({ children }) => {
       setIsLoadingAuth(true);
       const res = await loginFunc(data);
       if (res?.status === "OK") {
-        localStorage.setItem("access_token", res?.data?.[0]?.access_token || "");
+        localStorage.setItem("access_token", getFirst(res)?.access_token || "");
         window.location.href = "/";
       } else {
         await customToast("ERROR", res?.message);
@@ -82,10 +83,11 @@ const AuthContextProvider = ({ children }) => {
     try {
       setIsLoadingAuth(true);
       const res = await loginGoogleFunc(data);
-      if (res?.status === "OK") {
-        setUser(res?.data?.[0]);
+      if (isValid(res)) {
+        const userInfo = getFirst(res);
+        setUser(userInfo);
         setIsAuthenticated(true);
-        localStorage.setItem("access_token", res?.data?.[0]?.access_token || "");
+        localStorage.setItem("access_token", userInfo?.access_token || "");
         await customToast("SUCCESS", "Login successful!");
         window.location.href = getLinkWithPrefix("/");
       } else {
@@ -102,7 +104,7 @@ const AuthContextProvider = ({ children }) => {
     try {
       setIsLoadingAuth(true);
       const res = await registerFunc(data);
-      localStorage.setItem("access_token", res?.data?.[0]?.access_token || "");
+      localStorage.setItem("access_token", getFirst(res)?.access_token || "");
       setIsLoadingAuth(false);
       await customToast("SUCCESS", "Register successful!");
     } catch (e) {

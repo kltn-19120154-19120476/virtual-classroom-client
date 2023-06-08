@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { createRoom } from "src/client/room";
-import { customToast, getLinkWithPrefix } from "src/utils";
+import { customToast, getLinkWithPrefix, isValid } from "src/utils";
 import styles from "./styles.module.scss";
 
 const Dashboard = ({ user, getUser }) => {
@@ -22,9 +22,8 @@ const Dashboard = ({ user, getUser }) => {
   const handleCreateGroup = async (data) => {
     try {
       const res = await createRoom(data);
-      if (res?.status === "OK") {
-        await customToast("SUCCESS", "Create meeting successfully!");
-        await getUser();
+      if (isValid(res)) {
+        getUser();
       } else {
         await customToast("ERROR", res?.message);
       }
@@ -55,17 +54,15 @@ const Dashboard = ({ user, getUser }) => {
         <h1>My Rooms</h1>
         <div>
           {user?.myGroupIds.length > 0 ? (
-            <Grid container spacing={3}>
+            <Grid container spacing={5}>
               {user?.myGroups?.map((group) => (
-                <>
-                  <Grid item xs={12} md={6} lg={3} xl={3} key={group?._id}>
-                    <Link href={`/rooms/${group?._id}`}>
-                      <div className={styles.card}>
-                        <span>{group?.name}</span>
-                      </div>
-                    </Link>
-                  </Grid>
-                </>
+                <Grid item xs={12} md={6} lg={3} xl={3} key={group?._id}>
+                  <Link href={`/rooms/${group?._id}`}>
+                    <div className={styles.card}>
+                      <span>{group?.name}</span>
+                    </div>
+                  </Link>
+                </Grid>
               ))}
             </Grid>
           ) : (
@@ -83,7 +80,7 @@ const Dashboard = ({ user, getUser }) => {
         <h1>Groups that you are Co-owner</h1>
 
         {user?.coOwnerGroups.length > 0 ? (
-          <Grid container spacing={3}>
+          <Grid container spacing={5}>
             {user.coOwnerGroups.map((group) => (
               <Grid item xs={12} md={6} lg={3} xl={3} key={group?._id}>
                 <Link href={`/rooms/${group?._id}`}>
@@ -108,7 +105,7 @@ const Dashboard = ({ user, getUser }) => {
         <h1>Groups that you are member</h1>
 
         {user?.memberGroups?.length > 0 ? (
-          <Grid container spacing={3}>
+          <Grid container spacing={5}>
             {user.memberGroups.map((group) => (
               <Grid item xs={12} md={6} lg={3} xl={3} key={group?._id}>
                 <Link href={`/rooms/${group?._id}`}>

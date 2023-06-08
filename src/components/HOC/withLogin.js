@@ -6,10 +6,10 @@ export const withLogin =
   (Component, checkLogin = true) =>
   // eslint-disable-next-line react/display-name
   ({ ...props }) => {
-    const { isLoadingAuth, user, setUser } = useContext(AuthContext);
+    const { isLoadingAuth, user, getUser } = useContext(AuthContext);
     return (
       <Suspense fallback={<LoadingScreen />}>
-        {isLoadingAuth || !user ? <LoadingScreen /> : <Component {...props} user={user} setUser={setUser} />}
+        {isLoadingAuth || !user ? <LoadingScreen /> : <Component {...props} user={user} getUser={getUser} />}
       </Suspense>
     );
   };

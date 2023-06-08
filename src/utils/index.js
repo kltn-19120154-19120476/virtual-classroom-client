@@ -74,3 +74,7 @@ export const shuffle = (array) => {
 export const getLinkWithPrefix = (src) => WEB_HOST + src;
 
 export const isValid = (res) => res?.status === "OK" || res?.returncode === "SUCCESS";
+
+export const getFirst = (res) => res?.data?.[0] || null;
+
+export const getData = (res) => res?.data || [];
