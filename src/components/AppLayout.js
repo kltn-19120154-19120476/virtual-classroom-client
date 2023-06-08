@@ -10,7 +10,7 @@ const AppLayout = ({ children }) => {
 
   return (
     <>
-      <Header logout={logout} user={user} />
+      {isAuthenticated && user && <Header logout={logout} user={user} />}
       <div className={styles.appLayout}>
         <Container maxWidth="xl">{children}</Container>
       </div>
