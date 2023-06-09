@@ -1,5 +1,8 @@
-import GroupAddIcon from "@mui/icons-material/GroupAdd";
-import { Button, Grid, TextField } from "@mui/material";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import GroupsIcon from "@mui/icons-material/Groups";
+import VideoCallIcon from "@mui/icons-material/VideoCall";
+import VideoCameraFrontIcon from "@mui/icons-material/VideoCameraFront";
+import { Button, Card, Grid, IconButton, TextField } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -7,9 +10,31 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { createRoom } from "src/client/room";
-import { customToast, getLinkWithPrefix, isValid } from "src/utils";
+import { callBBBClient } from "src/client/bbb-client";
+import { createRoom, updateRoom } from "src/client/room";
+import { customToast, formatTime, getFirst, isValid } from "src/utils";
 import styles from "./styles.module.scss";
+
+const handleCreateMeeting = async (meetingID, name, moderatorPW) => {
+  const res = await callBBBClient({
+    name,
+    apiCall: "create",
+    meetingID,
+    moderatorPW,
+    record: true,
+  });
+
+  if (res?.returncode === "SUCCESS") {
+    const meetingInfo = await callBBBClient({
+      meetingID: res.meetingID,
+      password: moderatorPW,
+      apiCall: "getMeetingInfo",
+    });
+
+    return meetingInfo;
+  }
+  return null;
+};
 
 const Dashboard = ({ user, getUser }) => {
   const { register, handleSubmit } = useForm({
@@ -17,12 +42,17 @@ const Dashboard = ({ user, getUser }) => {
     defaultValues: { name: "" },
   });
   const [openCreateGroupForm, setOpenCreateGroupForm] = useState(false);
-  const [openJoinGroupForm, setOpenJoinGroupForm] = useState(false);
 
   const handleCreateGroup = async (data) => {
     try {
       const res = await createRoom(data);
       if (isValid(res)) {
+        const roomInfo = getFirst(res);
+
+        const meetingInfo = await handleCreateMeeting(roomInfo._id, roomInfo.name, user?._id);
+
+        await updateRoom({ id: roomInfo._id, meetingInfo: JSON.stringify(meetingInfo) });
+
         getUser();
       } else {
         await customToast("ERROR", res?.message);
@@ -32,103 +62,79 @@ const Dashboard = ({ user, getUser }) => {
     }
     setOpenCreateGroupForm(false);
   };
-  const handleJoinGroup = async (data) => {
-    window.location.href = getLinkWithPrefix(data.link);
-    setOpenJoinGroupForm(false);
-  };
 
-  return (
-    <Grid container spacing={6} className={styles.wrapper}>
-      <Grid item xs={12} className={styles.actionButtonWrapper}>
+  const NoRoomsWrapper = () => (
+    <Grid item xs={12}>
+      <Card className={styles.noRecordWrapper}>
+        <IconButton className={styles.camIcon} color="primary">
+          <GroupsIcon />
+        </IconButton>
+        <h2>You don&apos;t have any rooms yet!</h2>
+
+        <p>Create your first room by clicking on the button below and entering a room name.</p>
+
         <Button
           onClick={() => setOpenCreateGroupForm(true)}
           variant="contained"
-          startIcon={<GroupAddIcon />}
+          startIcon={<VideoCallIcon />}
           sx={{ margin: "0 0 20px 20px" }}
         >
-          Create new room
+          new room
         </Button>
-      </Grid>
+      </Card>
+    </Grid>
+  );
 
-      <Grid item xs={12} className={styles.groupWrapper}>
-        <h1>My Rooms</h1>
-        <div>
-          {user?.myGroupIds.length > 0 ? (
-            <Grid container spacing={5}>
-              {user?.myGroups?.map((group) => (
-                <Grid item xs={12} md={6} lg={3} xl={3} key={group?._id}>
-                  <Link href={`/rooms/${group?._id}`}>
-                    <div className={styles.card}>
-                      <span>{group?.name}</span>
+  return (
+    <Grid container spacing={6} className={styles.wrapper}>
+      {user?.myGroups?.length < 1 ? (
+        <NoRoomsWrapper />
+      ) : (
+        <>
+          <Grid item xs={12} className={styles.actionButtonWrapper}>
+            <Button
+              onClick={() => setOpenCreateGroupForm(true)}
+              variant="contained"
+              startIcon={<VideoCallIcon />}
+              sx={{ margin: "0 0 20px 20px" }}
+            >
+              new room
+            </Button>
+          </Grid>
+          <Grid item container spacing={6} xs={12} className={styles.groupWrapper}>
+            {user?.myGroups?.map((group) => (
+              <Grid item xs={12} md={6} lg={4} key={group?._id}>
+                <Link href={`/rooms/${group?._id}`}>
+                  <Card className={styles.card}>
+                    <div className={styles.cardIcon}>
+                      <VideoCameraFrontIcon />
                     </div>
-                  </Link>
-                </Grid>
-              ))}
-            </Grid>
-          ) : (
-            <p className={styles.emptyText}>
-              You have not created any group.&nbsp;
-              <a onClick={() => setOpenCreateGroupForm(true)} style={{ cursor: "pointer", color: "#1976d2" }}>
-                Create now!
-              </a>
-            </p>
-          )}
-        </div>
-      </Grid>
 
-      <Grid item xs={12} className={styles.groupWrapper}>
-        <h1>Groups that you are Co-owner</h1>
+                    <div className={styles.cardInfo}>
+                      <h2>{group.name}</h2>
+                      <p>Last session: {formatTime(JSON.parse(group.meetingInfo)?.startTime)}</p>
+                      <p>Created at: {formatTime(JSON.parse(group.meetingInfo)?.createTime)}</p>
+                    </div>
+                    <div className={styles.cardFooter}>
+                      <IconButton>
+                        <ContentCopyIcon />
+                      </IconButton>
 
-        {user?.coOwnerGroups.length > 0 ? (
-          <Grid container spacing={5}>
-            {user.coOwnerGroups.map((group) => (
-              <Grid item xs={12} md={6} lg={3} xl={3} key={group?._id}>
-                <Link href={`/rooms/${group?._id}`}>
-                  <div className={styles.card}>
-                    <span>{group?.name}</span>
-                  </div>
+                      <Button variant="outlined">Start</Button>
+                    </div>
+                  </Card>
                 </Link>
               </Grid>
             ))}
           </Grid>
-        ) : (
-          <p className={styles.emptyText}>
-            You are not a co-owner of any group.&nbsp;
-            <a onClick={() => setOpenJoinGroupForm(true)} style={{ cursor: "pointer", color: "#1976d2" }}>
-              Join a group now!
-            </a>
-          </p>
-        )}
-      </Grid>
+        </>
+      )}
 
-      <Grid item xs={12} className={styles.groupWrapper}>
-        <h1>Groups that you are member</h1>
-
-        {user?.memberGroups?.length > 0 ? (
-          <Grid container spacing={5}>
-            {user.memberGroups.map((group) => (
-              <Grid item xs={12} md={6} lg={3} xl={3} key={group?._id}>
-                <Link href={`/rooms/${group?._id}`}>
-                  <div className={styles.card}>
-                    <span>{group?.name}</span>
-                  </div>
-                </Link>
-              </Grid>
-            ))}
-          </Grid>
-        ) : (
-          <p className={styles.emptyText}>
-            You are not a member of any group.&nbsp;
-            <a onClick={() => setOpenJoinGroupForm(true)} style={{ cursor: "pointer", color: "#1976d2" }}>
-              Join a group now!
-            </a>
-          </p>
-        )}
-      </Grid>
-
-      <Dialog open={openCreateGroupForm} onClose={() => setOpenCreateGroupForm(false)} style={{ width: "100%" }}>
+      <Dialog open={openCreateGroupForm} onClose={() => setOpenCreateGroupForm(false)} fullWidth>
         <form onSubmit={handleSubmit(handleCreateGroup)}>
-          <DialogTitle id="alert-dialog-title">Create new room</DialogTitle>
+          <DialogTitle id="alert-dialog-title" sx={{ fontSize: "1.4rem" }}>
+            Create new room
+          </DialogTitle>
           <DialogContent className={styles.groupContent}>
             <TextField label="Room's name" placeholder="Enter room's name" {...register("name")} fullWidth />
           </DialogContent>
@@ -138,23 +144,6 @@ const Dashboard = ({ user, getUser }) => {
             </Button>
             <Button variant="contained" type="submit">
               Create
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
-
-      <Dialog open={openJoinGroupForm} onClose={() => setOpenJoinGroupForm(false)} style={{ width: "100%" }}>
-        <form onSubmit={handleSubmit(handleJoinGroup)}>
-          <DialogTitle id="alert-dialog-title">Enter invite link to join group</DialogTitle>
-          <DialogContent className={styles.groupContent}>
-            <TextField label="Invite link" placeholder="Enter invite link" {...register("link")} fullWidth />
-          </DialogContent>
-          <DialogActions>
-            <Button variant="outlined" onClick={() => setOpenJoinGroupForm(false)}>
-              Cancel
-            </Button>
-            <Button variant="contained" type="submit">
-              Join
             </Button>
           </DialogActions>
         </form>

@@ -2,6 +2,8 @@ import { request } from "./index";
 
 export const createRoom = async (data) => request("POST", "/room/create", data);
 
+export const updateRoom = async (data) => request("PUT", "/room/update", data);
+
 export const inviteToRoom = async (data) => request("POST", "/room/invite", data);
 
 export const createInviteLinkRoom = async (data) => request("POST", "/room/link", data);

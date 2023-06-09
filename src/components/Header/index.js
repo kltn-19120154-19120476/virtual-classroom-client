@@ -1,18 +1,33 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 import Logout from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
+import { Button } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Container } from "@mui/system";
+import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 import styles from "./styles.module.scss";
 
+const navMenu = [
+  {
+    path: "/rooms",
+    label: "Rooms",
+  },
+  {
+    path: "/recordings",
+    label: "Recordings",
+  },
+];
+
 const Header = ({ logout, user }) => {
   const [anchorEllAvatar, setanchorEllAvatar] = React.useState(null);
+  const router = useRouter();
   const openAvatar = Boolean(anchorEllAvatar);
   const handleClickAvatar = (event) => {
     setanchorEllAvatar(event.currentTarget);
@@ -103,6 +118,13 @@ const Header = ({ logout, user }) => {
             </MenuItem>
           </Menu>
         </div>
+      </Container>
+      <Container className={styles.navBar} maxWidth="xl">
+        {navMenu.map((item) => (
+          <Button key={item.path} className={clsx(styles.navBtn, router.pathname === item.path && styles.active)}>
+            <Link href={item.path}>{item.label}</Link>
+          </Button>
+        ))}
       </Container>
     </div>
   );

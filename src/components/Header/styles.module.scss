@@ -1,7 +1,7 @@
 .headerWrapper {
   width: 100%;
   display: fixed;
-  height: 70px;
+  height: 140px;
   background-color: #fff;
 }
 
@@ -9,7 +9,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  height: 100%;
+  height: 70%;
 }
 
 .leftContent {
@@ -43,6 +43,22 @@
 .rightContent {
   .avatar {
     cursor: pointer;
+  }
+}
+
+.navBar {
+  display: flex;
+  gap: 30px;
+  .navBtn {
+    border-radius: 0 !important;
+    padding-left: 0;
+    padding-right: 0;
+    border-bottom: 2px solid transparent;
+
+    &.active,
+    &:hover {
+      border-bottom: 2px solid blue;
+    }
   }
 }
 
