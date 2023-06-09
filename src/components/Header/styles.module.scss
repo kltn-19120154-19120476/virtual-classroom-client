@@ -47,7 +47,7 @@
 }
 
 .navBar {
-  display: flex;
+  display: flex !important;
   gap: 30px;
   .navBtn {
     border-radius: 0 !important;

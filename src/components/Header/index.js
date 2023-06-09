@@ -121,7 +121,7 @@ const Header = ({ logout, user }) => {
       </Container>
       <Container className={styles.navBar} maxWidth="xl">
         {navMenu.map((item) => (
-          <Button key={item.path} className={clsx(styles.navBtn, router.pathname === item.path && styles.active)}>
+          <Button key={item.path} className={clsx(styles.navBtn, router.asPath.includes(item.path) && styles.active)}>
             <Link href={item.path}>{item.label}</Link>
           </Button>
         ))}
