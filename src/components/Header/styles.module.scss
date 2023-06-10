@@ -1,7 +1,7 @@
 .headerWrapper {
   width: 100%;
-  display: fixed;
-  height: 140px;
+  display: flex;
+  flex-direction: column;
   background-color: #fff;
 }
 
@@ -9,7 +9,9 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  height: 70%;
+  flex-grow: 6;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .leftContent {
@@ -47,6 +49,7 @@
 }
 
 .navBar {
+  flex-grow: 4;
   display: flex !important;
   gap: 30px;
   .navBtn {
@@ -57,8 +60,14 @@
 
     &.active,
     &:hover {
-      border-bottom: 2px solid blue;
+      border-bottom: 2px solid #467fcf;
     }
+  }
+
+  .homeIcon {
+    color: #467fcf;
+    font-size: 3rem;
+    cursor: pointer;
   }
 }
 

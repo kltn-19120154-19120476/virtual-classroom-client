@@ -1,4 +1,6 @@
 .wrapper {
+  background-color: #fff;
+  width: 100%;
 }
 
 .tableHead {
@@ -57,5 +59,28 @@
 
   button {
     margin: 5px;
+  }
+}
+
+.roomHeader {
+  display: flex;
+  justify-content: space-between;
+  flex-flow: row wrap;
+  align-items: center;
+
+  h1 {
+    color: #467fcf;
+    font-size: 3rem;
+    margin-bottom: 10px;
+  }
+
+  p {
+    margin-bottom: 10px;
+  }
+
+  .roomHeaderBtn {
+    button {
+      margin: "0 0 15px 0" !important;
+    }
   }
 }

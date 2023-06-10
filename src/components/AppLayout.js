@@ -1,4 +1,3 @@
-import { Container } from "@mui/system";
 import { useContext } from "react";
 import { AuthContext } from "src/context/authContext";
 import Footer from "./Footer";
@@ -11,9 +10,7 @@ const AppLayout = ({ children }) => {
   return (
     <>
       {isAuthenticated && user && <Header logout={logout} user={user} />}
-      <div className={styles.appLayout}>
-        <Container maxWidth="xl">{children}</Container>
-      </div>
+      <div className={styles.appLayout}>{children}</div>
       <Footer />
     </>
   );

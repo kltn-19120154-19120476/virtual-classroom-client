@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
+import HomeIcon from "@mui/icons-material/Home";
 import Logout from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
@@ -120,11 +121,19 @@ const Header = ({ logout, user }) => {
         </div>
       </Container>
       <Container className={styles.navBar} maxWidth="xl">
-        {navMenu.map((item) => (
-          <Button key={item.path} className={clsx(styles.navBtn, router.asPath.includes(item.path) && styles.active)}>
-            <Link href={item.path}>{item.label}</Link>
-          </Button>
-        ))}
+        {["/", "/rooms", "/recordings"].includes(router.pathname) ? (
+          navMenu.map((item) => (
+            <Button key={item.path} className={clsx(styles.navBtn, router.pathname === item.path && styles.active)}>
+              <Link href={item.path}>{item.label}</Link>
+            </Button>
+          ))
+        ) : (
+          <Link href="/rooms">
+            <Box sx={{ padding: "20px 0 5px 0" }}>
+              <HomeIcon className={styles.homeIcon} />
+            </Box>
+          </Link>
+        )}
       </Container>
     </div>
   );
