@@ -1,14 +1,19 @@
 import { callBBBClient } from "src/client/bbb-client";
 import { updateRoom } from "src/client/room";
+import { isValid } from "src/utils";
 
-export const handleCreateMeeting = async (meetingID, name, moderatorPW) => {
-  const res = await callBBBClient({
-    name,
-    apiCall: "create",
-    meetingID,
-    moderatorPW,
-    record: true,
-  });
+export const handleCreateMeeting = async (meetingID, name, moderatorPW, presentation) => {
+  const res = await callBBBClient(
+    {
+      name,
+      apiCall: "create",
+      meetingID,
+      moderatorPW,
+      record: true,
+      logoutURL: "localhost",
+    },
+    { files: JSON.stringify(presentation || []) },
+  );
 
   if (res?.returncode === "SUCCESS" || res?.messageKey === "idNotUnique") {
     const meetingInfo = await callBBBClient({
@@ -30,7 +35,7 @@ export const handleCreateMeeting = async (meetingID, name, moderatorPW) => {
 };
 
 export const handleJoinMeeting = async ({ data, room, user }) => {
-  const meetingInfo = await handleCreateMeeting(room?._id, room?.name, user?._id);
+  const meetingInfo = await handleCreateMeeting(room?._id, room?.name, user?._id, room.presentation);
 
   if (meetingInfo) {
     await updateRoom({ id: room?._id, meetingInfo: JSON.stringify(meetingInfo) });
@@ -43,4 +48,35 @@ export const handleJoinMeeting = async ({ data, room, user }) => {
       window.open(res.joinUrl);
     }
   }
+};
+
+export const getRecordings = async ({ meetingID }) => {
+  const res = await callBBBClient({
+    meetingID,
+    apiCall: "getRecordings",
+  });
+
+  let recordings;
+
+  if (isValid(res)) {
+    if (res?.recordings?.recording?.recordID) recordings = [res?.recordings?.recording];
+    else if (res?.recordings?.recording?.[0]?.recordID) recordings = res?.recordings?.recording;
+    else recordings = [];
+  } else {
+    recordings = [];
+  }
+
+  return recordings.map((recording) => {
+    const { startTime, endTime, published, participants, size, isBreakout, playback } = recording;
+    return {
+      ...recording,
+      startTime: +startTime,
+      endTime: +endTime,
+      published: published === "true",
+      participants: +participants,
+      size: +size,
+      isBreakout: isBreakout === "true",
+      url: playback.format.url,
+    };
+  });
 };

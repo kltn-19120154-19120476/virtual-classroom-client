@@ -24,7 +24,13 @@ const navMenu = [
     path: "/recordings",
     label: "Recordings",
   },
+  {
+    path: "/documents",
+    label: "Documents",
+  },
 ];
+
+const navPaths = ["/", "/rooms", "/recordings", "/documents"];
 
 const Header = ({ logout, user }) => {
   const [anchorEllAvatar, setanchorEllAvatar] = React.useState(null);
@@ -121,11 +127,11 @@ const Header = ({ logout, user }) => {
         </div>
       </Container>
       <Container className={styles.navBar} maxWidth="xl">
-        {["/", "/rooms", "/recordings"].includes(router.pathname) ? (
+        {navPaths.includes(router.pathname) ? (
           navMenu.map((item) => (
-            <Button key={item.path} className={clsx(styles.navBtn, router.pathname === item.path && styles.active)}>
-              <Link href={item.path}>{item.label}</Link>
-            </Button>
+            <Link href={item.path} key={item.path}>
+              <Button className={clsx(styles.navBtn, router.pathname === item.path && styles.active)}>{item.label}</Button>
+            </Link>
           ))
         ) : (
           <Link href="/rooms">

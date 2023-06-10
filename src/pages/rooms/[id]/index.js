@@ -1,4 +1,3 @@
-import { DocumentScannerRounded, LocalLibrary } from "@mui/icons-material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -25,15 +24,13 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
-import { callBBBClient } from "src/client/bbb-client";
 import { createInviteLinkRoom, deleteRoomById, getRoomDetail, removeFromRoom, sendInviteEmail, updateRoleInRoom } from "src/client/room";
 import { getUserByIds } from "src/client/user";
-import GoogleDriveUploader from "src/components/GoogleDriveUploader";
 import { withLogin } from "src/components/HOC/withLogin";
-import InsertDocumentsForm from "src/components/InsertDocumentsForm";
+import InsertDocuments from "src/components/InsertDocuments";
+import LearningDashboards from "src/components/LearningDashboard";
+import RoomRecordings from "src/components/RoomRecordings";
 import { AuthContext } from "src/context/authContext";
 import { handleJoinMeeting } from "src/service";
 import { customToast, formatTime, getFirst, isValid } from "src/utils";
@@ -41,24 +38,17 @@ import styles from "./styles.module.scss";
 
 const RoomDetailPage = () => {
   const [room, setRoom] = useState(null);
-  const [inviteLink, setInviteLink] = useState("");
   const router = useRouter();
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const { user } = useContext(AuthContext);
 
   const [anchorElButton, setAnchorElButton] = React.useState(null);
-  const openMenu = Boolean(anchorElButton);
-  const handleClickButton = (event) => {
-    setAnchorElButton(event.currentTarget);
-  };
 
   const { register, handleSubmit, errors } = useForm({
     mode: "onChange",
   });
 
   const [openInviteMemberForm, setOpenInviteMemberForm] = useState(false);
-
-  const [meetingInfo, setMeetingInfo] = useState({});
 
   const handleInviteMember = async (data) => {
     try {
@@ -101,13 +91,7 @@ const RoomDetailPage = () => {
       if (isValid(res)) {
         const groupInfo = getFirst(res);
 
-        const [userListRes, recordingRes] = await Promise.all([
-          getUserByIds([groupInfo.ownerId, ...groupInfo.memberIds, ...groupInfo.coOwnerIds]),
-          callBBBClient({
-            meetingID: groupInfo?._id,
-            apiCall: "getRecordings",
-          }),
-        ]);
+        const [userListRes] = await Promise.all([getUserByIds([groupInfo.ownerId, ...groupInfo.memberIds, ...groupInfo.coOwnerIds])]);
 
         const userListMap = {};
 
@@ -118,8 +102,7 @@ const RoomDetailPage = () => {
         groupInfo.coOwners = groupInfo.coOwnerIds.map((id) => userListMap[id]);
         groupInfo.total = groupInfo.memberIds.length + groupInfo.coOwnerIds.length + 1;
         groupInfo.meetingInfo = JSON.parse(groupInfo.meetingInfo || "{}");
-
-        console.log(groupInfo.meetingInfo);
+        groupInfo.presentation = JSON.parse(groupInfo.presentation || "[]");
 
         setRoom(groupInfo);
       } else {
@@ -173,38 +156,27 @@ const RoomDetailPage = () => {
     }
   };
 
-  const [openJoinMeetingForm, setOpenJoinMeetingForm] = useState(false);
-  const [openInsertDocumentsForm, setOpenInsertDocumentsForm] = useState(false);
-
-  const handleUploadDocuments = async (data) => {
-    const res = await callBBBClient(
-      {
-        meetingID: room?._id,
-        apiCall: "insertDocument",
-      },
-      { files: JSON.stringify(data) },
-    );
-    customToast("INFO", res?.message);
-  };
-
-  const [value, setValue] = React.useState("1");
+  const [value, setValue] = React.useState(router?.query?.tab || "recordings");
 
   const handleChange = (e, value) => {
     e.preventDefault();
+    // router.push(
+    //   {
+    //     pathname: `/rooms/${room?._id}`,
+    //     query: { tab: value },
+    //   },
+    //   undefined,
+    //   { shallow: false },
+    // );
     setValue(value);
   };
 
   return (
     <div className={styles.wrapper}>
       {room && (
-        <Container maxWidth="xl">
-          <Grid container spacing={6}>
-            <InsertDocumentsForm
-              handleClose={() => setOpenInsertDocumentsForm(false)}
-              open={openInsertDocumentsForm}
-              handleOK={handleUploadDocuments}
-            />
-            <Grid item xs={12} className={styles.roomHeader}>
+        <Grid container spacing={6}>
+          <Grid item xs={12} sx={{ background: "#fff" }}>
+            <Container maxWidth="xl" className={styles.roomHeader}>
               <div>
                 <h1>{room?.name}</h1>
                 <p>Last session: {formatTime(room.meetingInfo.startTime)}</p>
@@ -231,250 +203,178 @@ const RoomDetailPage = () => {
                   Start meeting
                 </Button>
               </div>
-            </Grid>
-            <Grid item xs={12} style={{ display: "flex", justifyContent: "flex-end" }}>
-              <Box sx={{ width: "100%", typography: "body1" }}>
-                <TabContext value={value}>
-                  <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            </Container>
+          </Grid>
+          <Grid item xs={12} style={{ display: "flex", justifyContent: "flex-end", background: "#fff" }}>
+            <Box sx={{ width: "100%", typography: "body1" }}>
+              <TabContext value={value}>
+                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                  <Container maxWidth="xl">
                     <TabList onChange={handleChange} textColor="primary" indicatorColor="primary">
-                      <Tab label="Recordings" value="1" />
-                      <Tab label="Presentation" value="2" />
-                      <Tab label="Access" value="3" />
-                      <Tab label="Settings" value="4" />
+                      <Tab label="Recordings" value="recordings" />
+                      <Tab label="Presentation" value="presentation" />
+                      <Tab label="Learning dashboard" value="learningDashboard" />
+                      <Tab label="Access" value="access" />
+                      <Tab label="Settings" value="setting" />
                     </TabList>
-                  </Box>
-                  <TabPanel value="1">
-                    Recordings
-                    <Grid item xs={12}>
-                      <h2 style={{ marginBottom: 10 }}>RECORDINGS</h2>
+                  </Container>
+                </Box>
+                <TabPanel value="recordings" className={styles.tabPanel}>
+                  <Grid item xs={12}>
+                    <RoomRecordings room={room} />
+                  </Grid>
+                </TabPanel>
+                <TabPanel value="presentation" className={styles.tabPanel}>
+                  <InsertDocuments room={room} />
+                </TabPanel>
+                <TabPanel value="learningDashboard" className={styles.tabPanel}>
+                  <LearningDashboards room={room} />
+                </TabPanel>
+                <TabPanel value="access" className={styles.tabPanel}>
+                  Access
+                  <Grid item xs={12}>
+                    <h2 style={{ marginBottom: 10 }}>MEMBERS</h2>
 
-                      <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                          <TableHead className={styles.tableHead}>
-                            <TableRow>
-                              <TableCell align="center">Name</TableCell>
-                              <TableCell align="left">Time</TableCell>
-                              <TableCell align="left">State</TableCell>
-                              <TableCell align="left">Participants</TableCell>
-                              <TableCell align="center">Actions</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {room?.recordings?.map((recording) => (
-                              <TableRow key={recording?.internalMeetingID}>
-                                <TableCell align="center">{recording?.name}</TableCell>
-                                <TableCell align="left">
-                                  From: {recording?.startTime} <br /> To: {recording?.endTime}{" "}
-                                </TableCell>
-                                <TableCell align="left">{recording?.state}</TableCell>
-                                <TableCell align="left">{recording?.participants}</TableCell>
-                                <TableCell align="center">
-                                  <CopyToClipboard text={recording?.url} onCopy={() => toast.success("Copied recording url")}>
-                                    <Tooltip title="Copy recording urls">
-                                      <IconButton>
-                                        <ContentCopyIcon />
-                                      </IconButton>
-                                    </Tooltip>
-                                  </CopyToClipboard>
+                    <TableContainer component={Paper}>
+                      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                        <TableHead className={styles.tableHead}>
+                          <TableRow>
+                            <TableCell align="center">Name</TableCell>
+                            <TableCell align="center">Email</TableCell>
+                            <TableCell align="center">Role</TableCell>
+                            {user?._id === room?.ownerId && <TableCell align="center">Action</TableCell>}
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          <TableRow key={room?.ownerId} className={styles.ownerRow}>
+                            <TableCell align="center">{room?.owner?.name}</TableCell>
+                            <TableCell align="center">{room?.owner?.email}</TableCell>
+                            <TableCell align="center">OWNER</TableCell>
+                            {user?._id === room?.ownerId && (
+                              <TableCell align="center">
+                                <Tooltip title="Add new member">
+                                  <IconButton onClick={() => setOpenInviteMemberForm(true)}>
+                                    <PersonAddIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </TableCell>
+                            )}
+                          </TableRow>
 
-                                  <Tooltip title="Delete recording">
-                                    <IconButton
-                                      color="error"
-                                      onClick={async () => {
-                                        const res = await callBBBClient({ recordID: recording.recordID, apiCall: "deleteRecordings" });
-                                        if (res?.returncode === "SUCCESS") {
-                                          toast.info("Recordings deleted successfully");
-                                          getInfoOfGroup();
-                                        }
-                                      }}
-                                    >
-                                      <DeleteIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </Grid>
-                  </TabPanel>
-                  <TabPanel value="2">
-                    <Button
-                      onClick={async () => {
-                        const res = await callBBBClient({
-                          meeting: meetingInfo.internalMeetingID,
-                          apiCall: "learningDashboardFromMeetingId",
-                        });
-                      }}
-                      variant="contained"
-                      color="info"
-                      startIcon={<LocalLibrary />}
-                    >
-                      Get learning dashboard
-                    </Button>
-
-                    <Button
-                      onClick={() => setOpenInsertDocumentsForm(true)}
-                      variant="contained"
-                      color="info"
-                      startIcon={<DocumentScannerRounded />}
-                    >
-                      Insert document
-                    </Button>
-
-                    <GoogleDriveUploader
-                      onSelectFile={async (files) => {
-                        handleUploadDocuments(files);
-                      }}
-                    />
-                  </TabPanel>
-                  <TabPanel value="3">
-                    Access
-                    <Grid item xs={12}>
-                      <h2 style={{ marginBottom: 10 }}>MEMBERS</h2>
-
-                      <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                          <TableHead className={styles.tableHead}>
-                            <TableRow>
-                              <TableCell align="center">Name</TableCell>
-                              <TableCell align="center">Email</TableCell>
-                              <TableCell align="center">Role</TableCell>
-                              {user?._id === room?.ownerId && <TableCell align="center">Action</TableCell>}
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            <TableRow key={room?.ownerId} className={styles.ownerRow}>
-                              <TableCell align="center">{room?.owner?.name}</TableCell>
-                              <TableCell align="center">{room?.owner?.email}</TableCell>
-                              <TableCell align="center">OWNER</TableCell>
+                          {room?.coOwners?.map((coOwner) => (
+                            <TableRow key={coOwner?._id} className={styles.coOwnerRow}>
+                              <TableCell align="center">{coOwner?.name}</TableCell>
+                              <TableCell align="center">{coOwner?.email}</TableCell>
+                              <TableCell align="center">CO OWNER</TableCell>
                               {user?._id === room?.ownerId && (
                                 <TableCell align="center">
-                                  <Tooltip title="Add new member">
-                                    <IconButton onClick={() => setOpenInviteMemberForm(true)}>
-                                      <PersonAddIcon />
+                                  <Tooltip title="Become member">
+                                    <IconButton
+                                      color="secondary"
+                                      onClick={() => handleUpgradeRole(coOwner, false)}
+                                      style={{
+                                        marginRight: "10px",
+                                      }}
+                                    >
+                                      <Person2Icon />
+                                    </IconButton>
+                                  </Tooltip>
+
+                                  <Tooltip title="Kick this co-owner out">
+                                    <IconButton color="error" onClick={() => handleRemove(coOwner)}>
+                                      <DeleteIcon />
                                     </IconButton>
                                   </Tooltip>
                                 </TableCell>
                               )}
                             </TableRow>
+                          ))}
 
-                            {room?.coOwners?.map((coOwner) => (
-                              <TableRow key={coOwner?._id} className={styles.coOwnerRow}>
-                                <TableCell align="center">{coOwner?.name}</TableCell>
-                                <TableCell align="center">{coOwner?.email}</TableCell>
-                                <TableCell align="center">CO OWNER</TableCell>
-                                {user?._id === room?.ownerId && (
-                                  <TableCell align="center">
-                                    <Tooltip title="Become member">
-                                      <IconButton
-                                        color="secondary"
-                                        onClick={() => handleUpgradeRole(coOwner, false)}
-                                        style={{
-                                          marginRight: "10px",
-                                        }}
-                                      >
-                                        <Person2Icon />
-                                      </IconButton>
-                                    </Tooltip>
-
-                                    <Tooltip title="Kick this co-owner out">
-                                      <IconButton color="error" onClick={() => handleRemove(coOwner)}>
-                                        <DeleteIcon />
-                                      </IconButton>
-                                    </Tooltip>
-                                  </TableCell>
-                                )}
-                              </TableRow>
-                            ))}
-
-                            {room?.members?.map((member) => (
-                              <TableRow key={member?._id} className={styles.memberRow}>
-                                <TableCell align="center">{member?.name}</TableCell>
-                                <TableCell align="center">{member?.email}</TableCell>
-                                <TableCell align="center">MEMBER</TableCell>
-                                {user?._id === room?.ownerId && (
-                                  <TableCell align="center">
-                                    <Tooltip title="Become co-owner">
-                                      <IconButton
-                                        color="primary"
-                                        onClick={() => handleUpgradeRole(member, true)}
-                                        style={{
-                                          marginRight: "10px",
-                                        }}
-                                      >
-                                        <PeopleIcon />
-                                      </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Kick this member out">
-                                      <IconButton color="error" onClick={() => handleRemove(member)}>
-                                        <DeleteIcon />
-                                      </IconButton>
-                                    </Tooltip>
-                                  </TableCell>
-                                )}
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </Grid>
-                  </TabPanel>
-                  <TabPanel value="4">
-                    Settings
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      ref={anchorElButton}
-                      onClick={() => setOpenConfirmDelete(true)}
-                      startIcon={<DeleteForeverIcon />}
-                      style={{ marginLeft: "20px" }}
-                    >
-                      Delete Room
-                    </Button>
-                  </TabPanel>
-                </TabContext>
-              </Box>
-            </Grid>
-
-            <Dialog open={openInviteMemberForm} onClose={() => setOpenInviteMemberForm(false)} style={{ width: "100%" }}>
-              <form onSubmit={handleSubmit(handleInviteMember)}>
-                <DialogTitle id="alert-dialog-title">Invite a member by email</DialogTitle>
-                <DialogContent style={{ overflowY: "initial" }}>
-                  <TextField
-                    label="Member's email"
-                    placeholder="Enter member's email"
-                    {...register("memberEmail")}
-                    type="email"
-                    required
-                    fullWidth
-                  />
-                </DialogContent>
-                <DialogActions>
-                  <Button variant="contained" onClick={() => setOpenInviteMemberForm(false)}>
-                    Cancel
+                          {room?.members?.map((member) => (
+                            <TableRow key={member?._id} className={styles.memberRow}>
+                              <TableCell align="center">{member?.name}</TableCell>
+                              <TableCell align="center">{member?.email}</TableCell>
+                              <TableCell align="center">MEMBER</TableCell>
+                              {user?._id === room?.ownerId && (
+                                <TableCell align="center">
+                                  <Tooltip title="Become co-owner">
+                                    <IconButton
+                                      color="primary"
+                                      onClick={() => handleUpgradeRole(member, true)}
+                                      style={{
+                                        marginRight: "10px",
+                                      }}
+                                    >
+                                      <PeopleIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Kick this member out">
+                                    <IconButton color="error" onClick={() => handleRemove(member)}>
+                                      <DeleteIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                </TableCell>
+                              )}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Grid>
+                </TabPanel>
+                <TabPanel value="setting" className={styles.tabPanel}>
+                  Settings
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    ref={anchorElButton}
+                    onClick={() => setOpenConfirmDelete(true)}
+                    startIcon={<DeleteForeverIcon />}
+                    style={{ marginLeft: "20px" }}
+                  >
+                    Delete Room
                   </Button>
-                  <Button variant="contained" type="submit">
-                    Invite
-                  </Button>
-                </DialogActions>
-              </form>
-            </Dialog>
-            <Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)}>
-              <DialogTitle id="alert-dialog-title">Delete this room?</DialogTitle>
+                </TabPanel>
+              </TabContext>
+            </Box>
+          </Grid>
 
+          <Dialog open={openInviteMemberForm} onClose={() => setOpenInviteMemberForm(false)} style={{ width: "100%" }}>
+            <form onSubmit={handleSubmit(handleInviteMember)}>
+              <DialogTitle id="alert-dialog-title">Invite a member by email</DialogTitle>
+              <DialogContent style={{ overflowY: "initial" }}>
+                <TextField
+                  label="Member's email"
+                  placeholder="Enter member's email"
+                  {...register("memberEmail")}
+                  type="email"
+                  required
+                  fullWidth
+                />
+              </DialogContent>
               <DialogActions>
-                <Button variant="outlined" onClick={() => setOpenConfirmDelete(false)}>
+                <Button variant="contained" onClick={() => setOpenInviteMemberForm(false)}>
                   Cancel
                 </Button>
-                <Button color="error" variant="contained" type="submit" onClick={handleDeleteGroup}>
-                  Delete
+                <Button variant="contained" type="submit">
+                  Invite
                 </Button>
               </DialogActions>
-            </Dialog>
-          </Grid>
-        </Container>
+            </form>
+          </Dialog>
+          <Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)}>
+            <DialogTitle id="alert-dialog-title">Delete this room?</DialogTitle>
+
+            <DialogActions>
+              <Button variant="outlined" onClick={() => setOpenConfirmDelete(false)}>
+                Cancel
+              </Button>
+              <Button color="error" variant="contained" type="submit" onClick={handleDeleteGroup}>
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </Grid>
       )}
     </div>
   );

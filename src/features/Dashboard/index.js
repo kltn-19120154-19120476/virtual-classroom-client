@@ -28,7 +28,7 @@ const Dashboard = ({ user, getUser }) => {
       if (isValid(res)) {
         const roomInfo = getFirst(res);
 
-        const meetingInfo = await handleCreateMeeting(roomInfo._id, roomInfo.name, user?._id);
+        const meetingInfo = await handleCreateMeeting(roomInfo._id, roomInfo.name, user?._id, roomInfo.presentation);
 
         await updateRoom({ id: roomInfo._id, meetingInfo: JSON.stringify(meetingInfo) });
 
@@ -71,9 +71,9 @@ const Dashboard = ({ user, getUser }) => {
                 new room
               </Button>
             </Grid>
-            <Grid item container spacing={6} xs={12} className={styles.groupWrapper}>
+            <Grid item container spacing={2} xs={12} className={styles.groupWrapper}>
               {user?.myGroups?.map((room) => (
-                <Grid item xs={12} md={6} lg={4} key={room?._id}>
+                <Grid item xs={12} sm={6} md={4} lg={3} key={room?._id}>
                   <Link href={`/rooms/${room?._id}`}>
                     <Card className={styles.card}>
                       <div className={styles.cardIcon}>
@@ -83,7 +83,6 @@ const Dashboard = ({ user, getUser }) => {
                       <div className={styles.cardInfo}>
                         <h2>{room.name}</h2>
                         <p>Last session: {formatTime(JSON.parse(room.meetingInfo)?.startTime)}</p>
-                        <p>Created at: {formatTime(JSON.parse(room.meetingInfo)?.createTime)}</p>
                       </div>
                       <div className={styles.cardFooter}>
                         <IconButton>

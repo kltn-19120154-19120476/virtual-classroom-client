@@ -2,7 +2,7 @@ import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import { Button, Card, Container, IconButton, Switch, Tooltip } from "@mui/material";
+import { Button, Container, IconButton, Switch, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -14,40 +14,20 @@ import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
-import withLogin from "src/components/HOC/withLogin";
+import { NoRecording } from "src/pages/recordings";
 import { getRecordings } from "src/service";
 import { formatTime, isValid } from "src/utils";
 import styles from "./styles.module.scss";
 
-export const NoRecording = ({ refreshButton = null }) => (
-  <Card className={styles.noRecordWrapper}>
-    <IconButton className={styles.camIcon} color="primary">
-      <VideocamIcon />
-    </IconButton>
-    <h2>You don&apos;t have any recordings yet!</h2>
-
-    <p>Recordings will appear here after you start a meeting and record it.</p>
-
-    {refreshButton}
-  </Card>
-);
-
-function RecordingsPage({ user }) {
+export default function RoomRecordings({ room }) {
   const [recordings, setRecordings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const getRecordingsData = async () => {
-    const roomIDs = [...(user?.myGroupIds || []), ...(user?.joinedGroupIds || [])];
-
-    const recordingsRes = await Promise.all(roomIDs.map((id) => getRecordings({ meetingID: id })));
-
-    let recordings = [];
-
-    recordingsRes.forEach((recordingRes) => {
-      recordings = recordings.concat(...recordingRes);
-    });
-
-    setRecordings(recordings);
+    const res = await getRecordings({ meetingID: room?._id });
+    if (res) {
+      setRecordings(res);
+    }
     setLoading(false);
   };
 
@@ -149,5 +129,3 @@ function RecordingsPage({ user }) {
     </Container>
   );
 }
-
-export default withLogin(RecordingsPage);

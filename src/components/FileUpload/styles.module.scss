@@ -1,12 +1,14 @@
-.noRecordWrapper {
+.uploadWrapper {
   display: flex;
   align-items: center;
   flex-flow: column nowrap;
   padding: 30px;
   gap: 20px;
   text-align: center;
+  margin-top: 20px;
+  cursor: pointer;
 
-  .camIcon {
+  .uploadIcon {
     background-color: #467fcf;
     padding: 20px;
     color: #fff;
