@@ -19,6 +19,9 @@ const AuthContextProvider = ({ children }) => {
 
   const getUser = async () => {
     try {
+      if (localStorage && !localStorage.getItem("access_token")) {
+        window.location.href = "/login";
+      }
       if (localStorage?.getItem("access_token")) {
         setIsLoadingAuth(true);
         const res = await getUserInfo();
