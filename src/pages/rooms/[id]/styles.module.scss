@@ -53,7 +53,7 @@
 }
 
 .roomHeader {
-  display: flex;
+  display: flex !important;
   justify-content: space-between;
   flex-flow: row wrap;
   align-items: center;
