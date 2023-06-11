@@ -2,6 +2,7 @@ import { Container } from "@mui/material";
 import { useEffect, useState } from "react";
 import { callBBBClient } from "src/client/bbb-client";
 import { isValid } from "src/utils";
+import LearningDashboardDetail from "./LearningDashBoardDetail";
 
 let intervalID;
 
@@ -15,7 +16,7 @@ export default function LearningDashboards({ room }) {
     });
     if (isValid(res)) {
       console.log(JSON.parse(res.data));
-      setLearningDashboard(JSON.parse(res.data || "{}"));
+      setLearningDashboard(res.data);
     }
   };
 
@@ -28,5 +29,5 @@ export default function LearningDashboards({ room }) {
     };
   }, []);
 
-  return <Container maxWidth="xl">{JSON.stringify(learningDashboard)}</Container>;
+  return <Container maxWidth="xl">{learningDashboard && <LearningDashboardDetail jsonData={learningDashboard} />}</Container>;
 }
