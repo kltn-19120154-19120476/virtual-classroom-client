@@ -52,7 +52,7 @@ export default function InsertDocuments({ room }) {
 
       const updateRoomRes = await updateRoom({ id: room?._id, presentation: JSON.stringify(newPresentationList) });
 
-      if (isValid(res) && isValid(updateRoomRes)) {
+      if (isValid(updateRoomRes)) {
         setPresentationList(newPresentationList);
         room.presentation = newPresentationList;
         toast.success("Documents uploaded successfully");
