@@ -2,6 +2,10 @@ import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import TabUnstyled from "@mui/base/TabUnstyled";
 import TabsListUnstyled from "@mui/base/TabsListUnstyled";
 import TabsUnstyled from "@mui/base/TabsUnstyled";
+import DownloadIcon from "@mui/icons-material/Download";
+import GroupsIcon from "@mui/icons-material/Groups";
+import PollIcon from "@mui/icons-material/Poll";
+import { Button, Chip, Typography } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import React from "react";
@@ -14,12 +18,11 @@ import PollsTable from "./PollsTable";
 import StatusTable from "./StatusTable";
 import UserDetails from "./UserDetails/component";
 import UsersTable from "./UsersTable";
-
+import styles from "./styles.module.scss";
 const TABS = {
   OVERVIEW: 0,
-  OVERVIEW_ACTIVITY_SCORE: 1,
-  TIMELINE: 2,
-  POLLING: 3,
+  TIMELINE: 1,
+  POLLING: 2,
 };
 
 export default class LearningDashboardDetail extends React.Component {
@@ -232,32 +235,19 @@ export default class LearningDashboardDetail extends React.Component {
 
     return (
       <div className="mx-10">
-        <div className="flex flex-col sm:flex-row items-start justify-between pb-3">
-          <h1 className="mt-3 text-2xl font-semibold whitespace-nowrap inline-block">
-            Learning Dashboard
-            <br />
-            <span className="text-sm font-medium">{activitiesJson.name || ""}</span>
-          </h1>
-          <div className="mt-3 col-text-right py-1 text-gray-500 inline-block">
-            <p className="font-bold">
-              <div className="inline" data-test="meetingDateDashboard">
-                {formatTime(activitiesJson.createdOn)}
-              </div>
+        <div className={styles.userTableHeader}>
+          <Typography variant="h3" color="primary">
+            {activitiesJson.name || ""}
+          </Typography>
+          <div>
+            <p style={{ fontWeight: 600 }}>
+              <span>{formatTime(activitiesJson.createdOn)}</span>
               &nbsp;&nbsp;
-              {activitiesJson.endedOn > 0 ? (
-                <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">Ended</span>
-              ) : null}
-              {activitiesJson.endedOn === 0 ? (
-                <span
-                  className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full"
-                  data-test="meetingStatusActiveDashboard"
-                >
-                  Active
-                </span>
-              ) : null}
+              {activitiesJson.endedOn > 0 ? <Chip color="error" label="Ended" /> : null}
+              {activitiesJson.endedOn === 0 ? <Chip color="success" label="Active" /> : null}
             </p>
-            <p data-test="meetingDurationTimeDashboard">
-              Duration :&nbsp;
+            <p>
+              Duration:&nbsp;
               {tsToHHmmss(totalOfActivity())}
             </p>
           </div>
@@ -269,100 +259,39 @@ export default class LearningDashboardDetail extends React.Component {
             this.setState({ tab: v });
           }}
         >
-          <TabsListUnstyled className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-            <TabUnstyled
-              className="rounded focus:outline-none focus:ring focus:ring-pink-500 ring-offset-2"
-              data-test="activeUsersPanelDashboard"
-            >
-              <Card>
-                <CardContent classes={{ root: "!p-0" }}>
-                  <CardBody
-                    name={activitiesJson.endedOn === 0 ? "Active Users" : "Total Number Of Users"}
-                    number={usersCount}
-                    cardClass={tab === TABS.OVERVIEW ? "border-pink-500" : "hover:border-pink-500 border-white"}
-                    iconClass="bg-pink-50 text-pink-500"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
+          <TabsListUnstyled className={styles.userTableTab}>
+            <TabUnstyled style={{ border: "none" }}>
+              <Card className={tab === TABS.OVERVIEW && styles.cardActive}>
+                <CardContent>
+                  <CardBody name={activitiesJson.endedOn === 0 ? "Active Users" : "Total Number Of Users"} number={usersCount}>
+                    <GroupsIcon fontSize="large" color="primary" />
                   </CardBody>
                 </CardContent>
               </Card>
             </TabUnstyled>
-            <TabUnstyled
-              className="rounded focus:outline-none focus:ring focus:ring-green-500 ring-offset-2"
-              data-test="activityScorePanelDashboard"
-            >
-              <Card>
-                <CardContent classes={{ root: "!p-0" }}>
-                  <CardBody
-                    name="Activity Score"
-                    number={getAverageActivityScore() || 0}
-                    cardClass={tab === TABS.OVERVIEW_ACTIVITY_SCORE ? "border-green-500" : "hover:border-green-500 border-white"}
-                    iconClass="bg-green-200 text-green-700"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
-                      />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                    </svg>
-                  </CardBody>
-                </CardContent>
-              </Card>
-            </TabUnstyled>
-            <TabUnstyled
-              className="rounded focus:outline-none focus:ring focus:ring-purple-500 ring-offset-2"
-              data-test="timelinePanelDashboard"
-            >
-              <Card>
-                <CardContent classes={{ root: "!p-0" }}>
-                  <CardBody
-                    name={"Timeline"}
-                    number={totalOfEmojis()}
-                    cardClass={tab === TABS.TIMELINE ? "border-purple-500" : "hover:border-purple-500 border-white"}
-                    iconClass="bg-purple-200 text-purple-500"
-                  >
+            <TabUnstyled style={{ border: "none" }}>
+              <Card className={tab === TABS.TIMELINE && styles.cardActive}>
+                <CardContent>
+                  <CardBody name={"Timeline"} number={totalOfEmojis()}>
                     {this.fetchMostUsedEmojis()}
                   </CardBody>
                 </CardContent>
               </Card>
             </TabUnstyled>
-            <TabUnstyled
-              className="rounded focus:outline-none focus:ring focus:ring-blue-500 ring-offset-2"
-              data-test="pollsPanelDashboard"
-            >
-              <Card>
-                <CardContent classes={{ root: "!p-0" }}>
-                  <CardBody
-                    name={"Polls"}
-                    number={Object.values(activitiesJson.polls || {}).length}
-                    cardClass={tab === TABS.POLLING ? "border-blue-500" : "hover:border-blue-500 border-white"}
-                    iconClass="bg-blue-100 text-blue-500"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                      />
-                    </svg>
+            <TabUnstyled style={{ border: "none" }}>
+              <Card className={tab === TABS.POLLING && styles.cardActive}>
+                <CardContent>
+                  <CardBody name={"Polls"} number={Object.values(activitiesJson.polls || {}).length}>
+                    <PollIcon fontSize="large" color="primary" />
                   </CardBody>
                 </CardContent>
               </Card>
             </TabUnstyled>
           </TabsListUnstyled>
           <TabPanelUnstyled value={0}>
-            <h2 className="block my-2 pr-2 text-xl font-semibold">Overview</h2>
+            <Typography variant="h4" color="primary" sx={{ marginTop: 6, marginBottom: 2 }}>
+              Overview
+            </Typography>
             <UsersTable
               allUsers={activitiesJson.users}
               totalOfActivityTime={totalOfActivity()}
@@ -371,58 +300,33 @@ export default class LearningDashboardDetail extends React.Component {
             />
           </TabPanelUnstyled>
           <TabPanelUnstyled value={1}>
-            <h2 className="block my-2 pr-2 text-xl font-semibold">Overview</h2>
-            <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
-              <div className="w-full overflow-x-auto">
-                <UsersTable
-                  allUsers={activitiesJson.users}
-                  totalOfActivityTime={totalOfActivity()}
-                  totalOfPolls={Object.values(activitiesJson.polls || {}).length}
-                  tab="overview_activityscore"
-                />
-              </div>
-            </div>
+            <Typography variant="h4" color="primary" sx={{ marginTop: 6, marginBottom: 2 }}>
+              Timeline
+            </Typography>
+            <StatusTable allUsers={activitiesJson.users} slides={activitiesJson.presentationSlides} meetingId={activitiesJson.intId} />
           </TabPanelUnstyled>
           <TabPanelUnstyled value={2}>
-            <h2 className="block my-2 pr-2 text-xl font-semibold">Timeline</h2>
-            <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
-              <div className="w-full overflow-x-auto">
-                <StatusTable allUsers={activitiesJson.users} slides={activitiesJson.presentationSlides} meetingId={activitiesJson.intId} />
-              </div>
-            </div>
-          </TabPanelUnstyled>
-          <TabPanelUnstyled value={3}>
-            <h2 className="block my-2 pr-2 text-xl font-semibold">Polls</h2>
-            <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
-              <div className="w-full overflow-x-auto">
-                <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
-              </div>
-            </div>
+            <Typography variant="h4" color="primary" sx={{ marginTop: 6, marginBottom: 2 }}>
+              Polls
+            </Typography>
+            <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
           </TabPanelUnstyled>
         </TabsUnstyled>
         <UserDetails dataJson={activitiesJson} />
-        <hr className="my-8" />
-        <div className="flex justify-between pb-8 text-xs text-gray-800 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
-          <div className="flex flex-col justify-center mb-4 sm:mb-0">
-            <p className="text-gray-700">
+        <div className={styles.userTableFooter}>
+          <div>
+            <p style={{ fontWeight: 600 }}>
               {lastUpdated && (
                 <>
                   Last updated at &nbsp;
-                  {formatTime(lastUpdated)}
-                  &nbsp;
                   {formatTime(lastUpdated)}
                 </>
               )}
             </p>
           </div>
-          <button
-            data-test="downloadSessionDataDashboard"
-            type="button"
-            className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
-            onClick={this.handleSaveSessionData.bind(this)}
-          >
+          <Button color="primary" variant="contained" onClick={this.handleSaveSessionData.bind(this)} startIcon={<DownloadIcon />}>
             Download Session Data
-          </button>
+          </Button>
         </div>
       </div>
     );

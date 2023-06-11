@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import { updateRoom } from "src/client/room";
 import FileUpload from "src/components/FileUpload";
-import { uploadImageToFirebase } from "src/utils";
+import { isValid, uploadImageToFirebase } from "src/utils";
 import styles from "./styles.module.scss";
 
 export default function InsertDocuments({ room }) {
@@ -47,12 +47,16 @@ export default function InsertDocuments({ room }) {
         },
         { files: JSON.stringify(uploadedFiles) },
       );
-      toast.success(res.message);
 
       const newPresentationList = [...presentationList, ...uploadedFiles];
 
-      await updateRoom({ id: room?._id, presentation: JSON.stringify(newPresentationList) });
-      setPresentationList(newPresentationList);
+      const updateRoomRes = await updateRoom({ id: room?._id, presentation: JSON.stringify(newPresentationList) });
+
+      if (isValid(res) && isValid(updateRoomRes)) {
+        setPresentationList(newPresentationList);
+        room.presentation = newPresentationList;
+        toast.success("Documents uploaded successfully");
+      }
     } else {
       toast.error(`${filesExisted?.map((file) => file.name).join(", ")} existed`);
     }

@@ -90,7 +90,7 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
 
     return {
       returncode: RETURN_CODE.FAILED,
-      message: "Wrong password",
+      message: "Meeting password does not match",
     };
   }
 

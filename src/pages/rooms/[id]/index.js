@@ -24,7 +24,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
+import CopyToClipboard from "react-copy-to-clipboard";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { createInviteLinkRoom, deleteRoomById, getRoomDetail, removeFromRoom, sendInviteEmail, updateRoleInRoom } from "src/client/room";
 import { getUserByIds } from "src/client/user";
 import { withLogin } from "src/components/HOC/withLogin";
@@ -183,17 +185,15 @@ const RoomDetailPage = () => {
               </div>
 
               <div className={styles.roomHeaderBtn}>
-                <Button
-                  onClick={() => {
-                    console.log("copy");
-                  }}
-                  variant="outlined"
-                  color="primary"
-                  startIcon={<ContentCopyIcon />}
-                  sx={{ marginRight: 2 }}
+                <CopyToClipboard
+                  text={`${window?.location?.host}/join?meetingID=${room._id}&meetingName=${room.name}`}
+                  onCopy={() => toast.success("Copied join url")}
                 >
-                  Copy join link
-                </Button>
+                  <Button variant="outlined" color="primary" startIcon={<ContentCopyIcon />} sx={{ marginRight: 2 }}>
+                    Copy join link
+                  </Button>
+                </CopyToClipboard>
+
                 <Button
                   onClick={() => handleJoinMeeting({ data: { password: user?._id, fullName: user?.name, role: "moderator" }, room, user })}
                   variant="contained"

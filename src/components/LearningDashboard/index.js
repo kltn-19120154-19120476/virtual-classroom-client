@@ -1,9 +1,10 @@
+import CastForEducationIcon from "@mui/icons-material/CastForEducation";
 import { Container } from "@mui/material";
 import { useEffect, useState } from "react";
 import { callBBBClient } from "src/client/bbb-client";
 import { isValid } from "src/utils";
+import { NoData } from "../NoDataNotification";
 import LearningDashboardDetail from "./LearningDashBoardDetail";
-
 let intervalID;
 
 export default function LearningDashboards({ room }) {
@@ -29,5 +30,17 @@ export default function LearningDashboards({ room }) {
     };
   }, []);
 
-  return <Container maxWidth="xl">{learningDashboard && <LearningDashboardDetail jsonData={learningDashboard} />}</Container>;
+  return (
+    <Container maxWidth="xl">
+      {learningDashboard ? (
+        <LearningDashboardDetail jsonData={learningDashboard} />
+      ) : (
+        <NoData
+          title="Not available"
+          description="Learning dashboard will appear here after you start a meeting"
+          icon={<CastForEducationIcon />}
+        />
+      )}
+    </Container>
+  );
 }

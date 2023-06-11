@@ -14,9 +14,9 @@ import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
-import { NoRecording } from "src/pages/recordings";
 import { getRecordings } from "src/service";
 import { formatTime, isValid } from "src/utils";
+import { NoData } from "../NoDataNotification";
 import styles from "./styles.module.scss";
 
 export default function RoomRecordings({ room }) {
@@ -122,7 +122,12 @@ export default function RoomRecordings({ room }) {
               </TableContainer>
             </>
           ) : (
-            <NoRecording refreshButton={<RefreshButton />} />
+            <NoData
+              refreshButton={<RefreshButton />}
+              title="You don't have any recordings yet!"
+              description="Recordings will appear here after you start a meeting and record it."
+              icon={<VideocamIcon />}
+            />
           )}
         </>
       )}

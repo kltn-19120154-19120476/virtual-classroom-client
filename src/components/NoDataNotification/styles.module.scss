@@ -1,0 +1,21 @@
+.noRecordWrapper {
+  display: flex;
+  align-items: center;
+  flex-flow: column nowrap;
+  padding: 30px;
+  gap: 20px;
+  text-align: center;
+
+  .camIcon {
+    background-color: #467fcf;
+    padding: 20px;
+    color: #fff;
+    svg {
+      font-size: 3rem;
+    }
+  }
+
+  h2 {
+    color: #467fcf;
+  }
+}

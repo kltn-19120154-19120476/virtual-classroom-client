@@ -9,7 +9,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Link from "next/link";
 import { useState } from "react";
+import CopyToClipboard from "react-copy-to-clipboard";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { createRoom, updateRoom } from "src/client/room";
 import { handleCreateMeeting, handleJoinMeeting } from "src/service";
 import { customToast, formatTime, getFirst, isValid } from "src/utils";
@@ -85,9 +87,14 @@ const Dashboard = ({ user, getUser }) => {
                         <p>Last session: {formatTime(JSON.parse(room.meetingInfo)?.startTime)}</p>
                       </div>
                       <div className={styles.cardFooter}>
-                        <IconButton>
-                          <ContentCopyIcon />
-                        </IconButton>
+                        <CopyToClipboard
+                          text={`${window?.location?.host}/join?meetingID=${room._id}&meetingName=${room.name}`}
+                          onCopy={() => toast.success("Copied join url")}
+                        >
+                          <IconButton onClick={(e) => e.stopPropagation()}>
+                            <ContentCopyIcon />
+                          </IconButton>
+                        </CopyToClipboard>
 
                         <Button
                           variant="outlined"

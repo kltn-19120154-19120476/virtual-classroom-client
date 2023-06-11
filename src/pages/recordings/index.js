@@ -2,7 +2,7 @@ import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import { Button, Card, Container, IconButton, Switch, Tooltip } from "@mui/material";
+import { Button, Container, IconButton, Switch, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -15,22 +15,10 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import withLogin from "src/components/HOC/withLogin";
+import { NoData } from "src/components/NoDataNotification";
 import { getRecordings } from "src/service";
 import { formatTime, isValid } from "src/utils";
 import styles from "./styles.module.scss";
-
-export const NoRecording = ({ refreshButton = null }) => (
-  <Card className={styles.noRecordWrapper}>
-    <IconButton className={styles.camIcon} color="primary">
-      <VideocamIcon />
-    </IconButton>
-    <h2>You don&apos;t have any recordings yet!</h2>
-
-    <p>Recordings will appear here after you start a meeting and record it.</p>
-
-    {refreshButton}
-  </Card>
-);
 
 function RecordingsPage({ user }) {
   const [recordings, setRecordings] = useState([]);
@@ -142,7 +130,12 @@ function RecordingsPage({ user }) {
               </TableContainer>
             </>
           ) : (
-            <NoRecording refreshButton={<RefreshButton />} />
+            <NoData
+              refreshButton={<RefreshButton />}
+              title="You don't have any recordings yet!"
+              description="Recordings will appear here after you start a meeting and record it."
+              icon={<VideocamIcon />}
+            />
           )}
         </>
       )}

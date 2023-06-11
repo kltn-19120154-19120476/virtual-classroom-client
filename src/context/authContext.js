@@ -4,11 +4,13 @@ import { loginFunc, loginGoogleFunc, registerFunc, resetAccount } from "src/clie
 import { getRoomByIds } from "src/client/room";
 import { getUserInfo } from "src/client/user";
 import LoadingScreen from "src/components/LoadingScreen";
-import { customToast, getFirst, getLinkWithPrefix, isValid } from "src/utils";
+import { customToast, getFirst, isValid } from "src/utils";
 
 const AuthContext = createContext();
 
 const notGetUserPaths = ["/login", "/register"];
+
+const notRequiredLoginPaths = ["/join"];
 
 const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -19,7 +21,7 @@ const AuthContextProvider = ({ children }) => {
 
   const getUser = async () => {
     try {
-      if (localStorage && !localStorage.getItem("access_token")) {
+      if (localStorage && !localStorage.getItem("access_token") && !notRequiredLoginPaths.includes(router.pathname)) {
         window.location.href = "/login";
       }
       if (localStorage?.getItem("access_token")) {
@@ -92,7 +94,7 @@ const AuthContextProvider = ({ children }) => {
         setIsAuthenticated(true);
         localStorage.setItem("access_token", userInfo?.access_token || "");
         await customToast("SUCCESS", "Login successful!");
-        window.location.href = getLinkWithPrefix("/");
+        window.location.href = "/";
       } else {
         await customToast("ERROR", res.message);
         setIsLoadingAuth(false);
@@ -132,7 +134,7 @@ const AuthContextProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("access_token");
-    window.location.href = getLinkWithPrefix("/login");
+    window.location.href = "/login";
   };
 
   return (

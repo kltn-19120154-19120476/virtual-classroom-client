@@ -9,6 +9,8 @@ export const WEB_HOST = process.env.NEXT_PUBLIC_WEB_HOST || "";
 export const BBB_SERVER = process.env.NEXT_PUBLIC_BBB_SERVER;
 export const BBB_SECRET = process.env.NEXT_PUBLIC_BBB_SECRET;
 
+export const BBB_DEFAULT_ATTENDEE_PASSWORD = "kltn-19120154-19120476";
+
 export const theme = createTheme({
   palette: {
     primary: {

@@ -1,5 +1,6 @@
 import { callBBBClient } from "src/client/bbb-client";
 import { updateRoom } from "src/client/room";
+import { BBB_DEFAULT_ATTENDEE_PASSWORD, WEB_HOST } from "src/sysconfig";
 import { isValid } from "src/utils";
 
 export const handleCreateMeeting = async (meetingID, name, moderatorPW, presentation) => {
@@ -9,8 +10,9 @@ export const handleCreateMeeting = async (meetingID, name, moderatorPW, presenta
       apiCall: "create",
       meetingID,
       moderatorPW,
+      attendeePW: BBB_DEFAULT_ATTENDEE_PASSWORD,
       record: true,
-      logoutURL: "localhost",
+      logoutURL: WEB_HOST.replace("https://", ""),
     },
     { files: JSON.stringify(presentation || []) },
   );

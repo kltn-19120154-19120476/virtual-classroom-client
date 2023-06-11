@@ -1,3 +1,4 @@
+import { Typography } from "@mui/material";
 import React from "react";
 
 function Card(props) {
@@ -7,22 +8,18 @@ function Card(props) {
 
   try {
     React.Children.only(children);
-    icons = <div className={`p-2 rounded-full ${iconClass || "text-orange-500"}`}>{children}</div>;
+    icons = <div>{children}</div>;
   } catch (e) {
     icons = (
-      <div className="flex">
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
         {React.Children.map(children, (child, index) => {
           let offset = 4 / (index + 1);
           offset = index === React.Children.count(children) - 1 ? 0 : offset;
 
           return (
-            <div
-              className={`flex justify-center transform translate-x-${offset} border-2 border-white p-2 rounded-full z-${index * 10} ${
-                iconClass || "text-orange-500"
-              }`}
-            >
+            <Typography variant="span" color="primary">
               {child}
-            </div>
+            </Typography>
           );
         })}
       </div>
@@ -30,10 +27,12 @@ function Card(props) {
   }
 
   return (
-    <div className={"flex items-start justify-between p-3 bg-white rounded shadow border-l-4" + ` ${cardClass}`}>
-      <div className="w-70 text-left rtl:text-right">
-        <p className="text-lg font-semibold text-gray-700">{number}</p>
-        <p className="mb-2 text-sm font-medium text-gray-600">{name}</p>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }} className={cardClass}>
+      <div style={{ textAlign: "left", fontSize: "1.3rem" }}>
+        <Typography color="primary" variant="p" sx={{ fontWeight: 600 }}>
+          {number}
+        </Typography>
+        <p>{name}</p>
       </div>
       {icons}
     </div>
