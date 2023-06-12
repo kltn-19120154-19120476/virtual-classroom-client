@@ -140,7 +140,7 @@ class UsersTable extends React.Component {
     return (
       <TableContainer>
         <Table>
-          <TableHead className={styles.tableHead}>
+          <TableHead className="tableHead">
             <TableRow className="text-xs font-semibold tracking-wide text-left text-gray-700 uppercase border-b bg-gray-100">
               <TableCell
                 className={`px-3.5 2xl:px-4 py-3 col-text-left ${tab === "overview" ? "cursor-pointer" : ""}`}

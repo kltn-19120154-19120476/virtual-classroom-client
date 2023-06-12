@@ -37,6 +37,11 @@ h5 {
   background-color: #f5f5f5;
 }
 
+.tableHead * {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
 @font-face {
   font-family: "bbb-icons";
   src: url("/fonts/bbb-icons.woff") format("woff");

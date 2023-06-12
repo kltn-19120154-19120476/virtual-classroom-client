@@ -82,7 +82,7 @@ function RecordingsPage({ user }) {
 
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }}>
-                  <TableHead className={styles.tableHead}>
+                  <TableHead className="tableHead">
                     <TableRow>
                       <TableCell align="left">Meeting name</TableCell>
                       <TableCell align="left">Time</TableCell>

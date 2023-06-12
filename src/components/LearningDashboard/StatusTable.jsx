@@ -3,7 +3,6 @@ import React from "react";
 import { emojiConfigs, filterUserEmojis } from "src/service/EmojiService";
 import { WEB_HOST } from "src/sysconfig";
 import UserAvatar from "./UserAvatar";
-import styles from "./styles.module.scss";
 class StatusTable extends React.Component {
   componentDidMount() {
     // This code is needed to prevent emojis from overflowing.
@@ -153,7 +152,7 @@ class StatusTable extends React.Component {
     return (
       <TableContainer>
         <Table>
-          <TableHead className={styles.tableHead}>
+          <TableHead className="tableHead">
             <TableRow>
               <TableCell>User</TableCell>
               <TableCell colSpan={periods.length}>Timeline</TableCell>

@@ -110,8 +110,9 @@ const AuthContextProvider = ({ children }) => {
       setIsLoadingAuth(true);
       const res = await registerFunc(data);
       localStorage.setItem("access_token", getFirst(res)?.access_token || "");
-      setIsLoadingAuth(false);
       await customToast("SUCCESS", "Register successful!");
+      window.location.href = "/";
+      setIsLoadingAuth(false);
     } catch (e) {
       await customToast("ERROR", e?.response?.data?.message || "Register failed!");
       setIsLoadingAuth(false);

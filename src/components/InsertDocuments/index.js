@@ -15,7 +15,6 @@ import { callBBBClient } from "src/client/bbb-client";
 import { updateRoom } from "src/client/room";
 import FileUpload from "src/components/FileUpload";
 import { isValid, uploadImageToFirebase } from "src/utils";
-import styles from "./styles.module.scss";
 
 export default function InsertDocuments({ room }) {
   const [loading, setLoading] = useState(false);
@@ -75,7 +74,7 @@ export default function InsertDocuments({ room }) {
       {presentationList?.length > 0 && (
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }}>
-            <TableHead className={styles.tableHead}>
+            <TableHead className="tableHead">
               <TableRow>
                 <TableCell align="left">Name</TableCell>
                 <TableCell align="center">Actions</TableCell>
@@ -87,7 +86,7 @@ export default function InsertDocuments({ room }) {
                   <TableCell align="left">{presentation.name}</TableCell>
                   <TableCell align="center">
                     <CopyToClipboard text={presentation?.url} onCopy={() => toast.success("Copied presentation url")}>
-                      <Tooltip title="Copy presentation urls">
+                      <Tooltip title="Copy presentation url">
                         <IconButton>
                           <ContentCopyIcon />
                         </IconButton>
