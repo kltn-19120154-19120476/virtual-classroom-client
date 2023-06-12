@@ -35,31 +35,33 @@ const RoomDetailPage = () => {
   const isOwner = user?._id === room?.ownerId;
 
   const getInfoOfGroup = async () => {
-    try {
-      const res = await getRoomDetail(router.query.id);
-      if (isValid(res)) {
-        const groupInfo = getFirst(res);
+    if (router?.query?.id) {
+      try {
+        const res = await getRoomDetail(router.query.id);
+        if (isValid(res)) {
+          const groupInfo = getFirst(res);
 
-        const [userListRes] = await Promise.all([getUserByIds([groupInfo.ownerId, ...groupInfo.memberIds, ...groupInfo.coOwnerIds])]);
+          const [userListRes] = await Promise.all([getUserByIds([groupInfo.ownerId, ...groupInfo.memberIds, ...groupInfo.coOwnerIds])]);
 
-        const userListMap = {};
+          const userListMap = {};
 
-        userListRes?.data?.forEach((user) => (userListMap[user?._id] = user));
+          userListRes?.data?.forEach((user) => (userListMap[user?._id] = user));
 
-        groupInfo.owner = userListMap[groupInfo.ownerId];
-        groupInfo.members = groupInfo.memberIds.map((id) => userListMap[id]);
-        groupInfo.coOwners = groupInfo.coOwnerIds.map((id) => userListMap[id]);
-        groupInfo.total = groupInfo.memberIds.length + groupInfo.coOwnerIds.length + 1;
-        groupInfo.meetingInfo = JSON.parse(groupInfo.meetingInfo || "{}");
-        groupInfo.presentation = JSON.parse(groupInfo.presentation || "[]");
+          groupInfo.owner = userListMap[groupInfo.ownerId];
+          groupInfo.members = groupInfo.memberIds.map((id) => userListMap[id]);
+          groupInfo.coOwners = groupInfo.coOwnerIds.map((id) => userListMap[id]);
+          groupInfo.total = groupInfo.memberIds.length + groupInfo.coOwnerIds.length + 1;
+          groupInfo.meetingInfo = JSON.parse(groupInfo.meetingInfo || "{}");
+          groupInfo.presentation = JSON.parse(groupInfo.presentation || "[]");
 
-        setRoom(groupInfo);
-      } else {
+          setRoom(groupInfo);
+        } else {
+          window.location.href = "/rooms";
+        }
+      } catch (e) {
+        console.log(e);
         window.location.href = "/rooms";
       }
-    } catch (e) {
-      console.log(e);
-      window.location.href = "/rooms";
     }
   };
 
@@ -148,13 +150,9 @@ const RoomDetailPage = () => {
                     <TabList onChange={handleChange} textColor="primary" indicatorColor="primary">
                       <Tab label="Recordings" value="recordings" />
                       <Tab label="Presentation" value="presentation" />
-                      {isOwner && (
-                        <>
-                          <Tab label="Learning dashboard" value="learningDashboard" />
-                          <Tab label="Access" value="access" />
-                          <Tab label="Settings" value="setting" />
-                        </>
-                      )}
+                      {isOwner && <Tab label="Learning dashboard" value="learningDashboard" />}
+                      {isOwner && <Tab label="Access" value="access" />}
+                      {isOwner && <Tab label="Settings" value="setting" />}
                     </TabList>
                   </Container>
                 </Box>
