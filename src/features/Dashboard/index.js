@@ -61,6 +61,43 @@ const Dashboard = ({ user, getUser }) => {
     </Grid>
   );
 
+  const RoomCard = ({ room }) => (
+    <Grid item xs={12} sm={6} md={4} lg={3} key={room?._id}>
+      <Link href={`/rooms/${room?._id}`}>
+        <Card className={styles.card}>
+          <div className={styles.cardIcon}>
+            <VideoCameraFrontIcon />
+          </div>
+
+          <div className={styles.cardInfo}>
+            <h2>{room.name}</h2>
+            <p>Last session: {formatTime(JSON.parse(room.meetingInfo)?.startTime)}</p>
+          </div>
+          <div className={styles.cardFooter}>
+            <CopyToClipboard
+              text={`${window?.location?.host}/join?meetingID=${room._id}&meetingName=${room.name}`}
+              onCopy={() => toast.success("Copied join url")}
+            >
+              <IconButton onClick={(e) => e.stopPropagation()}>
+                <ContentCopyIcon />
+              </IconButton>
+            </CopyToClipboard>
+
+            <Button
+              variant="outlined"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleJoinMeeting({ room, user });
+              }}
+            >
+              {room?.ownerId === user?._id ? "Start" : "Join"}
+            </Button>
+          </div>
+        </Card>
+      </Link>
+    </Grid>
+  );
+
   return (
     <Container maxWidth="xl">
       <Grid container spacing={6} className={styles.wrapper}>
@@ -75,40 +112,10 @@ const Dashboard = ({ user, getUser }) => {
             </Grid>
             <Grid item container spacing={2} xs={12} className={styles.groupWrapper}>
               {user?.myGroups?.map((room) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={room?._id}>
-                  <Link href={`/rooms/${room?._id}`}>
-                    <Card className={styles.card}>
-                      <div className={styles.cardIcon}>
-                        <VideoCameraFrontIcon />
-                      </div>
-
-                      <div className={styles.cardInfo}>
-                        <h2>{room.name}</h2>
-                        <p>Last session: {formatTime(JSON.parse(room.meetingInfo)?.startTime)}</p>
-                      </div>
-                      <div className={styles.cardFooter}>
-                        <CopyToClipboard
-                          text={`${window?.location?.host}/join?meetingID=${room._id}&meetingName=${room.name}`}
-                          onCopy={() => toast.success("Copied join url")}
-                        >
-                          <IconButton onClick={(e) => e.stopPropagation()}>
-                            <ContentCopyIcon />
-                          </IconButton>
-                        </CopyToClipboard>
-
-                        <Button
-                          variant="outlined"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleJoinMeeting({ room, user });
-                          }}
-                        >
-                          Start
-                        </Button>
-                      </div>
-                    </Card>
-                  </Link>
-                </Grid>
+                <RoomCard room={room} key={room?._id} />
+              ))}
+              {user?.joinedGroups?.map((room) => (
+                <RoomCard room={room} key={room?._id} />
               ))}
             </Grid>
           </>

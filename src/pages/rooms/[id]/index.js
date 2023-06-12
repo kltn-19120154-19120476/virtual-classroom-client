@@ -32,6 +32,8 @@ const RoomDetailPage = () => {
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const { user, getUser } = useContext(AuthContext);
 
+  const isOwner = user?._id === room?.ownerId;
+
   const getInfoOfGroup = async () => {
     try {
       const res = await getRoomDetail(router.query.id);
@@ -133,7 +135,7 @@ const RoomDetailPage = () => {
                   color="primary"
                   startIcon={<VideoCameraFrontIcon />}
                 >
-                  Start meeting
+                  {isOwner ? "Start" : "Join"} meeting
                 </Button>
               </div>
             </Container>
@@ -146,37 +148,45 @@ const RoomDetailPage = () => {
                     <TabList onChange={handleChange} textColor="primary" indicatorColor="primary">
                       <Tab label="Recordings" value="recordings" />
                       <Tab label="Presentation" value="presentation" />
-                      <Tab label="Learning dashboard" value="learningDashboard" />
-                      <Tab label="Access" value="access" />
-                      <Tab label="Settings" value="setting" />
+                      {isOwner && (
+                        <>
+                          <Tab label="Learning dashboard" value="learningDashboard" />
+                          <Tab label="Access" value="access" />
+                          <Tab label="Settings" value="setting" />
+                        </>
+                      )}
                     </TabList>
                   </Container>
                 </Box>
                 <TabPanel value="recordings" className={styles.tabPanel}>
                   <Grid item xs={12}>
-                    <RoomRecordings room={room} />
+                    <RoomRecordings room={room} isOwner={isOwner} />
                   </Grid>
                 </TabPanel>
                 <TabPanel value="presentation" className={styles.tabPanel}>
-                  <InsertDocuments room={room} getUser={getUser} />
+                  <InsertDocuments room={room} getUser={getUser} isOwner={isOwner} />
                 </TabPanel>
-                <TabPanel value="learningDashboard" className={styles.tabPanel}>
-                  <LearningDashboards room={room} />
-                </TabPanel>
-                <TabPanel value="access" className={styles.tabPanel}>
-                  <RoomAccess room={room} user={user} getUser={getUser} />
-                </TabPanel>
-                <TabPanel value="setting" className={styles.tabPanel}>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => setOpenConfirmDelete(true)}
-                    startIcon={<DeleteForeverIcon />}
-                    style={{ marginLeft: "20px" }}
-                  >
-                    Delete Room
-                  </Button>
-                </TabPanel>
+                {isOwner && (
+                  <>
+                    <TabPanel value="learningDashboard" className={styles.tabPanel}>
+                      <LearningDashboards room={room} />
+                    </TabPanel>
+                    <TabPanel value="access" className={styles.tabPanel}>
+                      <RoomAccess room={room} user={user} getUser={getUser} />
+                    </TabPanel>
+                    <TabPanel value="setting" className={styles.tabPanel}>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => setOpenConfirmDelete(true)}
+                        startIcon={<DeleteForeverIcon />}
+                        style={{ marginLeft: "20px" }}
+                      >
+                        Delete Room
+                      </Button>
+                    </TabPanel>
+                  </>
+                )}
               </TabContext>
             </Box>
           </Grid>

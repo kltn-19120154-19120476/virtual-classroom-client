@@ -1,4 +1,5 @@
 import { DeleteOutline } from "@mui/icons-material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Container, IconButton, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
@@ -15,8 +16,9 @@ import { callBBBClient } from "src/client/bbb-client";
 import { updateRoom } from "src/client/room";
 import FileUpload from "src/components/FileUpload";
 import { isValid, uploadImageToFirebase } from "src/utils";
+import { NoData } from "../NoDataNotification";
 
-export default function InsertDocuments({ room, getUser }) {
+export default function InsertDocuments({ room, getUser, isOwner }) {
   const [loading, setLoading] = useState(false);
 
   const handleUploadDocuments = async (files) => {
@@ -90,11 +92,13 @@ export default function InsertDocuments({ room, getUser }) {
                       </Tooltip>
                     </CopyToClipboard>
 
-                    <Tooltip title="Delete presentation">
-                      <IconButton color="error" onClick={() => handleDeletePresentation(presentation)}>
-                        <DeleteOutline />
-                      </IconButton>
-                    </Tooltip>
+                    {isOwner && (
+                      <Tooltip title="Delete presentation">
+                        <IconButton color="error" onClick={() => handleDeletePresentation(presentation)}>
+                          <DeleteOutline />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -102,7 +106,14 @@ export default function InsertDocuments({ room, getUser }) {
           </Table>
         </TableContainer>
       )}
-      <FileUpload onFilesChange={(files) => handleUploadDocuments(files)} isUploading={loading} />
+      {isOwner && <FileUpload onFilesChange={(files) => handleUploadDocuments(files)} isUploading={loading} />}
+      {!isOwner && !room?.presentation?.length && (
+        <NoData
+          icon={<CloudUploadIcon />}
+          title="No presentation"
+          description="Presentations will appear here after the moderator upload them to the meeting"
+        />
+      )}
     </Container>
   );
 }
