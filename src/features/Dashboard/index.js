@@ -100,7 +100,7 @@ const Dashboard = ({ user, getUser }) => {
                           variant="outlined"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleJoinMeeting({ data: { password: user?._id, fullName: user?.name, role: "moderator" }, room, user });
+                            handleJoinMeeting({ room, user });
                           }}
                         >
                           Start

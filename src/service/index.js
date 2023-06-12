@@ -14,7 +14,7 @@ export const handleCreateMeeting = async (meetingID, name, moderatorPW, presenta
       record: true,
       logoutURL: WEB_HOST.replace("https://", ""),
     },
-    { files: JSON.stringify(presentation || []) },
+    { files: typeof presentation !== "string" ? JSON.stringify(presentation || []) : presentation },
   );
 
   if (res?.returncode === "SUCCESS" || res?.messageKey === "idNotUnique") {
@@ -36,15 +36,18 @@ export const handleCreateMeeting = async (meetingID, name, moderatorPW, presenta
   return null;
 };
 
-export const handleJoinMeeting = async ({ data, room, user }) => {
+export const handleJoinMeeting = async ({ room, user }) => {
+  const isOwner = room?.ownerId === user?._id;
   const meetingInfo = await handleCreateMeeting(room?._id, room?.name, user?._id, room.presentation);
 
   if (meetingInfo) {
     await updateRoom({ id: room?._id, meetingInfo: JSON.stringify(meetingInfo) });
     const res = await callBBBClient({
       meetingID: room?._id,
-      ...data,
+      password: isOwner ? user?._id : BBB_DEFAULT_ATTENDEE_PASSWORD,
+      role: isOwner ? "moderator" : "attendee",
       apiCall: "join",
+      fullName: user?.name,
     });
     if (res?.joinUrl) {
       window.open(res.joinUrl);

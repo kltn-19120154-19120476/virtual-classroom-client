@@ -16,10 +16,8 @@ import { updateRoom } from "src/client/room";
 import FileUpload from "src/components/FileUpload";
 import { isValid, uploadImageToFirebase } from "src/utils";
 
-export default function InsertDocuments({ room }) {
+export default function InsertDocuments({ room, getUser }) {
   const [loading, setLoading] = useState(false);
-
-  const [presentationList, setPresentationList] = useState(room.presentation);
 
   const handleUploadDocuments = async (files) => {
     setLoading(true);
@@ -27,7 +25,7 @@ export default function InsertDocuments({ room }) {
       filesExisted = [];
 
     files.forEach((file) => {
-      if (!presentationList.find((f) => f.name === file.name)) filesCanUpload.push(file);
+      if (!room?.presentation.find((f) => f.name === file.name)) filesCanUpload.push(file);
       else filesExisted.push(file);
     });
 
@@ -47,31 +45,30 @@ export default function InsertDocuments({ room }) {
         { files: JSON.stringify(uploadedFiles) },
       );
 
-      const newPresentationList = [...presentationList, ...uploadedFiles];
+      const newPresentationList = [...room?.presentation, ...uploadedFiles];
 
       const updateRoomRes = await updateRoom({ id: room?._id, presentation: JSON.stringify(newPresentationList) });
 
       if (isValid(updateRoomRes)) {
-        setPresentationList(newPresentationList);
         room.presentation = newPresentationList;
         toast.success("Documents uploaded successfully");
       }
     } else {
       toast.error(`${filesExisted?.map((file) => file.name).join(", ")} existed`);
     }
-
+    getUser();
     setLoading(false);
   };
 
-  const handleDeletePresentation = (presentation) => {
-    const newPresentationList = presentationList.filter((p) => p.url !== presentation.url);
-    setPresentationList(newPresentationList);
-    updateRoom({ id: room?._id, presentation: JSON.stringify(newPresentationList) });
+  const handleDeletePresentation = async (presentation) => {
+    const newPresentationList = room?.presentation.filter((p) => p.url !== presentation.url);
+    await updateRoom({ id: room?._id, presentation: JSON.stringify(newPresentationList) });
+    getUser();
   };
 
   return (
     <Container maxWidth="xl">
-      {presentationList?.length > 0 && (
+      {room?.presentation?.length > 0 && (
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }}>
             <TableHead className="tableHead">
@@ -81,7 +78,7 @@ export default function InsertDocuments({ room }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {presentationList?.map((presentation) => (
+              {room?.presentation?.map((presentation) => (
                 <TableRow key={presentation.url}>
                   <TableCell align="left">{presentation.name}</TableCell>
                   <TableCell align="center">

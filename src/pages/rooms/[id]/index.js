@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
-import { deleteRoomById, getRoomDetail, removeFromRoom, updateRoleInRoom } from "src/client/room";
+import { deleteRoomById, getRoomDetail, updateRoleInRoom } from "src/client/room";
 import { getUserByIds } from "src/client/user";
 import { withLogin } from "src/components/HOC/withLogin";
 import InsertDocuments from "src/components/InsertDocuments";
@@ -63,7 +63,7 @@ const RoomDetailPage = () => {
 
   useEffect(() => {
     getInfoOfGroup();
-  }, []);
+  }, [user]);
 
   const handleUpgradeRole = async (member, isUpgrade) => {
     try {
@@ -74,17 +74,6 @@ const RoomDetailPage = () => {
       };
       await updateRoleInRoom(data);
       await customToast("SUCCESS", "Update role successfully!");
-      router.reload();
-    } catch (e) {
-      await customToast("ERROR", e.response?.data?.message);
-    }
-  };
-
-  const handleRemove = async (member) => {
-    try {
-      const data = { userId: member?._id, groupId: room?._id };
-      await removeFromRoom(data);
-      await customToast("SUCCESS", `Remove member ${member.name} successfully!`);
       router.reload();
     } catch (e) {
       await customToast("ERROR", e.response?.data?.message);
@@ -136,7 +125,10 @@ const RoomDetailPage = () => {
                 </CopyToClipboard>
 
                 <Button
-                  onClick={() => handleJoinMeeting({ data: { password: user?._id, fullName: user?.name, role: "moderator" }, room, user })}
+                  onClick={async () => {
+                    await handleJoinMeeting({ room, user });
+                    getUser();
+                  }}
                   variant="contained"
                   color="primary"
                   startIcon={<VideoCameraFrontIcon />}
@@ -166,7 +158,7 @@ const RoomDetailPage = () => {
                   </Grid>
                 </TabPanel>
                 <TabPanel value="presentation" className={styles.tabPanel}>
-                  <InsertDocuments room={room} />
+                  <InsertDocuments room={room} getUser={getUser} />
                 </TabPanel>
                 <TabPanel value="learningDashboard" className={styles.tabPanel}>
                   <LearningDashboards room={room} />

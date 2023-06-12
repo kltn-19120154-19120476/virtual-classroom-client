@@ -152,7 +152,12 @@ const AuthContextProvider = ({ children }) => {
         isLoadingAuth,
       }}
     >
-      {isLoadingAuth ? <LoadingScreen /> : <>{children}</>}
+      {
+        <>
+          {isLoadingAuth && <LoadingScreen />}
+          <div style={{ pointerEvents: isLoadingAuth ? "none" : "initial" }}>{children}</div>
+        </>
+      }
     </AuthContext.Provider>
   );
 };

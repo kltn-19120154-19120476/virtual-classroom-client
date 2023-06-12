@@ -9,7 +9,8 @@ export const withLogin =
     const { isLoadingAuth, user, getUser } = useContext(AuthContext);
     return (
       <Suspense fallback={<LoadingScreen />}>
-        {isLoadingAuth || !user ? <LoadingScreen /> : <Component {...props} user={user} getUser={getUser} />}
+        {(isLoadingAuth || !user) && <LoadingScreen />}
+        {<Component {...props} user={user} getUser={getUser} />}
       </Suspense>
     );
   };

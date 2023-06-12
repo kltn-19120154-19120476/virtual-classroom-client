@@ -38,8 +38,12 @@ h5 {
 }
 
 .tableHead * {
-  text-transform: uppercase;
-  font-weight: bold;
+  text-transform: uppercase !important;
+  font-weight: bold !important;
+}
+
+:root {
+  --toastify-z-index: 10000 !important;
 }
 
 @font-face {

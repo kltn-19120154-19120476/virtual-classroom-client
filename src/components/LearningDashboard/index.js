@@ -12,11 +12,10 @@ export default function LearningDashboards({ room }) {
 
   const getLearningDashboard = async () => {
     const res = await callBBBClient({
-      meeting: room.meetingInfo.internalMeetingID,
+      meeting: room.meetingInfo?.internalMeetingID || "",
       apiCall: "learningDashboardFromMeetingId",
     });
     if (isValid(res)) {
-      console.log(JSON.parse(res.data));
       setLearningDashboard(res.data);
     }
   };
