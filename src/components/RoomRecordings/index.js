@@ -19,7 +19,7 @@ import { formatTime, isValid } from "src/utils";
 import { NoData } from "../NoDataNotification";
 import styles from "./styles.module.scss";
 
-export default function RoomRecordings({ room, isOwner }) {
+export default function RoomRecordings({ room }) {
   const [recordings, setRecordings] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -125,7 +125,7 @@ export default function RoomRecordings({ room, isOwner }) {
             <NoData
               refreshButton={<RefreshButton />}
               title="You don't have any recordings yet!"
-              description={`Recordings will appear here after ${isOwner ? "you" : "the moderator"} start a meeting and record it.`}
+              description={`Recordings will appear here after ${room?.isOwner ? "you" : "the moderator"} start a meeting and record it.`}
               icon={<VideocamIcon />}
             />
           )}

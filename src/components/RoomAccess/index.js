@@ -17,9 +17,8 @@ import { isValid } from "src/utils";
 import * as yup from "yup";
 import styles from "./styles.module.scss";
 
-export default function RoomAccess({ room, user, getUser }) {
-  const isOwner = user?._id === room?.ownerId;
-
+export default function RoomAccess({ room, getUser }) {
+  const isOwner = !!room?.isOwner;
   const [openInviteMemberForm, setOpenInviteMemberForm] = useState(false);
 
   const schema = yup.object().shape({

@@ -18,7 +18,7 @@ import FileUpload from "src/components/FileUpload";
 import { isValid, uploadImageToFirebase } from "src/utils";
 import { NoData } from "../NoDataNotification";
 
-export default function InsertDocuments({ room, getUser, isOwner }) {
+export default function InsertDocuments({ room, getUser }) {
   const [loading, setLoading] = useState(false);
 
   const handleUploadDocuments = async (files) => {
@@ -92,7 +92,7 @@ export default function InsertDocuments({ room, getUser, isOwner }) {
                       </Tooltip>
                     </CopyToClipboard>
 
-                    {isOwner && (
+                    {room?.isOwner && (
                       <Tooltip title="Delete presentation">
                         <IconButton color="error" onClick={() => handleDeletePresentation(presentation)}>
                           <DeleteOutline />
@@ -106,8 +106,8 @@ export default function InsertDocuments({ room, getUser, isOwner }) {
           </Table>
         </TableContainer>
       )}
-      {isOwner && <FileUpload onFilesChange={(files) => handleUploadDocuments(files)} isUploading={loading} />}
-      {!isOwner && !room?.presentation?.length && (
+      {room?.isOwner && <FileUpload onFilesChange={(files) => handleUploadDocuments(files)} isUploading={loading} />}
+      {!room?.isOwner && !room?.presentation?.length && (
         <NoData
           icon={<CloudUploadIcon />}
           title="No presentation"

@@ -30,7 +30,7 @@ const Dashboard = ({ user, getUser }) => {
       if (isValid(res)) {
         const roomInfo = getFirst(res);
 
-        const meetingInfo = await handleCreateMeeting(roomInfo._id, roomInfo.name, user?._id, roomInfo.presentation);
+        const meetingInfo = await handleCreateMeeting({ roomInfo, user });
 
         await updateRoom({ id: roomInfo._id, meetingInfo: JSON.stringify(meetingInfo) });
 

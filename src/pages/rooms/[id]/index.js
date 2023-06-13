@@ -1,35 +1,31 @@
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import VideoCameraFrontIcon from "@mui/icons-material/VideoCameraFront";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { Button, Container, Grid } from "@mui/material";
 import Box from "@mui/material/Box";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogTitle from "@mui/material/DialogTitle";
 import Tab from "@mui/material/Tab";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
-import { deleteRoomById, getRoomDetail, updateRoleInRoom } from "src/client/room";
+import { getRoomDetail } from "src/client/room";
 import { getUserByIds } from "src/client/user";
 import { withLogin } from "src/components/HOC/withLogin";
 import InsertDocuments from "src/components/InsertDocuments";
 import LearningDashboards from "src/components/LearningDashboard";
+import MeetingSettings from "src/components/MeetingSettings";
 import RoomAccess from "src/components/RoomAccess";
 import RoomRecordings from "src/components/RoomRecordings";
 import { AuthContext } from "src/context/authContext";
 import { handleJoinMeeting } from "src/service";
-import { customToast, formatTime, getFirst, isValid } from "src/utils";
+import { formatTime, getFirst, isValid } from "src/utils";
 import styles from "./styles.module.scss";
 
 const RoomDetailPage = () => {
   const [room, setRoom] = useState(null);
   const router = useRouter();
-  const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const { user, getUser } = useContext(AuthContext);
 
   const isOwner = user?._id === room?.ownerId;
@@ -67,36 +63,10 @@ const RoomDetailPage = () => {
 
   useEffect(() => {
     getInfoOfGroup();
+    setValue(router?.query?.tab || "recordings");
   }, [user]);
 
-  const handleUpgradeRole = async (member, isUpgrade) => {
-    try {
-      const data = {
-        memberId: member?._id,
-        groupId: room?._id,
-        isUpgrade,
-      };
-      await updateRoleInRoom(data);
-      await customToast("SUCCESS", "Update role successfully!");
-      router.reload();
-    } catch (e) {
-      await customToast("ERROR", e.response?.data?.message);
-    }
-  };
-
-  const handleDeleteGroup = async () => {
-    try {
-      await deleteRoomById(room?._id);
-      await customToast("SUCCESS", `Delete room ${room.name} successfully!`);
-      setOpenConfirmDelete(false);
-      window.location.href = "/rooms";
-    } catch (e) {
-      await customToast("ERROR", e.response?.data?.message);
-      setOpenConfirmDelete(false);
-    }
-  };
-
-  const [value, setValue] = React.useState(router?.query?.tab || "recordings");
+  const [value, setValue] = React.useState("recordings");
 
   const handleChange = (e, value) => {
     e.preventDefault();
@@ -158,11 +128,11 @@ const RoomDetailPage = () => {
                 </Box>
                 <TabPanel value="recordings" className={styles.tabPanel}>
                   <Grid item xs={12}>
-                    <RoomRecordings room={room} isOwner={isOwner} />
+                    <RoomRecordings room={room} />
                   </Grid>
                 </TabPanel>
                 <TabPanel value="presentation" className={styles.tabPanel}>
-                  <InsertDocuments room={room} getUser={getUser} isOwner={isOwner} />
+                  <InsertDocuments room={room} getUser={getUser} />
                 </TabPanel>
                 {isOwner && (
                   <>
@@ -170,37 +140,16 @@ const RoomDetailPage = () => {
                       <LearningDashboards room={room} />
                     </TabPanel>
                     <TabPanel value="access" className={styles.tabPanel}>
-                      <RoomAccess room={room} user={user} getUser={getUser} />
+                      <RoomAccess room={room} getUser={getUser} />
                     </TabPanel>
                     <TabPanel value="setting" className={styles.tabPanel}>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => setOpenConfirmDelete(true)}
-                        startIcon={<DeleteForeverIcon />}
-                        style={{ marginLeft: "20px" }}
-                      >
-                        Delete Room
-                      </Button>
+                      <MeetingSettings room={room} getUser={getUser} />
                     </TabPanel>
                   </>
                 )}
               </TabContext>
             </Box>
           </Grid>
-
-          <Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)}>
-            <DialogTitle id="alert-dialog-title">Delete this room?</DialogTitle>
-
-            <DialogActions>
-              <Button variant="outlined" onClick={() => setOpenConfirmDelete(false)}>
-                Cancel
-              </Button>
-              <Button color="error" variant="contained" type="submit" onClick={handleDeleteGroup}>
-                Delete
-              </Button>
-            </DialogActions>
-          </Dialog>
         </Grid>
       )}
     </div>

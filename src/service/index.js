@@ -1,26 +1,27 @@
 import { callBBBClient } from "src/client/bbb-client";
 import { updateRoom } from "src/client/room";
-import { BBB_DEFAULT_ATTENDEE_PASSWORD, WEB_HOST } from "src/sysconfig";
+import { BBB_DEFAULT_ATTENDEE_PASSWORD } from "src/sysconfig";
 import { isValid } from "src/utils";
 
-export const handleCreateMeeting = async (meetingID, name, moderatorPW, presentation) => {
+export const handleCreateMeeting = async ({ room, user }) => {
+  const meetingSettings = JSON.parse(room?.meetingSettings || "{}");
   const res = await callBBBClient(
     {
-      name,
+      name: room?.name,
       apiCall: "create",
-      meetingID,
-      moderatorPW,
+      meetingID: room?._id,
+      moderatorPW: user?._id,
       attendeePW: BBB_DEFAULT_ATTENDEE_PASSWORD,
       record: true,
-      logoutURL: WEB_HOST.replace("https://", ""),
+      ...meetingSettings,
     },
-    { files: typeof presentation !== "string" ? JSON.stringify(presentation || []) : presentation },
+    { files: typeof room?.presentation !== "string" ? JSON.stringify(room?.presentation || []) : room?.presentation },
   );
 
   if (res?.returncode === "SUCCESS" || res?.messageKey === "idNotUnique") {
     const meetingInfo = await callBBBClient({
-      meetingID: meetingID,
-      password: moderatorPW,
+      meetingID: room?._id,
+      password: user?._id,
       apiCall: "getMeetingInfo",
     });
 
@@ -37,8 +38,8 @@ export const handleCreateMeeting = async (meetingID, name, moderatorPW, presenta
 };
 
 export const handleJoinMeeting = async ({ room, user }) => {
-  const isOwner = room?.ownerId === user?._id;
-  const meetingInfo = await handleCreateMeeting(room?._id, room?.name, user?._id, room.presentation);
+  const isOwner = room?.isOwner;
+  const meetingInfo = await handleCreateMeeting({ room, user });
 
   if (meetingInfo) {
     await updateRoom({ id: room?._id, meetingInfo: JSON.stringify(meetingInfo) });
