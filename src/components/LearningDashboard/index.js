@@ -1,5 +1,6 @@
+import { Cached } from "@mui/icons-material";
 import CastForEducationIcon from "@mui/icons-material/CastForEducation";
-import { Container } from "@mui/material";
+import { Button, Container } from "@mui/material";
 import { useEffect, useState } from "react";
 import { callBBBClient } from "src/client/bbb-client";
 import { isValid } from "src/utils";
@@ -29,6 +30,12 @@ export default function LearningDashboards({ room }) {
     };
   }, []);
 
+  const RefreshButton = (props) => (
+    <Button startIcon={<Cached />} onClick={() => window.location.reload()} variant="contained" {...props}>
+      Refresh
+    </Button>
+  );
+
   return (
     <Container maxWidth="xl">
       {learningDashboard ? (
@@ -38,6 +45,7 @@ export default function LearningDashboards({ room }) {
           title="Not available"
           description="Learning dashboard will appear here after you start a meeting"
           icon={<CastForEducationIcon />}
+          refreshButton={<RefreshButton />}
         />
       )}
     </Container>
