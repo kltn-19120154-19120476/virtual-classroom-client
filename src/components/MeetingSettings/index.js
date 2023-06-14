@@ -265,7 +265,7 @@ export default function MeetingSettings({ room, user, getUser }) {
     }
   };
 
-  const handleDeleteGroup = async () => {
+  const handleDeleteRoom = async () => {
     try {
       const res = await deleteRoomById(room?._id);
       if (isValid(res)) {
@@ -420,7 +420,7 @@ export default function MeetingSettings({ room, user, getUser }) {
           <Button variant="outlined" onClick={() => setOpenConfirmDelete(false)}>
             Cancel
           </Button>
-          <Button color="error" variant="contained" type="submit" onClick={handleDeleteGroup}>
+          <Button color="error" variant="contained" type="submit" onClick={handleDeleteRoom}>
             Delete
           </Button>
         </DialogActions>

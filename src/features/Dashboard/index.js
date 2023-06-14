@@ -35,9 +35,9 @@ const Dashboard = ({ user, getUser }) => {
     defaultValues: { name: "" },
   });
 
-  const [openCreateGroupForm, setOpenCreateGroupForm] = useState(false);
+  const [openCreateRoomForm, setOpenCreateRoomForm] = useState(false);
 
-  const handleCreateGroup = async (data) => {
+  const handleCreateRoom = async (data) => {
     try {
       const res = await createRoom(data);
       if (isValid(res)) {
@@ -55,7 +55,7 @@ const Dashboard = ({ user, getUser }) => {
     } catch (e) {
       toast.error(e?.message || e);
     }
-    setOpenCreateGroupForm(false);
+    setOpenCreateRoomForm(false);
   };
 
   const NoRoomsWrapper = () => (
@@ -68,7 +68,7 @@ const Dashboard = ({ user, getUser }) => {
 
         <p>Create your first room by clicking on the button below and entering a room name.</p>
 
-        <Button onClick={() => setOpenCreateGroupForm(true)} variant="contained" startIcon={<VideoCallIcon />}>
+        <Button onClick={() => setOpenCreateRoomForm(true)} variant="contained" startIcon={<VideoCallIcon />}>
           new room
         </Button>
       </Card>
@@ -118,32 +118,32 @@ const Dashboard = ({ user, getUser }) => {
   return (
     <Container maxWidth="xl">
       <Grid container spacing={6} className={styles.wrapper}>
-        {user?.myGroups?.length + user?.joinedGroups?.length < 1 ? (
+        {user?.myRooms?.length + user?.joinedRooms?.length < 1 ? (
           <NoRoomsWrapper />
         ) : (
           <>
             <Grid item xs={12} className={styles.actionButtonWrapper}>
-              <Button onClick={() => setOpenCreateGroupForm(true)} variant="contained" startIcon={<VideoCallIcon />}>
+              <Button onClick={() => setOpenCreateRoomForm(true)} variant="contained" startIcon={<VideoCallIcon />}>
                 new room
               </Button>
             </Grid>
-            <Grid item container spacing={2} xs={12} className={styles.groupWrapper}>
-              {user?.myGroups?.map((room) => (
+            <Grid item container spacing={2} xs={12} className={styles.roomWrapper}>
+              {user?.myRooms?.map((room) => (
                 <RoomCard room={room} key={room?._id} />
               ))}
-              {user?.joinedGroups?.map((room) => (
+              {user?.joinedRooms?.map((room) => (
                 <RoomCard room={room} key={room?._id} />
               ))}
             </Grid>
           </>
         )}
 
-        <Dialog open={openCreateGroupForm} onClose={() => setOpenCreateGroupForm(false)} fullWidth>
-          <form onSubmit={handleSubmit(handleCreateGroup)}>
+        <Dialog open={openCreateRoomForm} onClose={() => setOpenCreateRoomForm(false)} fullWidth>
+          <form onSubmit={handleSubmit(handleCreateRoom)}>
             <DialogTitle id="alert-dialog-title" sx={{ fontSize: "1.4rem" }}>
               Create new room
             </DialogTitle>
-            <DialogContent className={styles.groupContent}>
+            <DialogContent className={styles.roomContent}>
               <TextField
                 label="Room name"
                 placeholder="Enter room name"
@@ -154,7 +154,7 @@ const Dashboard = ({ user, getUser }) => {
               />
             </DialogContent>
             <DialogActions>
-              <Button variant="outlined" onClick={() => setOpenCreateGroupForm(false)}>
+              <Button variant="outlined" onClick={() => setOpenCreateRoomForm(false)}>
                 Cancel
               </Button>
               <Button variant="contained" type="submit">

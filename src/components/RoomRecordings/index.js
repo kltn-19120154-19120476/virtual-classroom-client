@@ -109,11 +109,13 @@ export default function RoomRecordings({ room }) {
                             </Tooltip>
                           </CopyToClipboard>
 
-                          <Tooltip title="Delete recording">
-                            <IconButton color="error" onClick={() => handleDeleteRecording(recording)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          </Tooltip>
+                          {room?.isOwner && (
+                            <Tooltip title="Delete recording">
+                              <IconButton color="error" onClick={() => handleDeleteRecording(recording)}>
+                                <DeleteIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

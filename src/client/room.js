@@ -10,7 +10,7 @@ export const updateRoleInRoom = async (data) => request("POST", "/room/role", da
 
 export const removeUserFromRoom = async (data) => request("POST", "/room/remove-user", data);
 
-export const getRoomDetail = async (groupId) => request("GET", `/room/detail/${groupId}`);
+export const getRoomDetail = async (roomId) => request("GET", `/room/detail/${roomId}`);
 
 export const getRoomByIds = async (ids) => request("POST", "/room/list", { ids });
 

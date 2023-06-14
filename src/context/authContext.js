@@ -30,19 +30,17 @@ const AuthContextProvider = ({ children }) => {
         if (isValid(res)) {
           const userInfo = getFirst(res);
 
-          const groupListRes = await getRoomByIds([...userInfo.myGroupIds, ...userInfo.joinedGroupIds]);
+          const roomListRes = await getRoomByIds([...userInfo.myRoomIds, ...userInfo.joinedRoomIds]);
 
-          const groupListMap = {};
+          const roomListMap = {};
 
-          groupListRes?.data?.forEach((group) => (groupListMap[group?._id] = group));
+          roomListRes?.data?.forEach((room) => (roomListMap[room?._id] = room));
 
-          userInfo.myGroups = userInfo.myGroupIds?.map((code) => groupListMap[code]) || [];
+          userInfo.myRooms = userInfo.myRoomIds?.map((code) => roomListMap[code]) || [];
 
-          userInfo.joinedGroups = userInfo.joinedGroupIds?.map((code) => groupListMap[code]) || [];
+          userInfo.joinedRooms = userInfo.joinedRoomIds?.map((code) => roomListMap[code]) || [];
 
-          userInfo.coOwnerGroups = userInfo.joinedGroups?.filter((group) => group.coOwnerIds?.includes(userInfo._id)) || [];
-
-          userInfo.memberGroups = userInfo.joinedGroups?.filter((group) => group.memberIds?.includes(userInfo._id)) || [];
+          userInfo.memberRooms = userInfo.joinedRooms?.filter((room) => room.memberIds?.includes(userInfo._id)) || [];
 
           setIsAuthenticated(true);
 

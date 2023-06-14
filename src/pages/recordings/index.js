@@ -25,7 +25,7 @@ function RecordingsPage({ user }) {
   const [loading, setLoading] = useState(true);
 
   const getRecordingsData = async () => {
-    const roomIDs = [...(user?.myGroupIds || []), ...(user?.joinedGroupIds || [])];
+    const roomIDs = [...(user?.myRoomIds || []), ...(user?.joinedRoomIds || [])];
 
     const recordingsRes = await Promise.all(roomIDs.map((id) => getRecordings({ meetingID: id })));
 
@@ -62,7 +62,7 @@ function RecordingsPage({ user }) {
   useEffect(() => {
     setLoading(true);
     getRecordingsData();
-  }, []);
+  }, [user]);
 
   const RefreshButton = (props) => (
     <Button startIcon={<CachedIcon />} onClick={() => getRecordingsData()} variant="contained" {...props}>
@@ -117,11 +117,13 @@ function RecordingsPage({ user }) {
                             </Tooltip>
                           </CopyToClipboard>
 
-                          <Tooltip title="Delete recording">
-                            <IconButton color="error" onClick={() => handleDeleteRecording(recording)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          </Tooltip>
+                          {user?.myRoomIds?.includes(recording?.meetingID) && (
+                            <Tooltip title="Delete recording">
+                              <IconButton color="error" onClick={() => handleDeleteRecording(recording)}>
+                                <DeleteIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

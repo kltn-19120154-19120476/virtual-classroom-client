@@ -114,7 +114,7 @@ function Login() {
             />
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" onClick={() => setOpenCreateGroupForm(false)}>
+            <Button variant="contained" onClick={() => setOpenCreateRoomForm(false)}>
               Cancel
             </Button>
             <Button variant="contained" type="submit">

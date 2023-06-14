@@ -30,27 +30,27 @@ const RoomDetailPage = () => {
 
   const isOwner = user?._id === room?.ownerId;
 
-  const getInfoOfGroup = async () => {
+  const getInfoOfRoom = async () => {
     if (router?.query?.id) {
       try {
         const res = await getRoomDetail(router.query.id);
         if (isValid(res)) {
-          const groupInfo = getFirst(res);
+          const roomInfo = getFirst(res);
 
-          const [userListRes] = await Promise.all([getUserByIds([groupInfo.ownerId, ...groupInfo.memberIds, ...groupInfo.coOwnerIds])]);
+          const [userListRes] = await Promise.all([getUserByIds([roomInfo.ownerId, ...roomInfo.memberIds, ...roomInfo.coOwnerIds])]);
 
           const userListMap = {};
 
           userListRes?.data?.forEach((user) => (userListMap[user?._id] = user));
 
-          groupInfo.owner = userListMap[groupInfo.ownerId];
-          groupInfo.members = groupInfo.memberIds.map((id) => userListMap[id]);
-          groupInfo.coOwners = groupInfo.coOwnerIds.map((id) => userListMap[id]);
-          groupInfo.total = groupInfo.memberIds.length + groupInfo.coOwnerIds.length + 1;
-          groupInfo.meetingInfo = JSON.parse(groupInfo.meetingInfo || "{}");
-          groupInfo.presentation = JSON.parse(groupInfo.presentation || "[]");
+          roomInfo.owner = userListMap[roomInfo.ownerId];
+          roomInfo.members = roomInfo.memberIds.map((id) => userListMap[id]);
+          roomInfo.coOwners = roomInfo.coOwnerIds.map((id) => userListMap[id]);
+          roomInfo.total = roomInfo.memberIds.length + roomInfo.coOwnerIds.length + 1;
+          roomInfo.meetingInfo = JSON.parse(roomInfo.meetingInfo || "{}");
+          roomInfo.presentation = JSON.parse(roomInfo.presentation || "[]");
 
-          setRoom(groupInfo);
+          setRoom(roomInfo);
         } else {
           window.location.href = "/rooms";
         }
@@ -62,7 +62,7 @@ const RoomDetailPage = () => {
   };
 
   useEffect(() => {
-    getInfoOfGroup();
+    getInfoOfRoom();
     setValue(router?.query?.tab || "recordings");
   }, [user]);
 
