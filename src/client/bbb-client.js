@@ -56,14 +56,23 @@ const resToObject = (res) => {
 
 const makeBBBRequest = async (apiCall, params, body = "") => {
   if (apiCall === "join") {
-    if (!params.role || !["MODERATOR", "VIEWER", "GUEST"].includes(params.role)) {
+    const { meetingID, password = "", role = "", fullName } = params;
+
+    if (!role || !["MODERATOR", "VIEWER", "GUEST"].includes(role)) {
       return {
         returncode: RETURN_CODE.FAILED,
         message: "role must be attendee or moderator or guest",
       };
     }
 
-    const { meetingID, password = "", role, fullName } = params;
+    const isMeetingRunningRes = await callBBBClient({ apiCall: "isMeetingRunning", meetingID });
+
+    if (isMeetingRunningRes?.running === "false" && role !== "MODERATOR") {
+      return {
+        returncode: RETURN_CODE.FAILED,
+        message: "Meeting is not started",
+      };
+    }
 
     if (role === "MODERATOR" || role === "VIEWER") {
       const joinMeetingParams = {
@@ -88,6 +97,15 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
         fullName,
         password: createPassword(password),
       };
+
+      const meetingInfo = await callBBBClient({ apiCall: "getMeetingInfo", meetingID });
+
+      if (meetingInfo?.attendeePW !== joinMeetingParams?.password) {
+        return {
+          returncode: RETURN_CODE.FAILED,
+          message: "Invalid password",
+        };
+      }
 
       const checksum = createChecksum("join", joinMeetingParams);
 

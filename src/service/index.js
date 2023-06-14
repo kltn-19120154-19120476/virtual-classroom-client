@@ -1,16 +1,15 @@
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import { updateRoom } from "src/client/room";
-import { BBB_DEFAULT_ATTENDEE_PASSWORD } from "src/sysconfig";
+import { BBB_DEFAULT_ATTENDEE_PASSWORD, WEB_CLIENT_HOST } from "src/sysconfig";
 import { isValid } from "src/utils";
 
 export const getDefaultMeetingSettings = (room) => ({
   name: room?.name,
   roomName: room?.name,
-  // attendeePW: "",
   welcome: `Welcome to ${room?.name}`,
   maxParticipants: 100,
-  logoutURL: "",
+  logoutURL: WEB_CLIENT_HOST,
   record: true,
   duration: 200,
   moderatorOnlyMessage: "",
@@ -41,7 +40,6 @@ export const getDefaultMeetingSettings = (room) => ({
   meetingCameraCap: 100,
   meetingExpireIfNoUserJoinedInMinutes: 15,
   meetingExpireWhenLastUserLeftInMinutes: 15,
-  logo: "",
   preUploadedPresentationOverrideDefault: true,
   notifyRecordingIsOn: false,
 });
@@ -64,7 +62,6 @@ export const handleCreateMeeting = async ({ room, user }) => {
   if (res?.returncode === "SUCCESS" || res?.messageKey === "idNotUnique") {
     const meetingInfo = await callBBBClient({
       meetingID: room?._id,
-      password: user?._id,
       apiCall: "getMeetingInfo",
     });
 
@@ -112,6 +109,8 @@ export const handleJoinMeeting = async ({ room, user }) => {
     });
     if (res?.joinUrl) {
       window.open(res.joinUrl);
+    } else {
+      toast.error(res.message);
     }
   }
 };

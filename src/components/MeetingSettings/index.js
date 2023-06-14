@@ -151,12 +151,6 @@ const BBB_STRING_SETTINGS = [
     description: "A welcome message that gets displayed on the chat window when the participant joins",
   },
   {
-    key: "logoutURL",
-    label: "Logout URL",
-    description:
-      "The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’",
-  },
-  {
     key: "moderatorOnlyMessage",
     label: "Moderator only message",
     description: "Display a message to all moderators in the public chat",
@@ -170,11 +164,6 @@ const BBB_STRING_SETTINGS = [
     key: "bannerColor",
     label: "Banner color",
     description: "Will set the banner background color in the client",
-  },
-  {
-    key: "logo",
-    label: "Logo",
-    description: "Pass a URL to an image which will then be visible in the area",
   },
 ];
 

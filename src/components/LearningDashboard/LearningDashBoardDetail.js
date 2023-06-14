@@ -134,7 +134,7 @@ export default class LearningDashboardDetail extends React.Component {
   render() {
     const { activitiesJson, tab, loading, lastUpdated } = this.state;
 
-    document.title = `BigBlueButton - Learning Analytics Dashboard - ${activitiesJson.name}`;
+    document.title = `LMS DEMO - Learning Analytics Dashboard - ${activitiesJson.name}`;
 
     function totalOfEmojis() {
       if (activitiesJson && activitiesJson.users) {

@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <div className={styles.footerWrapper}>
       <div className={styles.content}>
-        <p className={styles.copyRight}>BigBlueButton - LMS demo</p>
+        <p className={styles.copyRight}>BigBlueButton - Demo LMS</p>
       </div>
     </div>
   );
