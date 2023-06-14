@@ -281,7 +281,7 @@ export default function MeetingSettings({ room, user, getUser }) {
       const res = await deleteRoomById(room?._id);
       if (isValid(res)) {
         toast.success(`Delete room ${room.name} successfully!`);
-        callBBBClient({ apiCall: "end", password: user._id, meetingID: room?._id });
+        callBBBClient({ apiCall: "end", password: user?._id, meetingID: room?._id });
         setOpenConfirmDelete(false);
         router.push("/rooms");
       }

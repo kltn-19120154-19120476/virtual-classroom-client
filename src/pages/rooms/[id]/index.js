@@ -143,7 +143,7 @@ const RoomDetailPage = () => {
                       <RoomAccess room={room} getUser={getUser} />
                     </TabPanel>
                     <TabPanel value="setting" className={styles.tabPanel}>
-                      <MeetingSettings room={room} getUser={getUser} />
+                      <MeetingSettings room={room} getUser={getUser} user={user} />
                     </TabPanel>
                   </>
                 )}
