@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
+import { BBB_DEFAULT_ATTENDEE_PASSWORD } from "src/sysconfig";
 import * as yup from "yup";
 import styles from "./styles.module.scss";
 
@@ -30,13 +31,13 @@ const JoinPage = () => {
   const router = useRouter();
   const schema = yup.object().shape({
     name: yup.string().required("Name is required"),
-    password: yup.string().required("Meeting password is required"),
+    // password: yup.string().required("Meeting password is required"),
   });
 
   const joinBBBMeeting = async ({ name, password }) => {
     const res = await callBBBClient({
       meetingID: router.query.meetingID,
-      password: password,
+      password: password || BBB_DEFAULT_ATTENDEE_PASSWORD,
       role: "GUEST",
       apiCall: "join",
       fullName: name,
