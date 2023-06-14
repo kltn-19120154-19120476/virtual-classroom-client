@@ -16,7 +16,6 @@ import CardBody from "./Card";
 import ErrorMessage from "./ErrorMessage";
 import PollsTable from "./PollsTable";
 import StatusTable from "./StatusTable";
-import UserDetails from "./UserDetails/component";
 import UsersTable from "./UsersTable";
 import styles from "./styles.module.scss";
 const TABS = {
@@ -118,13 +117,6 @@ export default class LearningDashboardDetail extends React.Component {
     return mostUsedEmojis.map(([emoji]) => icons[emoji]);
   }
 
-  updateModalUser() {
-    const { activitiesJson } = this.state;
-    const { users } = activitiesJson;
-
-    console.log(users);
-  }
-
   fetchActivitiesJson() {
     const { invalidSessionCount } = this.state;
     this.setState({
@@ -133,7 +125,6 @@ export default class LearningDashboardDetail extends React.Component {
       invalidSessionCount: 0,
       lastUpdated: Date.now(),
     });
-    this.updateModalUser();
 
     setTimeout(() => {
       this.fetchActivitiesJson();
@@ -220,7 +211,7 @@ export default class LearningDashboardDetail extends React.Component {
     }
 
     function getErrorMessage() {
-      if (activitiesJson === {} || typeof activitiesJson.name === "undefined") {
+      if (JSON.stringify(activitiesJson || "{}") === "{}" || typeof activitiesJson.name === "undefined") {
         return "Data is no longer available";
       }
 
@@ -236,8 +227,14 @@ export default class LearningDashboardDetail extends React.Component {
     return (
       <div className="mx-10">
         <div className={styles.userTableHeader}>
-          <Typography variant="h3" color="primary">
-            {activitiesJson.name || ""}
+          <Typography
+            variant="h4"
+            fontWeight={"bold"}
+            color="primary"
+            textTransform="uppercase"
+            sx={{ borderLeft: "10px solid #467fcf", paddingLeft: 2 }}
+          >
+            {activitiesJson.name || ""} Dashboard
           </Typography>
           <div>
             <p style={{ fontWeight: 600 }}>
@@ -312,7 +309,6 @@ export default class LearningDashboardDetail extends React.Component {
             <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
           </TabPanelUnstyled>
         </TabsUnstyled>
-        <UserDetails dataJson={activitiesJson} />
         <div className={styles.userTableFooter}>
           <div>
             <p style={{ fontWeight: 600 }}>

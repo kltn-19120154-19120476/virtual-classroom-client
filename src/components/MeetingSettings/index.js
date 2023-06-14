@@ -25,6 +25,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import { deleteRoomById, updateRoom } from "src/client/room";
+import { getDefaultMeetingSettings } from "src/service";
 import { customToast, isValid } from "src/utils";
 import * as yup from "yup";
 import styles from "./styles.module.scss";
@@ -226,51 +227,10 @@ export default function MeetingSettings({ room, user, getUser }) {
   const schema = yup.object().shape({
     roomName: yup.string().required("Room name is required"),
     name: yup.string().required("Meeting name is required"),
+    attendeePW: yup.string().min(3, "Password must have at least 3 characters").required("Password is required"),
   });
 
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
-
-  const getDefaultSettings = (room) => ({
-    name: room?.name,
-    roomName: room?.name,
-    // attendeePW: "",
-    welcome: `Welcome to ${room?.name}`,
-    maxParticipants: 100,
-    logoutURL: "",
-    record: true,
-    duration: 200,
-    moderatorOnlyMessage: "",
-    autoStartRecording: false,
-    allowStartStopRecording: true,
-    webcamsOnlyForModerator: false,
-    bannerText: `${room?.name}`,
-    bannerColor: "#ffffff",
-    muteOnStart: false,
-    allowModsToUnmuteUsers: true,
-    lockSettingsDisableCam: false,
-    lockSettingsDisableMic: false,
-    lockSettingsDisablePrivateChat: false,
-    lockSettingsDisablePublicChat: false,
-    lockSettingsDisableNotes: false,
-    lockSettingsHideUserList: false,
-    lockSettingsLockOnJoin: true,
-    lockSettingsLockOnJoinConfigurable: false,
-    lockSettingsHideViewersCursor: false,
-    meetingKeepEvents: false,
-    endWhenNoModerator: false,
-    endWhenNoModeratorDelayInMinutes: 45,
-    learningDashboardCleanupDelayInMinutes: 60,
-    allowModsToEjectCameras: true,
-    allowRequestsWithoutSession: false,
-    virtualBackgroundsDisabled: false,
-    userCameraCap: 3,
-    meetingCameraCap: 100,
-    meetingExpireIfNoUserJoinedInMinutes: 15,
-    meetingExpireWhenLastUserLeftInMinutes: 15,
-    logo: "",
-    preUploadedPresentationOverrideDefault: true,
-    notifyRecordingIsOn: false,
-  });
 
   const {
     formState: { errors },
@@ -283,7 +243,7 @@ export default function MeetingSettings({ room, user, getUser }) {
     resolver: yupResolver(schema),
     mode: "onChange",
     defaultValues: {
-      ...getDefaultSettings(room),
+      ...getDefaultMeetingSettings(room),
       ...JSON.parse(room?.meetingSettings || "{}"),
     },
   });
@@ -321,8 +281,8 @@ export default function MeetingSettings({ room, user, getUser }) {
       const res = await deleteRoomById(room?._id);
       if (isValid(res)) {
         toast.success(`Delete room ${room.name} successfully!`);
+        callBBBClient({ apiCall: "end", password: user._id, meetingID: room?._id });
         setOpenConfirmDelete(false);
-        await callBBBClient({ apiCall: "end", password: user._id });
         router.push("/rooms");
       }
     } catch (e) {
@@ -370,12 +330,12 @@ export default function MeetingSettings({ room, user, getUser }) {
                 </Tooltip>
               </Grid>
 
-              {/* <Grid item xs={12}>
-                <Tooltip title="User must use this password to join the meeting" placement="bottom-start">
+              <Grid item xs={12}>
+                <Tooltip title="Guest must use this password to join the meeting" placement="bottom-start">
                   <TextField
                     {...register("attendeePW")}
                     type="password"
-                    label="Attendee password"
+                    label="Guest password"
                     size="small"
                     error={!!errors.attendeePW}
                     helperText={errors.attendeePW?.message}
@@ -385,7 +345,7 @@ export default function MeetingSettings({ room, user, getUser }) {
                     fullWidth
                   />
                 </Tooltip>
-              </Grid> */}
+              </Grid>
 
               {BBB_STRING_SETTINGS.map((setting) => (
                 <Grid item xs={12} key={setting.key}>

@@ -3,9 +3,10 @@ import sha1 from "js-sha1";
 import { BBB_SECRET, BBB_SERVER } from "src/sysconfig";
 import convert from "xml-js";
 
-const INTERNAL_SERVER_STATUS_CODE = 500,
-  RETURN_CODE = 200,
-  SUCCESS_STATUS_CODE = 200;
+const RETURN_CODE = {
+  FAILED: "FAILED",
+  SUCCESS: "SUCCESS",
+};
 
 function isObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -55,43 +56,46 @@ const resToObject = (res) => {
 
 const makeBBBRequest = async (apiCall, params, body = "") => {
   if (apiCall === "join") {
-    if (!params.role || !["moderator", "attendee"].includes(params.role)) {
+    if (!params.role || !["MODERATOR", "VIEWER", "GUEST"].includes(params.role)) {
       return {
         returncode: RETURN_CODE.FAILED,
-        message: "role must be attendee or moderator",
+        message: "role must be attendee or moderator or guest",
       };
     }
 
-    const { meetingID, password, role, fullName } = params;
+    const { meetingID, password = "", role, fullName } = params;
 
-    const infoMeetingRes = await makeBBBRequest("getMeetingInfo", {
-      meetingID,
-      password,
-    });
+    if (role === "MODERATOR" || role === "VIEWER") {
+      const joinMeetingParams = {
+        meetingID,
+        redirect: true,
+        fullName,
+        role,
+      };
 
-    if (!infoMeetingRes?.meetingID) {
-      return infoMeetingRes;
-    }
+      const checksum = createChecksum("join", joinMeetingParams);
 
-    const joinMeetingParams = {
-      meetingID,
-      password: createPassword(password),
-      redirect: true,
-      fullName,
-    };
-
-    const checksum = createChecksum(apiCall, joinMeetingParams);
-
-    if (joinMeetingParams.password === (role === "attendee" ? infoMeetingRes.attendeePW : infoMeetingRes.moderatorPW))
       return {
         returncode: RETURN_CODE.SUCCESS,
         joinUrl: BBB_SERVER + "join?" + new URLSearchParams({ ...joinMeetingParams, checksum }).toString(),
       };
+    }
 
-    return {
-      returncode: RETURN_CODE.FAILED,
-      message: "Meeting password does not match",
-    };
+    if (role === "GUEST") {
+      const joinMeetingParams = {
+        meetingID,
+        redirect: true,
+        fullName,
+        password: createPassword(password),
+      };
+
+      const checksum = createChecksum("join", joinMeetingParams);
+
+      return {
+        returncode: RETURN_CODE.SUCCESS,
+        joinUrl: BBB_SERVER + "join?" + new URLSearchParams({ ...joinMeetingParams, checksum }).toString(),
+      };
+    }
   }
 
   if (params.attendeePW) params.attendeePW = createPassword(params.attendeePW);

@@ -1,10 +1,53 @@
+import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import { updateRoom } from "src/client/room";
 import { BBB_DEFAULT_ATTENDEE_PASSWORD } from "src/sysconfig";
 import { isValid } from "src/utils";
 
+export const getDefaultMeetingSettings = (room) => ({
+  name: room?.name,
+  roomName: room?.name,
+  // attendeePW: "",
+  welcome: `Welcome to ${room?.name}`,
+  maxParticipants: 100,
+  logoutURL: "",
+  record: true,
+  duration: 200,
+  moderatorOnlyMessage: "",
+  autoStartRecording: false,
+  allowStartStopRecording: true,
+  webcamsOnlyForModerator: false,
+  bannerText: `${room?.name}`,
+  bannerColor: "#000",
+  muteOnStart: false,
+  allowModsToUnmuteUsers: true,
+  lockSettingsDisableCam: false,
+  lockSettingsDisableMic: false,
+  lockSettingsDisablePrivateChat: false,
+  lockSettingsDisablePublicChat: false,
+  lockSettingsDisableNotes: false,
+  lockSettingsHideUserList: false,
+  lockSettingsLockOnJoin: true,
+  lockSettingsLockOnJoinConfigurable: false,
+  lockSettingsHideViewersCursor: false,
+  meetingKeepEvents: false,
+  endWhenNoModerator: false,
+  endWhenNoModeratorDelayInMinutes: 45,
+  learningDashboardCleanupDelayInMinutes: 60,
+  allowModsToEjectCameras: true,
+  allowRequestsWithoutSession: false,
+  virtualBackgroundsDisabled: false,
+  userCameraCap: 3,
+  meetingCameraCap: 100,
+  meetingExpireIfNoUserJoinedInMinutes: 15,
+  meetingExpireWhenLastUserLeftInMinutes: 15,
+  logo: "",
+  preUploadedPresentationOverrideDefault: true,
+  notifyRecordingIsOn: false,
+});
+
 export const handleCreateMeeting = async ({ room, user }) => {
-  const meetingSettings = JSON.parse(room?.meetingSettings || "{}");
+  const meetingSettings = room?.meetingSettings ? JSON.parse(room?.meetingSettings) : getDefaultMeetingSettings(room);
   const res = await callBBBClient(
     {
       name: room?.name,
@@ -39,14 +82,31 @@ export const handleCreateMeeting = async ({ room, user }) => {
 
 export const handleJoinMeeting = async ({ room, user }) => {
   const isOwner = room?.isOwner;
-  const meetingInfo = await handleCreateMeeting({ room, user });
+  const isMember = room?.memberIds?.includes(user?._id);
 
-  if (meetingInfo) {
-    await updateRoom({ id: room?._id, meetingInfo: JSON.stringify(meetingInfo) });
+  if (isOwner) {
+    const meetingInfo = await handleCreateMeeting({ room, user });
+
+    if (meetingInfo) {
+      await updateRoom({ id: room?._id, meetingInfo: JSON.stringify(meetingInfo) });
+      const res = await callBBBClient({
+        meetingID: room?._id,
+        role: "MODERATOR",
+        apiCall: "join",
+        fullName: user?.name,
+      });
+      if (isValid(res)) {
+        window.open(res.joinUrl);
+      } else {
+        toast.error(res.message);
+      }
+    }
+  }
+
+  if (isMember) {
     const res = await callBBBClient({
       meetingID: room?._id,
-      password: isOwner ? user?._id : BBB_DEFAULT_ATTENDEE_PASSWORD,
-      role: isOwner ? "moderator" : "attendee",
+      role: "VIEWER",
       apiCall: "join",
       fullName: user?.name,
     });

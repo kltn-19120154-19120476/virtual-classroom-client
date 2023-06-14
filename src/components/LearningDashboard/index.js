@@ -8,7 +8,7 @@ import { NoData } from "../NoDataNotification";
 import LearningDashboardDetail from "./LearningDashBoardDetail";
 let intervalID;
 
-export default function LearningDashboards({ room }) {
+export default function LearningDashboards({ room, getUser }) {
   const [learningDashboard, setLearningDashboard] = useState(null);
 
   const getLearningDashboard = async () => {
@@ -31,7 +31,7 @@ export default function LearningDashboards({ room }) {
   }, []);
 
   const RefreshButton = (props) => (
-    <Button startIcon={<Cached />} onClick={() => window.location.reload()} variant="contained" {...props}>
+    <Button startIcon={<Cached />} onClick={() => getUser()} variant="contained" {...props}>
       Refresh
     </Button>
   );

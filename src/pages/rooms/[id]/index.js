@@ -85,7 +85,7 @@ const RoomDetailPage = () => {
             <Container maxWidth="xl" className={styles.roomHeader}>
               <div>
                 <h1>{room?.name}</h1>
-                <p>Last session: {formatTime(room.meetingInfo.startTime)}</p>
+                <p>Last session: {formatTime(room.meetingInfo?.startTime)}</p>
               </div>
 
               <div className={styles.roomHeaderBtn}>
@@ -137,7 +137,7 @@ const RoomDetailPage = () => {
                 {isOwner && (
                   <>
                     <TabPanel value="learningDashboard" className={styles.tabPanel}>
-                      <LearningDashboards room={room} />
+                      <LearningDashboards room={room} getUser={getUser} />
                     </TabPanel>
                     <TabPanel value="access" className={styles.tabPanel}>
                       <RoomAccess room={room} getUser={getUser} />

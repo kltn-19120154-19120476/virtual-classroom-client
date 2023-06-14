@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
-import { BBB_DEFAULT_ATTENDEE_PASSWORD } from "src/sysconfig";
 import * as yup from "yup";
 import styles from "./styles.module.scss";
 
@@ -31,13 +30,14 @@ const JoinPage = () => {
   const router = useRouter();
   const schema = yup.object().shape({
     name: yup.string().required("Name is required"),
+    password: yup.string().required("Meeting password is required"),
   });
 
   const joinBBBMeeting = async ({ name, password }) => {
     const res = await callBBBClient({
       meetingID: router.query.meetingID,
-      password: password || BBB_DEFAULT_ATTENDEE_PASSWORD,
-      role: "attendee",
+      password: password,
+      role: "GUEST",
       apiCall: "join",
       fullName: name,
     });
@@ -71,7 +71,7 @@ const JoinPage = () => {
               helperText={errors.name?.message}
             />
 
-            {/* <TextField
+            <TextField
               {...register("password")}
               style={{ marginBottom: 20 }}
               type="password"
@@ -80,7 +80,7 @@ const JoinPage = () => {
               size="small"
               error={!!errors.password}
               helperText={errors.password?.message}
-            /> */}
+            />
             <Button color="primary" variant="contained" type="submit">
               JOIN
             </Button>

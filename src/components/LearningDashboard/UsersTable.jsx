@@ -24,8 +24,6 @@ class UsersTable extends React.Component {
       activityscoreOrder: "desc",
       lastFieldClicked: "userOrder",
     };
-
-    this.openUserModal = this.openUserModal.bind(this);
   }
 
   toggleOrder(field) {
@@ -39,10 +37,6 @@ class UsersTable extends React.Component {
     }
 
     if (tab === "overview") this.setState({ lastFieldClicked: field });
-  }
-
-  openUserModal(user) {
-    console.log(user);
   }
 
   render() {
@@ -197,7 +191,7 @@ class UsersTable extends React.Component {
                     <TableRow key={user.id}>
                       <TableCell>
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                          <Button variant="outlined" onClick={() => this.openUserModal(user)} startIcon={<UserAvatar user={user} />}>
+                          <Button variant="outlined" startIcon={<UserAvatar user={user} />}>
                             {user.name}
                           </Button>
                           {Object.values(user.intIds || {}).map((intId, index) => (

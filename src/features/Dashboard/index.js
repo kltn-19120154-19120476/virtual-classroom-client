@@ -1,3 +1,4 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import GroupsIcon from "@mui/icons-material/Groups";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
@@ -14,14 +15,26 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { createRoom, updateRoom } from "src/client/room";
 import { handleCreateMeeting, handleJoinMeeting } from "src/service";
-import { customToast, formatTime, getFirst, isValid } from "src/utils";
+import { formatTime, getFirst, isValid } from "src/utils";
+import * as yup from "yup";
 import styles from "./styles.module.scss";
 
 const Dashboard = ({ user, getUser }) => {
-  const { register, handleSubmit } = useForm({
+  const schema = yup.object().shape({
+    name: yup.string().required("Room name is required"),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
     mode: "onChange",
     defaultValues: { name: "" },
   });
+
   const [openCreateGroupForm, setOpenCreateGroupForm] = useState(false);
 
   const handleCreateGroup = async (data) => {
@@ -33,13 +46,14 @@ const Dashboard = ({ user, getUser }) => {
         const meetingInfo = await handleCreateMeeting({ roomInfo, user });
 
         await updateRoom({ id: roomInfo._id, meetingInfo: JSON.stringify(meetingInfo) });
-
+        toast.success(res.message);
+        reset();
         getUser();
       } else {
-        await customToast("ERROR", res?.message);
+        toast.error(res?.message);
       }
     } catch (e) {
-      await customToast("ERROR", e?.response?.data?.message);
+      toast.error(e?.message || e);
     }
     setOpenCreateGroupForm(false);
   };
@@ -61,47 +75,50 @@ const Dashboard = ({ user, getUser }) => {
     </Grid>
   );
 
-  const RoomCard = ({ room }) => (
-    <Grid item xs={12} sm={6} md={4} lg={3} key={room?._id}>
-      <Link href={`/rooms/${room?._id}`}>
-        <Card className={styles.card}>
-          <div className={styles.cardIcon}>
-            <VideoCameraFrontIcon />
-          </div>
+  const RoomCard = ({ room }) =>
+    room ? (
+      <Grid item xs={12} sm={6} md={4} lg={3} key={room?._id}>
+        <Link href={`/rooms/${room?._id}`}>
+          <Card className={styles.card}>
+            <div className={styles.cardIcon}>
+              <VideoCameraFrontIcon />
+            </div>
 
-          <div className={styles.cardInfo}>
-            <h2>{room.name}</h2>
-            <p>Last session: {formatTime(JSON.parse(room.meetingInfo)?.startTime)}</p>
-          </div>
-          <div className={styles.cardFooter}>
-            <CopyToClipboard
-              text={`${window?.location?.host}/join?meetingID=${room._id}&meetingName=${room.name}`}
-              onCopy={() => toast.success("Copied join url")}
-            >
-              <IconButton onClick={(e) => e.stopPropagation()}>
-                <ContentCopyIcon />
-              </IconButton>
-            </CopyToClipboard>
+            <div className={styles.cardInfo}>
+              <h2>{room.name}</h2>
+              <p>Last session: {formatTime(JSON.parse(room.meetingInfo)?.startTime)}</p>
+            </div>
+            <div className={styles.cardFooter}>
+              <CopyToClipboard
+                text={`${window?.location?.host}/join?meetingID=${room._id}&meetingName=${room.name}`}
+                onCopy={() => toast.success("Copied join url")}
+              >
+                <IconButton onClick={(e) => e.stopPropagation()}>
+                  <ContentCopyIcon />
+                </IconButton>
+              </CopyToClipboard>
 
-            <Button
-              variant="outlined"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleJoinMeeting({ room, user });
-              }}
-            >
-              {room?.ownerId === user?._id ? "Start" : "Join"}
-            </Button>
-          </div>
-        </Card>
-      </Link>
-    </Grid>
-  );
+              <Button
+                variant="outlined"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleJoinMeeting({ room, user });
+                }}
+              >
+                {room?.isOwner ? "Start" : "Join"}
+              </Button>
+            </div>
+          </Card>
+        </Link>
+      </Grid>
+    ) : (
+      <></>
+    );
 
   return (
     <Container maxWidth="xl">
       <Grid container spacing={6} className={styles.wrapper}>
-        {user?.myGroups?.length < 1 ? (
+        {user?.myGroups?.length + user?.joinedGroups?.length < 1 ? (
           <NoRoomsWrapper />
         ) : (
           <>
@@ -127,7 +144,14 @@ const Dashboard = ({ user, getUser }) => {
               Create new room
             </DialogTitle>
             <DialogContent className={styles.groupContent}>
-              <TextField label="Room's name" placeholder="Enter room's name" {...register("name")} fullWidth />
+              <TextField
+                label="Room name"
+                placeholder="Enter room name"
+                {...register("name")}
+                fullWidth
+                error={!!errors?.name}
+                helperText={errors?.name?.message}
+              />
             </DialogContent>
             <DialogActions>
               <Button variant="outlined" onClick={() => setOpenCreateGroupForm(false)}>
