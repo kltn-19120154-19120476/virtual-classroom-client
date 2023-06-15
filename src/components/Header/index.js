@@ -2,7 +2,7 @@
 import HomeIcon from "@mui/icons-material/Home";
 import Logout from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Tooltip } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
@@ -135,9 +135,11 @@ const Header = ({ logout, user }) => {
           ))
         ) : (
           <Link href="/rooms">
-            <Box sx={{ padding: "20px 0 5px 0" }}>
-              <HomeIcon className={styles.homeIcon} />
-            </Box>
+            <Tooltip title="Dashboard">
+              <Box sx={{ padding: "20px 0 5px 0" }}>
+                <HomeIcon className={styles.homeIcon} />
+              </Box>
+            </Tooltip>
           </Link>
         )}
       </Container>

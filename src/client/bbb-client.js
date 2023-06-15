@@ -1,5 +1,6 @@
 import axios from "axios";
 import sha1 from "js-sha1";
+import { getMeetingInfo, isMeetingRunning } from "src/service";
 import { BBB_SECRET, BBB_SERVER } from "src/sysconfig";
 import convert from "xml-js";
 
@@ -65,7 +66,7 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
       };
     }
 
-    const isMeetingRunningRes = await callBBBClient({ apiCall: "isMeetingRunning", meetingID });
+    const isMeetingRunningRes = await isMeetingRunning(meetingID);
 
     if (isMeetingRunningRes?.running === "false" && role !== "MODERATOR") {
       return {
@@ -98,7 +99,7 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
         password: createPassword(password),
       };
 
-      const meetingInfo = await callBBBClient({ apiCall: "getMeetingInfo", meetingID });
+      const meetingInfo = await getMeetingInfo(meetingID);
 
       if (meetingInfo?.attendeePW !== joinMeetingParams?.password) {
         return {

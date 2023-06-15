@@ -1,6 +1,5 @@
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
-import { updateRoom } from "src/client/room";
 import { BBB_DEFAULT_ATTENDEE_PASSWORD, WEB_CLIENT_HOST } from "src/sysconfig";
 import { isValid } from "src/utils";
 
@@ -30,7 +29,7 @@ export const getDefaultMeetingSettings = (room) => ({
   lockSettingsLockOnJoinConfigurable: false,
   lockSettingsHideViewersCursor: false,
   meetingKeepEvents: false,
-  endWhenNoModerator: false,
+  endWhenNoModerator: true,
   endWhenNoModeratorDelayInMinutes: 45,
   learningDashboardCleanupDelayInMinutes: 60,
   allowModsToEjectCameras: true,
@@ -42,6 +41,7 @@ export const getDefaultMeetingSettings = (room) => ({
   meetingExpireWhenLastUserLeftInMinutes: 15,
   preUploadedPresentationOverrideDefault: true,
   notifyRecordingIsOn: false,
+  publishMeeting: true,
 });
 
 export const handleCreateMeeting = async ({ room, user }) => {
@@ -60,10 +60,7 @@ export const handleCreateMeeting = async ({ room, user }) => {
   );
 
   if (res?.returncode === "SUCCESS" || res?.messageKey === "idNotUnique") {
-    const meetingInfo = await callBBBClient({
-      meetingID: room?._id,
-      apiCall: "getMeetingInfo",
-    });
+    const meetingInfo = await getMeetingInfo(room?._id);
 
     delete meetingInfo.apiCall;
     delete meetingInfo.returncode;
@@ -85,7 +82,6 @@ export const handleJoinMeeting = async ({ room, user }) => {
     const meetingInfo = await handleCreateMeeting({ room, user });
 
     if (meetingInfo) {
-      await updateRoom({ id: room?._id, meetingInfo: JSON.stringify(meetingInfo) });
       const res = await callBBBClient({
         meetingID: room?._id,
         role: "MODERATOR",
@@ -145,3 +141,9 @@ export const getRecordings = async ({ meetingID }) => {
     };
   });
 };
+
+export const endMeeting = (password, meetingID) => callBBBClient({ apiCall: "end", password, meetingID });
+
+export const isMeetingRunning = (meetingID) => callBBBClient({ apiCall: "isMeetingRunning", meetingID });
+
+export const getMeetingInfo = (meetingID) => callBBBClient({ apiCall: "getMeetingInfo", meetingID });

@@ -5,7 +5,6 @@ import { LoadingButton } from "@mui/lab";
 import {
   Button,
   Card,
-  CardActions,
   CardContent,
   Container,
   Dialog,
@@ -20,12 +19,12 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { callBBBClient } from "src/client/bbb-client";
 import { deleteRoomById, updateRoom } from "src/client/room";
-import { getDefaultMeetingSettings } from "src/service";
+import { endMeeting, getDefaultMeetingSettings } from "src/service";
+import { BBB_DEFAULT_ATTENDEE_PASSWORD } from "src/sysconfig";
 import { customToast, isValid } from "src/utils";
 import * as yup from "yup";
 import styles from "./styles.module.scss";
@@ -216,7 +215,7 @@ export default function MeetingSettings({ room, user, getUser }) {
   const schema = yup.object().shape({
     roomName: yup.string().required("Room name is required"),
     name: yup.string().required("Meeting name is required"),
-    attendeePW: yup.string().min(3, "Password must have at least 3 characters").required("Password is required"),
+    // attendeePW: yup.string().min(3, "Password must have at least 3 characters").required("Password is required"),
   });
 
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
@@ -246,9 +245,7 @@ export default function MeetingSettings({ room, user, getUser }) {
         if (typeof data[key] === "number") {
           if (data[key] < 0) data[key] = getDefaultSettings(room)[key];
         } else if (key === "attendeePW") {
-          if (!data[key]) data[key] = getDefaultSettings(room)[key];
-        } else {
-          if (!data[key]) delete data[key];
+          if (!data[key] || data?.publishMeeting) data[key] = BBB_DEFAULT_ATTENDEE_PASSWORD;
         }
       });
 
@@ -270,7 +267,7 @@ export default function MeetingSettings({ room, user, getUser }) {
       const res = await deleteRoomById(room?._id);
       if (isValid(res)) {
         toast.success(`Delete room ${room.name} successfully!`);
-        callBBBClient({ apiCall: "end", password: user?._id, meetingID: room?._id });
+        endMeeting(user?._id, room?._id);
         setOpenConfirmDelete(false);
         router.push("/rooms");
       }
@@ -280,6 +277,13 @@ export default function MeetingSettings({ room, user, getUser }) {
     }
   };
 
+  useEffect(() => {
+    reset({
+      ...getDefaultMeetingSettings(room),
+      ...JSON.parse(room?.meetingSettings || "{}"),
+    });
+  }, [user, room]);
+
   return (
     <Container maxWidth="xl" className={styles.recordWrapper}>
       <Card component={"form"} onSubmit={handleSubmit(onUpdateMeetingSetings)} className={styles.form} sx={{ p: 2 }}>
@@ -287,7 +291,7 @@ export default function MeetingSettings({ room, user, getUser }) {
           <Grid container spacing={4}>
             <Grid container item xs={12} md={6} lg={4} rowSpacing={3} alignContent={"flex-start"}>
               <Grid item xs={12}>
-                <Tooltip title="The name of the room" placement="bottom-start">
+                <Tooltip title={<p className={styles.tooltip}>The name of the room</p>} placement="right">
                   <TextField
                     {...register("roomName")}
                     placeholder="Enter room name"
@@ -304,7 +308,7 @@ export default function MeetingSettings({ room, user, getUser }) {
               </Grid>
 
               <Grid item xs={12}>
-                <Tooltip title="The name of the meeting" placement="bottom-start">
+                <Tooltip title={<p className={styles.tooltip}>The name of the meeting</p>} placement="right">
                   <TextField
                     {...register("name")}
                     label="Meeting name"
@@ -319,26 +323,56 @@ export default function MeetingSettings({ room, user, getUser }) {
                 </Tooltip>
               </Grid>
 
-              <Grid item xs={12}>
-                <Tooltip title="Guest must use this password to join the meeting" placement="bottom-start">
-                  <TextField
-                    {...register("attendeePW")}
-                    type="password"
-                    label="Guest password"
-                    size="small"
-                    error={!!errors.attendeePW}
-                    helperText={errors.attendeePW?.message}
-                    InputLabelProps={{
-                      shrink: true,
+              <Grid item xs={12} key={"publishMeeting"}>
+                <Tooltip title={<p className={styles.tooltip}>Guest can join the meeting without password</p>} placement="right">
+                  <FormControlLabel
+                    control={<Switch defaultChecked color="success" />}
+                    label={"Publish meeting"}
+                    name={"publishMeeting"}
+                    id={"publishMeeting"}
+                    checked={watch("publishMeeting")}
+                    onChange={(e) => {
+                      setValue("publishMeeting", e.target.checked);
                     }}
-                    fullWidth
                   />
                 </Tooltip>
               </Grid>
 
+              {!watch("publishMeeting") && (
+                <Grid item xs={12}>
+                  <Tooltip title={<p className={styles.tooltip}>Guest must use this password to join the meeting</p>} placement="right">
+                    <TextField
+                      {...register("attendeePW")}
+                      type="password"
+                      label="Guest password"
+                      size="small"
+                      error={!!errors.attendeePW}
+                      helperText={errors.attendeePW?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      fullWidth
+                    />
+                  </Tooltip>
+                </Grid>
+              )}
+
+              <Grid item xs={12}>
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 20, width: "100%" }}>
+                  <Button variant="outlined" color="error" onClick={() => setOpenConfirmDelete(true)} startIcon={<DeleteForever />}>
+                    Delete Room
+                  </Button>
+                  <LoadingButton variant="contained" type="submit" startIcon={<SaveIcon />}>
+                    SAVE
+                  </LoadingButton>
+                </div>
+              </Grid>
+            </Grid>
+
+            <Grid container item xs={12} md={6} lg={4} rowSpacing={3} alignContent={"flex-start"}>
               {BBB_STRING_SETTINGS.map((setting) => (
                 <Grid item xs={12} key={setting.key}>
-                  <Tooltip title={setting.description} placement="bottom-start">
+                  <Tooltip title={<p className={styles.tooltip}>{setting.description}</p>} placement="right">
                     <TextField
                       {...register(setting.key)}
                       id={setting.key}
@@ -354,12 +388,9 @@ export default function MeetingSettings({ room, user, getUser }) {
                   </Tooltip>
                 </Grid>
               ))}
-            </Grid>
-
-            <Grid container item xs={12} md={6} lg={4} rowSpacing={3} alignContent={"flex-start"}>
               {BBB_NUMERIC_SETTINGS.map((setting) => (
                 <Grid item xs={12} key={setting.key}>
-                  <Tooltip title={setting.description} placement="bottom-start">
+                  <Tooltip title={<p className={styles.tooltip}>{setting.description}</p>} placement="right">
                     <TextField
                       {...register(setting.key)}
                       id={setting.key}
@@ -384,9 +415,9 @@ export default function MeetingSettings({ room, user, getUser }) {
             <Grid container item xs={12} md={6} lg={4} rowSpacing={3} alignContent={"flex-start"}>
               {BBB_BOOLEAN_SETTINGS.map((setting) => (
                 <Grid item xs={12} key={setting.key}>
-                  <Tooltip title={setting.description} placement="bottom-start">
+                  <Tooltip title={<p className={styles.tooltip}>{setting.description}</p>} placement="right">
                     <FormControlLabel
-                      control={<Switch defaultChecked />}
+                      control={<Switch defaultChecked color="primary" />}
                       label={setting.label}
                       name={setting.key}
                       id={setting.key}
@@ -399,16 +430,6 @@ export default function MeetingSettings({ room, user, getUser }) {
             </Grid>
           </Grid>
         </CardContent>
-        <CardActions sx={{ marginTop: 2 }}>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 20, width: "100%" }}>
-            <Button variant="outlined" color="error" onClick={() => setOpenConfirmDelete(true)} startIcon={<DeleteForever />}>
-              Delete Room
-            </Button>
-            <LoadingButton variant="contained" type="submit" startIcon={<SaveIcon />}>
-              SAVE
-            </LoadingButton>
-          </div>
-        </CardActions>
       </Card>
 
       <Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)} fullWidth>

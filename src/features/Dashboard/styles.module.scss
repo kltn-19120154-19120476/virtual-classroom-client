@@ -46,6 +46,14 @@
         background: #fafafa;
       }
 
+      .roomState {
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+        padding: 12px;
+        gap: 10px;
+      }
+
       .cardIcon {
         color: #467fcf;
         background-color: #e8eff9;

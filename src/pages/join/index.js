@@ -59,7 +59,9 @@ const JoinPage = () => {
         <Image src={"/images/bbb-logo.png"} width={250} height={55} objectFit="contain" alt="bbb-logo" />
       </div>
       <Card className={styles.loginwrapper}>
-        <h2 className={styles.loginTitle}>Join meeting {router.query?.meetingName}</h2>
+        <h2 className={styles.loginTitle}>
+          {router.query?.inviter} invited you to join meeting {router.query?.meetingName}
+        </h2>
         <div className={styles.formWrapper}>
           <form onSubmit={handleSubmit(joinBBBMeeting)} className={styles.form}>
             <TextField

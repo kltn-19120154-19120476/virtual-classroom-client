@@ -1,5 +1,5 @@
 import CircularProgress from "@mui/material/CircularProgress";
-import styles from "./styles.module.css";
+import styles from "./styles.module.scss";
 
 const LoadingScreen = () => {
   return (

@@ -4,6 +4,7 @@ import { loginFunc, loginGoogleFunc, registerFunc, resetAccount } from "src/clie
 import { getRoomByIds } from "src/client/room";
 import { getUserInfo } from "src/client/user";
 import LoadingScreen from "src/components/LoadingScreen";
+import { getMeetingInfo, isMeetingRunning } from "src/service";
 import { customToast, getFirst, isValid } from "src/utils";
 
 const AuthContext = createContext();
@@ -30,11 +31,27 @@ const AuthContextProvider = ({ children }) => {
         if (isValid(res)) {
           const userInfo = getFirst(res);
 
-          const roomListRes = await getRoomByIds([...userInfo.myRoomIds, ...userInfo.joinedRoomIds]);
+          const roomIds = [...userInfo.myRoomIds, ...userInfo.joinedRoomIds];
+
+          const roomListRes = await getRoomByIds(roomIds);
+
+          const meetingStateRes = await Promise.all(roomIds?.map((id) => isMeetingRunning(id)));
+
+          const meetingInfoRes = await Promise.all(roomIds?.map((id) => getMeetingInfo(id)));
 
           const roomListMap = {};
+          const meetingStateMap = {};
+          const meetingInfoMap = {};
 
-          roomListRes?.data?.forEach((room) => (roomListMap[room?._id] = room));
+          roomIds.forEach((id, index) => {
+            meetingStateMap[id] = meetingStateRes[index]?.running === "true";
+            meetingInfoMap[id] = meetingInfoRes[index];
+          });
+
+          roomListRes?.data?.forEach(
+            (room) =>
+              (roomListMap[room?._id] = { ...room, isMeetingRunning: meetingStateMap[room?._id], meetingInfo: meetingInfoMap[room?._id] }),
+          );
 
           userInfo.myRooms = userInfo.myRoomIds?.map((code) => roomListMap[code]) || [];
 

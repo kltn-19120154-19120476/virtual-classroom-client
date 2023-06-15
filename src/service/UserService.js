@@ -188,3 +188,8 @@ export function makeUserCSVData(users, polls) {
 
   return [header, Object.values(userRecords).join("\r\n")].join("\r\n");
 }
+
+export const getMeetingInviteLink = (room, user) =>
+  `${window?.location.protocol}//${window?.location?.host}/join?meetingID=${room._id}&meetingName=${
+    room?.meetingInfo?.meetingName || room?.name
+  }&inviter=${user?.name}`;

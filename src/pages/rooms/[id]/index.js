@@ -1,9 +1,10 @@
+import { StopCircleSharp } from "@mui/icons-material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import VideoCameraFrontIcon from "@mui/icons-material/VideoCameraFront";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
-import { Button, Container, Grid } from "@mui/material";
+import { Button, Container, Grid, IconButton, Tooltip } from "@mui/material";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import { useRouter } from "next/router";
@@ -19,7 +20,8 @@ import MeetingSettings from "src/components/MeetingSettings";
 import RoomAccess from "src/components/RoomAccess";
 import RoomRecordings from "src/components/RoomRecordings";
 import { AuthContext } from "src/context/authContext";
-import { handleJoinMeeting } from "src/service";
+import { endMeeting, handleJoinMeeting } from "src/service";
+import { getMeetingInviteLink } from "src/service/UserService";
 import { formatTime, getFirst, isValid } from "src/utils";
 import styles from "./styles.module.scss";
 
@@ -35,19 +37,22 @@ const RoomDetailPage = () => {
       try {
         const res = await getRoomDetail(router.query.id);
         if (isValid(res)) {
-          const roomInfo = getFirst(res);
+          let roomInfo = getFirst(res);
 
-          const [userListRes] = await Promise.all([getUserByIds([roomInfo.ownerId, ...roomInfo.memberIds, ...roomInfo.coOwnerIds])]);
-
+          const userListRes = await getUserByIds([roomInfo.ownerId, ...roomInfo.memberIds, ...roomInfo.coOwnerIds]);
           const userListMap = {};
 
           userListRes?.data?.forEach((user) => (userListMap[user?._id] = user));
+
+          roomInfo = {
+            ...roomInfo,
+            ...([...(user?.joinedRooms || []), ...(user?.myRooms || [])]?.find((room) => room?._id === roomInfo?._id) || {}),
+          };
 
           roomInfo.owner = userListMap[roomInfo.ownerId];
           roomInfo.members = roomInfo.memberIds.map((id) => userListMap[id]);
           roomInfo.coOwners = roomInfo.coOwnerIds.map((id) => userListMap[id]);
           roomInfo.total = roomInfo.memberIds.length + roomInfo.coOwnerIds.length + 1;
-          roomInfo.meetingInfo = JSON.parse(roomInfo.meetingInfo || "{}");
           roomInfo.presentation = JSON.parse(roomInfo.presentation || "[]");
 
           setRoom(roomInfo);
@@ -84,20 +89,23 @@ const RoomDetailPage = () => {
           <Grid item xs={12} sx={{ background: "#fff" }}>
             <Container maxWidth="xl" className={styles.roomHeader}>
               <div>
-                <h1>{room?.name}</h1>
+                <h1>
+                  {room?.name}{" "}
+                  <CopyToClipboard text={getMeetingInviteLink(room, user)} onCopy={() => toast.success("Copied meeting invite link")}>
+                    <Tooltip title="Copy meeting invite link">
+                      <IconButton>
+                        <ContentCopyIcon color="primary" />
+                      </IconButton>
+                    </Tooltip>
+                    {/* <Button variant="outlined" color="primary" startIcon={<ContentCopyIcon />} sx={{ marginRight: 2 }}>
+                      Copy meeting invite link
+                    </Button> */}
+                  </CopyToClipboard>{" "}
+                </h1>
                 <p>Last session: {formatTime(room.meetingInfo?.startTime)}</p>
               </div>
 
               <div className={styles.roomHeaderBtn}>
-                <CopyToClipboard
-                  text={`${window?.location?.host}/join?meetingID=${room._id}&meetingName=${room.name}`}
-                  onCopy={() => toast.success("Copied join url")}
-                >
-                  <Button variant="outlined" color="primary" startIcon={<ContentCopyIcon />} sx={{ marginRight: 2 }}>
-                    Copy join link
-                  </Button>
-                </CopyToClipboard>
-
                 <Button
                   onClick={async () => {
                     await handleJoinMeeting({ room, user });
@@ -106,9 +114,27 @@ const RoomDetailPage = () => {
                   variant="contained"
                   color="primary"
                   startIcon={<VideoCameraFrontIcon />}
+                  sx={{ marginRight: room?.isMeetingRunning ? 2 : 0 }}
                 >
-                  {isOwner ? "Start" : "Join"} meeting
+                  {isOwner && !room?.isMeetingRunning ? "Start" : "Join"} meeting
                 </Button>
+
+                {room?.isMeetingRunning && isOwner && (
+                  <Button
+                    onClick={async () => {
+                      const res = await endMeeting(user?._id, room?._id);
+                      if (isValid(res)) {
+                        toast.success("Meeting was ended successfully");
+                      }
+                      getUser();
+                    }}
+                    variant="contained"
+                    color="error"
+                    startIcon={<StopCircleSharp />}
+                  >
+                    End meeting
+                  </Button>
+                )}
               </div>
             </Container>
           </Grid>
