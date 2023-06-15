@@ -3,6 +3,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import GroupsIcon from "@mui/icons-material/Groups";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
 import VideoCameraFrontIcon from "@mui/icons-material/VideoCameraFront";
+import { LoadingButton } from "@mui/lab";
 import { Button, Card, Chip, Container, Grid, IconButton, TextField, Tooltip } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -37,8 +38,10 @@ const Dashboard = ({ user, getUser }) => {
   });
 
   const [openCreateRoomForm, setOpenCreateRoomForm] = useState(false);
+  const [loadingCreateRoom, setLoadingCreateRoom] = useState(false);
 
   const handleCreateRoom = async (data) => {
+    setLoadingCreateRoom(true);
     try {
       const res = await createRoom(data);
       if (isValid(res)) {
@@ -54,8 +57,10 @@ const Dashboard = ({ user, getUser }) => {
       }
     } catch (e) {
       toast.error(e?.message || e);
+      setLoadingCreateRoom(false);
     }
     setOpenCreateRoomForm(false);
+    setLoadingCreateRoom(false);
   };
 
   const NoRoomsWrapper = () => (
@@ -163,9 +168,9 @@ const Dashboard = ({ user, getUser }) => {
               <Button variant="outlined" onClick={() => setOpenCreateRoomForm(false)}>
                 Cancel
               </Button>
-              <Button variant="contained" type="submit">
+              <LoadingButton variant="contained" type="submit" loading={loadingCreateRoom}>
                 Create
-              </Button>
+              </LoadingButton>
             </DialogActions>
           </form>
         </Dialog>
