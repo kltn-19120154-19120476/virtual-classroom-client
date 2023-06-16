@@ -1,9 +1,24 @@
-import { Cached } from "@mui/icons-material";
+import { Cached, Download } from "@mui/icons-material";
 import CastForEducationIcon from "@mui/icons-material/CastForEducation";
-import { Button, Container } from "@mui/material";
+import {
+  Button,
+  Card,
+  Container,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { callBBBClient } from "src/client/bbb-client";
-import { isValid } from "src/utils";
+import { updateLearningDashboards } from "src/service";
+import { downloadSessionData } from "src/service/UserService";
+import { formatTime, isValid } from "src/utils";
 import { NoData } from "../NoDataNotification";
 import LearningDashboardDetail from "./LearningDashBoardDetail";
 let intervalID;
@@ -18,6 +33,7 @@ export default function LearningDashboards({ room, getUser }) {
     });
     if (isValid(res)) {
       setLearningDashboard(res.data);
+      await updateLearningDashboards(room, res.data);
     }
   };
 
@@ -28,7 +44,7 @@ export default function LearningDashboards({ room, getUser }) {
     return () => {
       clearInterval(intervalID);
     };
-  }, []);
+  }, [room]);
 
   const RefreshButton = (props) => (
     <Button startIcon={<Cached />} onClick={() => getUser()} variant="contained" {...props}>
@@ -48,6 +64,43 @@ export default function LearningDashboards({ room, getUser }) {
           refreshButton={<RefreshButton />}
         />
       )}
+
+      <Typography variant="h5" color="primary" sx={{ marginTop: 4, marginBottom: 2 }}>
+        Previous sessions
+      </Typography>
+      <Card>
+        <TableContainer>
+          <Table>
+            <TableHead className="tableHead">
+              <TableRow>
+                <TableCell>Room name</TableCell>
+                <TableCell>Created on</TableCell>
+                <TableCell>participants</TableCell>
+                <TableCell>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {room?.learningDashboards?.map((dashboard) => {
+                const parsedDashboard = JSON.parse(dashboard);
+                return (
+                  <TableRow key={`${parsedDashboard.extId}-${parsedDashboard.intId}`}>
+                    <TableCell>{parsedDashboard.name}</TableCell>
+                    <TableCell>{formatTime(parsedDashboard.createdOn)}</TableCell>
+                    <TableCell>{Object.keys(parsedDashboard?.users)?.length || 0}</TableCell>
+                    <TableCell>
+                      <Tooltip title="Download session data">
+                        <IconButton onClick={() => downloadSessionData(parsedDashboard)}>
+                          <Download />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Card>
     </Container>
   );
 }

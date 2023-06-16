@@ -10,7 +10,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import React from "react";
 import { emojiConfigs } from "src/service/EmojiService";
-import { makeUserCSVData, tsToHHmmss } from "src/service/UserService";
+import { downloadSessionData, tsToHHmmss } from "src/service/UserService";
 import { formatTime } from "src/utils";
 import CardBody from "./Card";
 import ErrorMessage from "./ErrorMessage";
@@ -43,29 +43,10 @@ export default class LearningDashboardDetail extends React.Component {
     });
   }
 
-  handleSaveSessionData(e) {
-    const { target: downloadButton } = e;
+  handleSaveSessionData() {
     const { activitiesJson } = this.state;
-    const { name: meetingName, createdOn, users, polls } = activitiesJson;
-    const link = document.createElement("a");
-    const data = makeUserCSVData(users, polls);
-    const filename = `LearningDashboard_${meetingName}_${new Date(createdOn).toISOString().substr(0, 10)}.csv`.replace(/ /g, "-");
 
-    downloadButton.setAttribute("disabled", "true");
-    downloadButton.style.cursor = "not-allowed";
-    link.setAttribute("href", `data:text/csv;charset=UTF-8,${encodeURIComponent(data)}`);
-    link.setAttribute("download", filename);
-    link.style.display = "none";
-    document.body.appendChild(link);
-    link.click();
-    downloadButton.innerHTML = "Downloaded!";
-    setTimeout(() => {
-      downloadButton.innerHTML = "Download Session Data";
-      downloadButton.removeAttribute("disabled");
-      downloadButton.style.cursor = "pointer";
-      downloadButton.focus();
-    }, 3000);
-    document.body.removeChild(link);
+    downloadSessionData(activitiesJson);
   }
 
   setDashboardParams(callback) {

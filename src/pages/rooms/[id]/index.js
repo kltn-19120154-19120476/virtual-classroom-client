@@ -102,7 +102,7 @@ const RoomDetailPage = () => {
                     </Button> */}
                   </CopyToClipboard>{" "}
                 </h1>
-                <p>Last session: {formatTime(room.meetingInfo?.startTime)}</p>
+                <p>Current session: {formatTime(room.meetingInfo?.startTime)}</p>
               </div>
 
               <div className={styles.roomHeaderBtn}>

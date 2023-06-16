@@ -1,5 +1,6 @@
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
+import { updateRoom } from "src/client/room";
 import { BBB_DEFAULT_ATTENDEE_PASSWORD, WEB_CLIENT_HOST } from "src/sysconfig";
 import { isValid } from "src/utils";
 
@@ -147,3 +148,22 @@ export const endMeeting = (password, meetingID) => callBBBClient({ apiCall: "end
 export const isMeetingRunning = (meetingID) => callBBBClient({ apiCall: "isMeetingRunning", meetingID });
 
 export const getMeetingInfo = (meetingID) => callBBBClient({ apiCall: "getMeetingInfo", meetingID });
+
+export const updateLearningDashboards = async (room, data) => {
+  const newData = JSON.parse(data);
+  const learningDashboards = room.learningDashboards;
+
+  const dataIndex = learningDashboards.findIndex((dashboard) => {
+    const { extId = "", intId = "" } = JSON.parse(dashboard);
+    return `${extId}-${intId}` === `${newData.extId}-${newData.intId}`;
+  });
+
+  if (dataIndex === -1) {
+    learningDashboards.unshift(JSON.stringify(newData));
+  } else {
+    learningDashboards[dataIndex] = JSON.stringify(newData);
+  }
+
+  await updateRoom({ id: room._id, learningDashboards });
+  return learningDashboards;
+};

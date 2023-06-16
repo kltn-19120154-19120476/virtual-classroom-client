@@ -193,3 +193,17 @@ export const getMeetingInviteLink = (room, user) =>
   `${window?.location.protocol}//${window?.location?.host}/join?meetingID=${room._id}&meetingName=${
     room?.meetingInfo?.meetingName || room?.name
   }&inviter=${user?.name}`;
+
+export const downloadSessionData = (activitiesJson) => {
+  const { name: meetingName, createdOn, users, polls } = activitiesJson;
+  const link = document.createElement("a");
+  const data = makeUserCSVData(users, polls);
+  const filename = `LearningDashboard_${meetingName}_${new Date(createdOn).toISOString().substr(0, 10)}.csv`.replace(/ /g, "-");
+
+  link.setAttribute("href", `data:text/csv;charset=UTF-8,${encodeURIComponent(data)}`);
+  link.setAttribute("download", filename);
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};

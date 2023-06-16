@@ -96,7 +96,7 @@ const Dashboard = ({ user, getUser }) => {
 
             <div className={styles.cardInfo}>
               <h2>{room.name}</h2>
-              <p>Last session: {formatTime(room.meetingInfo.startTime)}</p>
+              <p>Current session: {formatTime(room.meetingInfo.startTime)}</p>
             </div>
             <div className={styles.cardFooter}>
               <CopyToClipboard text={getMeetingInviteLink(room, user)} onCopy={() => toast.success("Copied meeting invite link")}>

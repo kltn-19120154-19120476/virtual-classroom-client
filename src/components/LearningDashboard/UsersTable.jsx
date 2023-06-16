@@ -189,7 +189,7 @@ class UsersTable extends React.Component {
                   const opacity = user.leftOn > 0 ? "opacity-75" : "";
                   return (
                     <TableRow key={user.id}>
-                      <TableCell>
+                      <TableCell style={{ pointerEvents: "none" }}>
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                           <Button variant="outlined" startIcon={<UserAvatar user={user} />}>
                             {user.name}

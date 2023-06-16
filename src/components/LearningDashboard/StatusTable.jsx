@@ -226,6 +226,7 @@ class StatusTable extends React.Component {
                           left: isRTL ? "initial" : 0,
                           right: !isRTL ? "initial" : 0,
                           zIndex: 30,
+                          pointerEvents: "none",
                         }}
                       >
                         <Button startIcon={<UserAvatar user={user} />}>{user.name}</Button>

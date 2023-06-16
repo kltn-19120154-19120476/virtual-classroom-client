@@ -80,6 +80,7 @@ export const getFirst = (res) => res?.data?.[0] || null;
 export const getData = (res) => res?.data || [];
 
 export const formatTime = (time, type = "vi-VN") => {
+  if (!time) return "N/A";
   const result = new Date(+time).toLocaleString(type);
   return result !== "Invalid Date" ? result : "N/A";
 };
