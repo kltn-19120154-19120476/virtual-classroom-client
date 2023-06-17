@@ -4,7 +4,7 @@ import { loginFunc, loginGoogleFunc, registerFunc, resetAccount } from "src/clie
 import { getRoomByIds } from "src/client/room";
 import { getUserInfo } from "src/client/user";
 import LoadingScreen from "src/components/LoadingScreen";
-import { getMeetingInfo, isMeetingRunning } from "src/service";
+import { getLearningDashboardFromInternalMeetingId, getMeetingInfo, isMeetingRunning, updateLearningDashboards } from "src/service";
 import { customToast, getFirst, isValid } from "src/utils";
 
 const AuthContext = createContext();
@@ -53,6 +53,18 @@ const AuthContextProvider = ({ children }) => {
               (roomListMap[room?._id] = { ...room, isMeetingRunning: meetingStateMap[room?._id], meetingInfo: meetingInfoMap[room?._id] }),
           );
 
+          await Promise.all(
+            userInfo.myRoomIds.map(async (id) => {
+              const internalMeetingID = roomListMap[id]?.meetingInfo?.internalMeetingID;
+              if (internalMeetingID) {
+                const meetingLearningDashboard = await getLearningDashboardFromInternalMeetingId(
+                  roomListMap[id]?.meetingInfo?.internalMeetingID,
+                );
+                if (meetingLearningDashboard.data) updateLearningDashboards(roomListMap[id], meetingLearningDashboard.data);
+              }
+            }),
+          );
+
           userInfo.myRooms = userInfo.myRoomIds?.map((code) => roomListMap[code]) || [];
 
           userInfo.joinedRooms = userInfo.joinedRoomIds?.map((code) => roomListMap[code]) || [];
@@ -71,6 +83,7 @@ const AuthContextProvider = ({ children }) => {
       }
       setIsLoadingAuth(false);
     } catch (e) {
+      console.log(e);
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
     }

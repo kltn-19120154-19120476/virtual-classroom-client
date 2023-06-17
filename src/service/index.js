@@ -167,3 +167,9 @@ export const updateLearningDashboards = async (room, data) => {
   await updateRoom({ id: room._id, learningDashboards });
   return learningDashboards;
 };
+
+export const getLearningDashboardFromInternalMeetingId = (internalMeetingID) =>
+  callBBBClient({
+    meeting: internalMeetingID || "",
+    apiCall: "learningDashboardFromMeetingId",
+  });

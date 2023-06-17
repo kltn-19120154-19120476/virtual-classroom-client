@@ -15,8 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { callBBBClient } from "src/client/bbb-client";
-import { updateLearningDashboards } from "src/service";
+import { getLearningDashboardFromInternalMeetingId, updateLearningDashboards } from "src/service";
 import { downloadSessionData } from "src/service/UserService";
 import { formatTime, isValid } from "src/utils";
 import { NoData } from "../NoDataNotification";
@@ -27,10 +26,7 @@ export default function LearningDashboards({ room, getUser }) {
   const [learningDashboard, setLearningDashboard] = useState(null);
 
   const getLearningDashboard = async () => {
-    const res = await callBBBClient({
-      meeting: room.meetingInfo?.internalMeetingID || "",
-      apiCall: "learningDashboardFromMeetingId",
-    });
+    const res = await getLearningDashboardFromInternalMeetingId(room.meetingInfo?.internalMeetingID || "");
     if (isValid(res)) {
       setLearningDashboard(res.data);
       await updateLearningDashboards(room, res.data);
