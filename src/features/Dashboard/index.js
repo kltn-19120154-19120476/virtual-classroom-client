@@ -133,11 +133,13 @@ const Dashboard = ({ user, getUser }) => {
           <NoRoomsWrapper />
         ) : (
           <>
-            <Grid item xs={12} className={styles.actionButtonWrapper}>
-              <Button onClick={() => setOpenCreateRoomForm(true)} variant="contained" startIcon={<VideoCallIcon />}>
-                new room
-              </Button>
-            </Grid>
+            {user && (
+              <Grid item xs={12} className={styles.actionButtonWrapper}>
+                <Button onClick={() => setOpenCreateRoomForm(true)} variant="contained" startIcon={<VideoCallIcon />}>
+                  new room
+                </Button>
+              </Grid>
+            )}
             <Grid item container spacing={2} xs={12} className={styles.roomWrapper}>
               {user?.myRooms?.map((room) => (
                 <RoomCard room={room} key={room?._id} />
