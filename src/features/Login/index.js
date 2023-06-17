@@ -1,6 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { GoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -39,7 +39,7 @@ function Login() {
   };
 
   return (
-    <div className={styles.wrapper}>
+    <Container className={styles.wrapper}>
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
         <Image src={"/images/bbb-logo.png"} width={250} height={55} objectFit="contain" alt="bbb-logo" />
       </div>
@@ -123,7 +123,7 @@ function Login() {
           </DialogActions>
         </form>
       </Dialog>
-    </div>
+    </Container>
   );
 }
 

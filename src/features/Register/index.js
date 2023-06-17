@@ -1,6 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { TextField } from "@mui/material";
+import { Container, TextField } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -29,12 +29,12 @@ function Register() {
   const { signup, isLoadingAuth } = useContext(AuthContext);
 
   return (
-    <div className={styles.wrapper}>
+    <Container className={styles.wrapper}>
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
         <Image src={"/images/bbb-logo.png"} width={250} height={55} objectFit="contain" alt="bbb-logo" />
       </div>
       <div className={styles.loginwrapper}>
-        <h2 className={styles.loginTitle}>Create an Account</h2>
+        <h2 className={styles.loginTitle}>Create an account</h2>
         <div className={styles.formWrapper}>
           <form onSubmit={handleSubmit(signup)} className={styles.form}>
             <TextField
@@ -90,7 +90,7 @@ function Register() {
           </p>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }
 
