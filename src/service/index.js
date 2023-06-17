@@ -9,7 +9,7 @@ export const getDefaultMeetingSettings = (room) => ({
   roomName: room?.name,
   welcome: `Welcome to ${room?.name}`,
   maxParticipants: 100,
-  logoutURL: WEB_CLIENT_HOST,
+  logoutURL: `${WEB_CLIENT_HOST}`,
   record: true,
   duration: 200,
   moderatorOnlyMessage: "",
@@ -91,6 +91,8 @@ export const handleJoinMeeting = async ({ room, user }) => {
       });
       if (isValid(res)) {
         window.open(res.joinUrl);
+        window.focus();
+        window.location.reload();
       } else {
         toast.error(res.message);
       }
@@ -106,6 +108,8 @@ export const handleJoinMeeting = async ({ room, user }) => {
     });
     if (res?.joinUrl) {
       window.open(res.joinUrl);
+      window.focus();
+      window.location.reload();
     } else {
       toast.error(res.message);
     }
@@ -132,12 +136,12 @@ export const getRecordings = async ({ meetingID }) => {
     const { startTime, endTime, published, participants, size, isBreakout, playback } = recording;
     return {
       ...recording,
-      startTime: +startTime,
-      endTime: +endTime,
-      published: published === "true",
-      participants: +participants,
-      size: +size,
-      isBreakout: isBreakout === "true",
+      startTime,
+      endTime,
+      published: published,
+      participants,
+      size,
+      isBreakout: isBreakout,
       url: playback.format.url,
     };
   });

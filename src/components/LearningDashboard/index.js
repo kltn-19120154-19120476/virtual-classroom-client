@@ -1,7 +1,6 @@
-import { Cached, Download } from "@mui/icons-material";
+import { Download } from "@mui/icons-material";
 import CastForEducationIcon from "@mui/icons-material/CastForEducation";
 import {
-  Button,
   Card,
   Container,
   IconButton,
@@ -42,12 +41,6 @@ export default function LearningDashboards({ room, getUser }) {
     };
   }, [room]);
 
-  const RefreshButton = (props) => (
-    <Button startIcon={<Cached />} onClick={() => getUser()} variant="contained" {...props}>
-      Refresh
-    </Button>
-  );
-
   return (
     <Container maxWidth="xl">
       {learningDashboard ? (
@@ -55,48 +48,52 @@ export default function LearningDashboards({ room, getUser }) {
       ) : (
         <NoData
           title="Not available"
-          description="Learning dashboard will appear here after you start a meeting"
+          description="Learning dashboard will appear here after you start a meeting."
           icon={<CastForEducationIcon />}
-          refreshButton={<RefreshButton />}
+          onRefresh={getUser}
         />
       )}
 
-      <Typography variant="h5" color="primary" sx={{ marginTop: 4, marginBottom: 2 }}>
-        Previous sessions
-      </Typography>
-      <Card>
-        <TableContainer>
-          <Table>
-            <TableHead className="tableHead">
-              <TableRow>
-                <TableCell>Room name</TableCell>
-                <TableCell>Created on</TableCell>
-                <TableCell>participants</TableCell>
-                <TableCell>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {room?.learningDashboards?.map((dashboard) => {
-                const parsedDashboard = JSON.parse(dashboard);
-                return (
-                  <TableRow key={`${parsedDashboard.extId}-${parsedDashboard.intId}`}>
-                    <TableCell>{parsedDashboard.name}</TableCell>
-                    <TableCell>{formatTime(parsedDashboard.createdOn)}</TableCell>
-                    <TableCell>{Object.keys(parsedDashboard?.users)?.length || 0}</TableCell>
-                    <TableCell>
-                      <Tooltip title="Download session data">
-                        <IconButton onClick={() => downloadSessionData(parsedDashboard)}>
-                          <Download />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
+      {room?.learningDashboards?.length > 0 && (
+        <>
+          <Typography variant="h5" color="primary" sx={{ marginTop: 4, marginBottom: 2 }}>
+            Room sessions
+          </Typography>
+          <Card>
+            <TableContainer>
+              <Table>
+                <TableHead className="tableHead">
+                  <TableRow>
+                    <TableCell>Meeting name</TableCell>
+                    <TableCell>Created time</TableCell>
+                    <TableCell>participants</TableCell>
+                    <TableCell>Action</TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
+                </TableHead>
+                <TableBody>
+                  {room?.learningDashboards?.map((dashboard) => {
+                    const parsedDashboard = JSON.parse(dashboard);
+                    return (
+                      <TableRow key={`${parsedDashboard.extId}-${parsedDashboard.intId}`}>
+                        <TableCell>{parsedDashboard.name}</TableCell>
+                        <TableCell>{formatTime(parsedDashboard.createdOn)}</TableCell>
+                        <TableCell>{Object.keys(parsedDashboard?.users)?.length || 0}</TableCell>
+                        <TableCell>
+                          <Tooltip title="Download session data">
+                            <IconButton onClick={() => downloadSessionData(parsedDashboard)}>
+                              <Download />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Card>
+        </>
+      )}
     </Container>
   );
 }

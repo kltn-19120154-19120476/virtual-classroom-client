@@ -1,10 +1,11 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Card, TextField } from "@mui/material";
+import { Button, Card, Container, TextField } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { callBBBClient } from "src/client/bbb-client";
+import { callBBBClient, createPassword } from "src/client/bbb-client";
+import { getMeetingInfo } from "src/service";
 import { BBB_DEFAULT_ATTENDEE_PASSWORD } from "src/sysconfig";
 import * as yup from "yup";
 import styles from "./styles.module.scss";
@@ -35,6 +36,10 @@ const JoinPage = () => {
   });
 
   const joinBBBMeeting = async ({ name, password }) => {
+    const meetingInfo = await getMeetingInfo(router.query.meetingID);
+
+    if (meetingInfo.attendeePW === createPassword(BBB_DEFAULT_ATTENDEE_PASSWORD)) password = BBB_DEFAULT_ATTENDEE_PASSWORD;
+
     const res = await callBBBClient({
       meetingID: router.query.meetingID,
       password: password || BBB_DEFAULT_ATTENDEE_PASSWORD,
@@ -54,7 +59,7 @@ const JoinPage = () => {
   } = useForm({ resolver: yupResolver(schema), mode: "onChange" });
 
   return (
-    <div className={styles.wrapper}>
+    <Container className={styles.wrapper} maxWidth="xl">
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
         <Image src={"/images/bbb-logo.png"} width={250} height={55} objectFit="contain" alt="bbb-logo" />
       </div>
@@ -72,6 +77,7 @@ const JoinPage = () => {
               size="small"
               error={!!errors.name}
               helperText={errors.name?.message}
+              fullWidth
             />
 
             <TextField
@@ -83,6 +89,7 @@ const JoinPage = () => {
               size="small"
               error={!!errors.password}
               helperText={errors.password?.message}
+              fullWidth
             />
             <Button color="primary" variant="contained" type="submit">
               JOIN
@@ -90,7 +97,7 @@ const JoinPage = () => {
           </form>
         </div>
       </Card>
-    </div>
+    </Container>
   );
 };
 

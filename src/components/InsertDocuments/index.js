@@ -111,7 +111,8 @@ export default function InsertDocuments({ room, getUser }) {
         <NoData
           icon={<CloudUploadIcon />}
           title="No presentation"
-          description="Presentations will appear here after the moderator upload them to the meeting"
+          description="Presentations will appear here after the moderator upload them to the meeting."
+          onRefresh={getUser}
         />
       )}
     </Container>

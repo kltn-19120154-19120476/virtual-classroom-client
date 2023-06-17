@@ -125,7 +125,7 @@ export default function RoomRecordings({ room }) {
             </>
           ) : (
             <NoData
-              refreshButton={<RefreshButton />}
+              onRefresh={getRecordingsData}
               title="You don't have any recordings yet!"
               description={`Recordings will appear here after ${room?.isOwner ? "you" : "the moderator"} start a meeting and record it.`}
               icon={<VideocamIcon />}

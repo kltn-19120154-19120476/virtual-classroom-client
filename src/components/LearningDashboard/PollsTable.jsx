@@ -16,7 +16,7 @@ const PollsTable = (props) => {
     return (
       <NoData
         title="No polls have been created"
-        description="Once a poll has been sent to users, their results will appear in this list"
+        description="Once a poll has been sent to users, their results will appear in this list."
         icon={<PollIcon />}
       />
     );

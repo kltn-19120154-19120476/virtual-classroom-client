@@ -44,7 +44,7 @@ const AuthContextProvider = ({ children }) => {
           const meetingInfoMap = {};
 
           roomIds.forEach((id, index) => {
-            meetingStateMap[id] = meetingStateRes[index]?.running === "true";
+            meetingStateMap[id] = meetingStateRes[index]?.running;
             meetingInfoMap[id] = meetingInfoRes[index];
           });
 

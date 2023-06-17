@@ -19,7 +19,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { deleteRoomById, updateRoom } from "src/client/room";
@@ -254,7 +254,6 @@ export default function MeetingSettings({ room, user, getUser }) {
       if (isValid(res)) {
         await getUser();
         await customToast("SUCCESS", "The settings will be applied after the new meeting is created", 2500);
-        reset();
       }
     } catch (err) {
       console.log(err);
@@ -276,13 +275,6 @@ export default function MeetingSettings({ room, user, getUser }) {
       setOpenConfirmDelete(false);
     }
   };
-
-  useEffect(() => {
-    reset({
-      ...getDefaultMeetingSettings(room),
-      ...JSON.parse(room?.meetingSettings || "{}"),
-    });
-  }, [user, room]);
 
   return (
     <Container maxWidth="xl" className={styles.recordWrapper}>
@@ -333,6 +325,9 @@ export default function MeetingSettings({ room, user, getUser }) {
                     checked={watch("publishMeeting")}
                     onChange={(e) => {
                       setValue("publishMeeting", e.target.checked);
+                      if (!e.target.checked) {
+                      }
+                      setValue("attendeePW", "");
                     }}
                   />
                 </Tooltip>

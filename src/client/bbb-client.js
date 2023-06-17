@@ -28,13 +28,15 @@ const createChecksum = (apiCall, params, secret = BBB_SECRET) => {
   return sha1(`${apiCall}${queryString}${secret}`);
 };
 
-const createPassword = (pw) => sha1(`${pw}${BBB_SECRET}`);
+export const createPassword = (pw) => sha1(`${pw}${BBB_SECRET}`);
 
 function removeTextProperty(obj) {
   for (var key in obj) {
     if (typeof obj[key] === "object" && obj[key] !== null) {
       if (obj[key]._text !== undefined) {
-        obj[key] = obj[key]._text;
+        if (Number.isInteger(+obj[key]._text)) obj[key] = +obj[key]._text;
+        else if (["true", "false"].includes(obj[key]._text)) obj[key] = obj[key]._text === "true";
+        else obj[key] = obj[key]._text;
       }
       removeTextProperty(obj[key]);
     }
