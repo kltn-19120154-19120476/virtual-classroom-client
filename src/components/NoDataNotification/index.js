@@ -4,7 +4,7 @@ import styles from "./styles.module.scss";
 
 export const NoData = ({ icon, title, description, onRefresh = null }) => (
   <Card className={styles.noRecordWrapper}>
-    <IconButton className={styles.camIcon} color="primary">
+    <IconButton className={styles.camIcon} color="primary" onClick={() => (onRefresh ? onRefresh() : null)}>
       {icon}
     </IconButton>
     <h2>{title}</h2>

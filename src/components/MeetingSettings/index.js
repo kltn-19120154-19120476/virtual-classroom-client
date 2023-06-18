@@ -19,7 +19,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { deleteRoomById, updateRoom } from "src/client/room";
@@ -220,6 +220,14 @@ export default function MeetingSettings({ room, user, getUser }) {
 
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
 
+  const getRoomMeetingSettings = () => {
+    const settings = JSON.parse(room?.meetingSettings || "{}");
+    return {
+      ...settings,
+      attendeePW: settings?.attendeePW === BBB_DEFAULT_ATTENDEE_PASSWORD ? "" : settings?.attendeePW,
+    };
+  };
+
   const {
     formState: { errors },
     register,
@@ -232,9 +240,13 @@ export default function MeetingSettings({ room, user, getUser }) {
     mode: "onChange",
     defaultValues: {
       ...getDefaultMeetingSettings(room),
-      ...JSON.parse(room?.meetingSettings || "{}"),
+      ...getRoomMeetingSettings(),
     },
   });
+
+  useEffect(() => {
+    reset(getRoomMeetingSettings());
+  }, [room]);
 
   const onUpdateMeetingSetings = async (data) => {
     try {

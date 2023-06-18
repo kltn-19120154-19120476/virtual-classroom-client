@@ -151,7 +151,7 @@ class StatusTable extends React.Component {
 
     return (
       <TableContainer>
-        <Table>
+        <Table sx={{ minWidth: 600 }}>
           <TableHead className="tableHead">
             <TableRow>
               <TableCell>User</TableCell>

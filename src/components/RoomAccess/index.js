@@ -74,43 +74,47 @@ export default function RoomAccess({ room, getUser }) {
 
   return (
     <Container maxWidth="xl">
-      <Dialog open={openInviteMemberForm} onClose={() => setOpenInviteMemberForm(false)} fullWidth>
-        <form onSubmit={handleSubmit(handleInviteMember)}>
-          <DialogTitle>Add user to room</DialogTitle>
-          <DialogContent style={{ overflowY: "initial" }}>
-            <TextField
-              label="User's email"
-              placeholder="Enter user's email"
-              {...register("email")}
-              type="email"
-              required
-              fullWidth
-              error={!!errors.email}
-              helperText={errors.email?.message}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button variant="outlined" onClick={() => setOpenInviteMemberForm(false)}>
-              Cancel
-            </Button>
-            <Button variant="contained" type="submit">
-              Add
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+      {room?.isOwner && (
+        <>
+          <Dialog open={openInviteMemberForm} onClose={() => setOpenInviteMemberForm(false)} fullWidth>
+            <form onSubmit={handleSubmit(handleInviteMember)}>
+              <DialogTitle>Add user to room</DialogTitle>
+              <DialogContent style={{ overflowY: "initial" }}>
+                <TextField
+                  label="User's email"
+                  placeholder="Enter user's email"
+                  {...register("email")}
+                  type="email"
+                  required
+                  fullWidth
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button variant="outlined" onClick={() => setOpenInviteMemberForm(false)}>
+                  Cancel
+                </Button>
+                <Button variant="contained" type="submit">
+                  Add
+                </Button>
+              </DialogActions>
+            </form>
+          </Dialog>
 
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setOpenInviteMemberForm(true)}
-          startIcon={<PersonAddIcon />}
-          sx={{ marginLeft: "auto", mb: 2, mt: 4 }}
-        >
-          Add user
-        </Button>
-      </div>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setOpenInviteMemberForm(true)}
+              startIcon={<PersonAddIcon />}
+              sx={{ marginLeft: "auto", mb: 2, mt: 4 }}
+            >
+              Add user
+            </Button>
+          </div>
+        </>
+      )}
 
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">

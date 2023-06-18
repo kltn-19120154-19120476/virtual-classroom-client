@@ -4,7 +4,7 @@ import VideoCameraFrontIcon from "@mui/icons-material/VideoCameraFront";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
-import { Button, Container, Grid, IconButton, Tooltip } from "@mui/material";
+import { Button, Chip, Container, Grid, IconButton, Tooltip } from "@mui/material";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import { useRouter } from "next/router";
@@ -102,6 +102,10 @@ const RoomDetailPage = () => {
                     </Button> */}
                   </CopyToClipboard>{" "}
                 </h1>
+                <div className={styles.roomState}>
+                  {room?.isOwner ? <Chip label="OWNER" color="primary" /> : <Chip label="MEMBER" color="secondary" />}
+                  {room?.isMeetingRunning && <Chip label="Running" color="success" />}
+                </div>
                 <p>Current session: {formatTime(room.meetingInfo?.startTime)}</p>
               </div>
 
@@ -114,7 +118,7 @@ const RoomDetailPage = () => {
                   variant="contained"
                   color="primary"
                   startIcon={<VideoCameraFrontIcon />}
-                  sx={{ marginRight: room?.isMeetingRunning ? 2 : 0 }}
+                  sx={{ marginRight: room?.isMeetingRunning ? 2 : 0, marginTop: 1 }}
                 >
                   {isOwner && !room?.isMeetingRunning ? "Start" : "Join"} meeting
                 </Button>
@@ -131,6 +135,7 @@ const RoomDetailPage = () => {
                     variant="contained"
                     color="error"
                     startIcon={<StopCircleSharp />}
+                    sx={{ marginTop: 1 }}
                   >
                     End meeting
                   </Button>
@@ -143,11 +148,11 @@ const RoomDetailPage = () => {
               <TabContext value={value}>
                 <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                   <Container maxWidth="xl">
-                    <TabList onChange={handleChange} textColor="primary" indicatorColor="primary">
+                    <TabList onChange={handleChange} textColor="primary" indicatorColor="primary" variant="scrollable" visibleScrollbar>
                       <Tab label="Recordings" value="recordings" />
                       <Tab label="Presentation" value="presentation" />
                       {isOwner && <Tab label="Learning dashboard" value="learningDashboard" />}
-                      {isOwner && <Tab label="Access" value="access" />}
+                      <Tab label="Access" value="access" />
                       {isOwner && <Tab label="Settings" value="setting" />}
                     </TabList>
                   </Container>
@@ -161,17 +166,17 @@ const RoomDetailPage = () => {
                   <InsertDocuments room={room} getUser={getUser} />
                 </TabPanel>
                 {isOwner && (
-                  <>
-                    <TabPanel value="learningDashboard" className={styles.tabPanel}>
-                      <LearningDashboards room={room} getUser={getUser} />
-                    </TabPanel>
-                    <TabPanel value="access" className={styles.tabPanel}>
-                      <RoomAccess room={room} getUser={getUser} />
-                    </TabPanel>
-                    <TabPanel value="setting" className={styles.tabPanel}>
-                      <MeetingSettings room={room} getUser={getUser} user={user} />
-                    </TabPanel>
-                  </>
+                  <TabPanel value="learningDashboard" className={styles.tabPanel}>
+                    <LearningDashboards room={room} getUser={getUser} />
+                  </TabPanel>
+                )}
+                <TabPanel value="access" className={styles.tabPanel}>
+                  <RoomAccess room={room} getUser={getUser} />
+                </TabPanel>
+                {isOwner && (
+                  <TabPanel value="setting" className={styles.tabPanel}>
+                    <MeetingSettings room={room} getUser={getUser} user={user} />
+                  </TabPanel>
                 )}
               </TabContext>
             </Box>

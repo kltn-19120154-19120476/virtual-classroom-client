@@ -16,7 +16,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   padding: 20px 0;
+
+  h4 {
+    @media (max-width: 768px) {
+      margin-bottom: 20px;
+    }
+  }
 }
 
 .userTableTab {

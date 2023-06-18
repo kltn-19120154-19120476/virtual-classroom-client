@@ -62,6 +62,10 @@
     color: #467fcf;
     font-size: 3rem;
     margin-bottom: 10px;
+
+    @media (max-width: 476px) {
+      font-size: 2rem;
+    }
   }
 
   p {
@@ -71,11 +75,22 @@
   .roomHeaderBtn {
     button {
       margin: "0 0 15px 0" !important;
+
+      @media (max-width: 476px) {
+        margin: "15px 0 15px 0" !important;
+      }
     }
   }
 }
 
 .tabPanel {
-  padding: 20px 0;
+  padding: 20px 0 !important;
   background-color: #f5f5f5;
+}
+
+.roomState {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  margin-bottom: 10px;
 }

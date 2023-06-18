@@ -100,18 +100,24 @@ export const handleJoinMeeting = async ({ room, user }) => {
   }
 
   if (isMember) {
-    const res = await callBBBClient({
-      meetingID: room?._id,
-      role: "VIEWER",
-      apiCall: "join",
-      fullName: user?.name,
-    });
-    if (res?.joinUrl) {
-      window.open(res.joinUrl);
-      window.focus();
-      window.location.reload();
+    const isRunning = (await isMeetingRunning(room?._id))?.running ?? false;
+
+    if (isRunning) {
+      const res = await callBBBClient({
+        meetingID: room?._id,
+        role: "VIEWER",
+        apiCall: "join",
+        fullName: user?.name,
+      });
+      if (res?.joinUrl) {
+        window.open(res.joinUrl);
+        window.focus();
+        window.location.reload();
+      } else {
+        toast.error(res.message);
+      }
     } else {
-      toast.error(res.message);
+      toast.error("Meeting is not started");
     }
   }
 };

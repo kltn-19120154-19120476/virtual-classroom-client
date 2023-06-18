@@ -236,6 +236,8 @@ export default class LearningDashboardDetail extends React.Component {
           onChange={(e, v) => {
             this.setState({ tab: v });
           }}
+          variant="scrollable"
+          visibleScrollbar
         >
           <TabsListUnstyled className={styles.userTableTab}>
             <TabUnstyled style={{ border: "none" }}>

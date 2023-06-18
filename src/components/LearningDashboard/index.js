@@ -48,7 +48,7 @@ export default function LearningDashboards({ room, getUser }) {
       ) : (
         <NoData
           title="Not available"
-          description="Learning dashboard will appear here after you start a meeting."
+          description="Learning dashboard information will appear here after you start a meeting."
           icon={<CastForEducationIcon />}
           onRefresh={getUser}
         />

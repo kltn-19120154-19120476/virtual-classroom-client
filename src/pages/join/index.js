@@ -1,7 +1,9 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Card, Container, TextField } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { Card, Container, TextField } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { callBBBClient, createPassword } from "src/client/bbb-client";
@@ -35,8 +37,17 @@ const JoinPage = () => {
     // password: yup.string().required("Meeting password is required"),
   });
 
+  const [loading, setLoading] = useState(false);
+
   const joinBBBMeeting = async ({ name, password }) => {
+    setLoading(true);
     const meetingInfo = await getMeetingInfo(router.query.meetingID);
+
+    if (!meetingInfo?.running) {
+      toast.error("Meeting is not started");
+      setLoading(false);
+      return;
+    }
 
     if (meetingInfo.attendeePW === createPassword(BBB_DEFAULT_ATTENDEE_PASSWORD)) password = BBB_DEFAULT_ATTENDEE_PASSWORD;
 
@@ -50,6 +61,7 @@ const JoinPage = () => {
 
     if (res.joinUrl) window.open(res.joinUrl, "_self");
     else toast.error(res.message);
+    setLoading(false);
   };
 
   const {
@@ -91,9 +103,9 @@ const JoinPage = () => {
               helperText={errors.password?.message}
               fullWidth
             />
-            <Button color="primary" variant="contained" type="submit">
+            <LoadingButton loading={loading} color="primary" variant="contained" type="submit">
               JOIN
-            </Button>
+            </LoadingButton>
           </form>
         </div>
       </Card>
