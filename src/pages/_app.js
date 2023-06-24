@@ -28,7 +28,7 @@ function MyApp({ Component, pageProps }) {
         <ThemeProvider theme={theme}>
           <AuthContextProvider>
             <Head>
-              <title>BigBlueButton - Demo LMS</title>
+              <title>BigBlueButton LMS</title>
             </Head>
             <div className="wrapper">
               <AppLayout>

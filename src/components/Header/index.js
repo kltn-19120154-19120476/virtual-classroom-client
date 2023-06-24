@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
+import { isMobile } from "react-device-detect";
 import styles from "./styles.module.scss";
 
 const navMenu = [
@@ -47,7 +48,13 @@ const Header = ({ logout, user }) => {
       <Container className={styles.content} maxWidth="xl" sx={{ display: "flex" }}>
         <div className={styles.leftContent}>
           <a href="/" className={styles.logo}>
-            <Image src={"/images/bbb-logo.png"} width={210} height={50} objectFit="contain" alt="bbb-logo" />
+            <Image
+              src={isMobile ? "/images/logo.png" : "/images/bbb-logo.png"}
+              width={isMobile ? 60 : 360}
+              height={60}
+              objectFit="contain"
+              alt="bbb-logo"
+            />
           </a>
         </div>
 
