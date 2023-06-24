@@ -1,6 +1,5 @@
 import { Typography } from "@mui/material";
 import styles from "./styles.module.scss";
-import Link from "next/link";
 
 const Footer = () => {
   return (

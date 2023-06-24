@@ -15,6 +15,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { createRoom } from "src/client/room";
+import { NoData } from "src/components/NoDataNotification";
 import { handleCreateMeeting, handleJoinMeeting } from "src/service";
 import { getMeetingInviteLink } from "src/service/UserService";
 import { formatTime, getFirst, isValid } from "src/utils";
@@ -128,55 +129,60 @@ const Dashboard = ({ user, getUser }) => {
 
   return (
     <Container maxWidth="xl">
-      <Grid container spacing={6} className={styles.wrapper}>
-        {user?.myRooms?.length + user?.joinedRooms?.length < 1 ? (
-          <NoRoomsWrapper />
-        ) : (
-          <>
-            {user && (
-              <Grid item xs={12} className={styles.actionButtonWrapper}>
-                <Button onClick={() => setOpenCreateRoomForm(true)} variant="contained" startIcon={<VideoCallIcon />}>
-                  new room
-                </Button>
-              </Grid>
-            )}
-            <Grid item container spacing={2} xs={12} className={styles.roomWrapper}>
-              {user?.myRooms?.map((room) => (
-                <RoomCard room={room} key={room?._id} />
-              ))}
-              {user?.joinedRooms?.map((room) => (
-                <RoomCard room={room} key={room?._id} />
-              ))}
-            </Grid>
-          </>
-        )}
-
-        <Dialog open={openCreateRoomForm} onClose={() => setOpenCreateRoomForm(false)} fullWidth>
-          <form onSubmit={handleSubmit(handleCreateRoom)}>
-            <DialogTitle id="alert-dialog-title" sx={{ fontSize: "1.4rem" }}>
-              Create new room
-            </DialogTitle>
-            <DialogContent className={styles.roomContent}>
-              <TextField
-                label="Room name"
-                placeholder="Enter room name"
-                {...register("name")}
-                fullWidth
-                error={!!errors?.name}
-                helperText={errors?.name?.message}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button variant="outlined" onClick={() => setOpenCreateRoomForm(false)}>
-                Cancel
+      {user?.myRooms?.length + user?.joinedRooms?.length < 1 ? (
+        <NoData
+          title="You don't have any rooms yet!"
+          description="Create your first room by clicking on the button below and entering a room name."
+          icon={<GroupsIcon />}
+          refreshBtnIcon={<VideoCallIcon />}
+          refreshBtnText="new room"
+          onRefresh={() => setOpenCreateRoomForm(true)}
+        />
+      ) : (
+        <Grid container spacing={6} className={styles.wrapper}>
+          {user && (
+            <Grid item xs={12} className={styles.actionButtonWrapper}>
+              <Button onClick={() => setOpenCreateRoomForm(true)} variant="contained" startIcon={<VideoCallIcon />}>
+                new room
               </Button>
-              <LoadingButton variant="contained" type="submit" loading={loadingCreateRoom}>
-                Create
-              </LoadingButton>
-            </DialogActions>
-          </form>
-        </Dialog>
-      </Grid>
+            </Grid>
+          )}
+          <Grid item container spacing={2} xs={12} className={styles.roomWrapper}>
+            {user?.myRooms?.map((room) => (
+              <RoomCard room={room} key={room?._id} />
+            ))}
+            {user?.joinedRooms?.map((room) => (
+              <RoomCard room={room} key={room?._id} />
+            ))}
+          </Grid>
+        </Grid>
+      )}
+
+      <Dialog open={openCreateRoomForm} onClose={() => setOpenCreateRoomForm(false)} fullWidth>
+        <form onSubmit={handleSubmit(handleCreateRoom)}>
+          <DialogTitle id="alert-dialog-title" sx={{ fontSize: "1.4rem" }}>
+            Create new room
+          </DialogTitle>
+          <DialogContent className={styles.roomContent}>
+            <TextField
+              label="Room name"
+              placeholder="Enter room name"
+              {...register("name")}
+              fullWidth
+              error={!!errors?.name}
+              helperText={errors?.name?.message}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button variant="outlined" onClick={() => setOpenCreateRoomForm(false)}>
+              Cancel
+            </Button>
+            <LoadingButton variant="contained" type="submit" loading={loadingCreateRoom}>
+              Create
+            </LoadingButton>
+          </DialogActions>
+        </form>
+      </Dialog>
     </Container>
   );
 };
