@@ -88,6 +88,7 @@ export const handleJoinMeeting = async ({ room, user }) => {
         role: "MODERATOR",
         apiCall: "join",
         fullName: user?.name,
+        userID: user?._id,
       });
       if (isValid(res)) {
         window.open(res.joinUrl);
@@ -108,6 +109,7 @@ export const handleJoinMeeting = async ({ room, user }) => {
         role: "VIEWER",
         apiCall: "join",
         fullName: user?.name,
+        userID: user?._id,
       });
       if (res?.joinUrl) {
         window.open(res.joinUrl);

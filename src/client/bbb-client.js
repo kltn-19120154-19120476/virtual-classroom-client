@@ -59,7 +59,7 @@ const resToObject = (res) => {
 
 const makeBBBRequest = async (apiCall, params, body = "") => {
   if (apiCall === "join") {
-    const { meetingID, password = "", role = "", fullName } = params;
+    const { meetingID, password = "", role = "", fullName, userID } = params;
 
     if (!role || !["MODERATOR", "VIEWER", "GUEST"].includes(role)) {
       return {
@@ -83,6 +83,7 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
         redirect: true,
         fullName,
         role,
+        userID,
       };
 
       const checksum = createChecksum("join", joinMeetingParams);
@@ -99,6 +100,7 @@ const makeBBBRequest = async (apiCall, params, body = "") => {
         redirect: true,
         fullName,
         password: createPassword(password),
+        guest: true,
       };
 
       const meetingInfo = await getMeetingInfo(meetingID);

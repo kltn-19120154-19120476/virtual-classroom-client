@@ -35,12 +35,12 @@
 
     .card {
       width: 100%;
-      aspect-ratio: 1/1;
+      height: 100%;
       cursor: pointer;
       background: #fefefe;
       display: flex;
       flex-flow: column nowrap;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: flex-start;
       &:hover {
         background: #fafafa;
@@ -83,6 +83,7 @@
         padding: 15px;
         width: 100%;
         border-top: 1px solid #ccc;
+        margin-top: auto;
       }
     }
     .emptyText {

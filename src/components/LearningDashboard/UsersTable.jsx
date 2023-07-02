@@ -5,7 +5,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import OnlinePredictionIcon from "@mui/icons-material/OnlinePrediction";
 import PanToolIcon from "@mui/icons-material/PanTool";
 import TextsmsIcon from "@mui/icons-material/Textsms";
-import { Button, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Button, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip } from "@mui/material";
 import React from "react";
 import { emojiConfigs, getUserEmojisSummary } from "src/service/EmojiService";
 import { getActivityScore, getSumOfTime, tsToHHmmss } from "src/service/UserService";
@@ -189,20 +189,25 @@ class UsersTable extends React.Component {
                   const opacity = user.leftOn > 0 ? "opacity-75" : "";
                   return (
                     <TableRow key={user.id}>
-                      <TableCell style={{ pointerEvents: "none" }}>
+                      <TableCell>
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                          <Button variant="outlined" startIcon={<UserAvatar user={user} />}>
+                          <Button variant="outlined" startIcon={<UserAvatar user={user} style={{ pointerEvents: "none" }} />}>
                             {user.name}
                           </Button>
                           {Object.values(user.intIds || {}).map((intId, index) => (
                             <>
-                              <Button sx={{ color: "#000" }} startIcon={<LoginIcon color="primary" />}>
-                                {formatTime(intId.registeredOn)}
-                              </Button>
-                              {intId.leftOn > 0 ? (
-                                <Button sx={{ color: "#000" }} startIcon={<LogoutIcon color="warning" />}>
-                                  {formatTime(intId.leftOn)}
+                              <Tooltip title="Join meeting time" placement="right">
+                                <Button sx={{ color: "#000" }} startIcon={<LoginIcon color="primary" />}>
+                                  {formatTime(intId.registeredOn)}
                                 </Button>
+                              </Tooltip>
+
+                              {intId.leftOn > 0 ? (
+                                <Tooltip title="Leave meeting time" placement="right">
+                                  <Button sx={{ color: "#000" }} startIcon={<LogoutIcon color="warning" />}>
+                                    {formatTime(intId.leftOn)}
+                                  </Button>
+                                </Tooltip>
                               ) : null}
                             </>
                           ))}

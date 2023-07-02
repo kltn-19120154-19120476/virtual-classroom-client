@@ -223,6 +223,7 @@ export default function MeetingSettings({ room, user, getUser }) {
   const getRoomMeetingSettings = () => {
     const settings = JSON.parse(room?.meetingSettings || "{}");
     return {
+      ...getDefaultMeetingSettings(room),
       ...settings,
       attendeePW: settings?.attendeePW === BBB_DEFAULT_ATTENDEE_PASSWORD ? "" : settings?.attendeePW,
     };
@@ -239,7 +240,6 @@ export default function MeetingSettings({ room, user, getUser }) {
     resolver: yupResolver(schema),
     mode: "onChange",
     defaultValues: {
-      ...getDefaultMeetingSettings(room),
       ...getRoomMeetingSettings(),
     },
   });
@@ -330,7 +330,7 @@ export default function MeetingSettings({ room, user, getUser }) {
               <Grid item xs={12} key={"publishMeeting"}>
                 <Tooltip title={<p className={styles.tooltip}>Guest can join the meeting without password</p>} placement="right">
                   <FormControlLabel
-                    control={<Switch defaultChecked color="success" />}
+                    control={<Switch color="success" />}
                     label={"Publish meeting"}
                     name={"publishMeeting"}
                     id={"publishMeeting"}
@@ -424,7 +424,7 @@ export default function MeetingSettings({ room, user, getUser }) {
                 <Grid item xs={12} key={setting.key}>
                   <Tooltip title={<p className={styles.tooltip}>{setting.description}</p>} placement="right">
                     <FormControlLabel
-                      control={<Switch defaultChecked color="primary" />}
+                      control={<Switch color="primary" />}
                       label={setting.label}
                       name={setting.key}
                       id={setting.key}
