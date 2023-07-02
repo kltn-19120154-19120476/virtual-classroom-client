@@ -9,7 +9,7 @@ export default function Document() {
         <meta property="og:title" content="BigBlueButton LMS" />
         <meta property="og:description" content="BigBlueButton LMS" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="/images/bbb-logo.png" />
+        <meta property="og:image" content="/images/logo.png" />
         <link rel="shortcut icon" href="/images/logo.png"></link>
       </Head>
       <body>

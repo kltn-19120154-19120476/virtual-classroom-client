@@ -15,3 +15,18 @@ export const getRoomDetail = async (roomId) => request("GET", `/room/detail/${ro
 export const getRoomByIds = async (ids) => request("POST", "/room/list", { ids });
 
 export const deleteRoomById = async (id) => request("DELETE", `/room/list/${id}`);
+
+export const getRecordingsByRoomId = async (roomId) => request("POST", "/recording/list", { meetingId: roomId });
+
+export const createRecording = async (data) => request("POST", "/recording/create", data);
+
+export const deleteRecording = async ({ recordId, roomId }) =>
+  request("DELETE", "/recording/delete?" + new URLSearchParams({ recordId, roomId }).toString());
+
+export const updateRecording = async ({ data, roomId, recordId }) =>
+  request("PUT", "/recording/update", { data: JSON.stringify(data), roomId, recordId });
+
+export const createDocument = async ({ presId, filename, uploadUrl }) =>
+  request("POST", "/document/create", { presId, filename, uploadUrl });
+
+export const getDocuments = async ({ ids }) => request("POST", "/document/list", { ids });

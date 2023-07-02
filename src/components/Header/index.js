@@ -23,7 +23,7 @@ const navMenu = [
   },
   {
     path: "/recordings",
-    label: "Recordings",
+    label: "Available recordings",
   },
   {
     path: "/documents",

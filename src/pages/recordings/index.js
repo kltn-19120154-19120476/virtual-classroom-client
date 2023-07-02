@@ -1,8 +1,7 @@
 import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import DeleteIcon from "@mui/icons-material/Delete";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import { Button, Container, IconButton, Switch, Tooltip } from "@mui/material";
+import { Button, Container, IconButton, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -13,11 +12,10 @@ import TableRow from "@mui/material/TableRow";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
-import { callBBBClient } from "src/client/bbb-client";
 import withLogin from "src/components/HOC/withLogin";
 import { NoData } from "src/components/NoDataNotification";
 import { getRecordings } from "src/service";
-import { formatTime, isValid } from "src/utils";
+import { formatTime } from "src/utils";
 import styles from "./styles.module.scss";
 
 function RecordingsPage({ user }) {
@@ -37,26 +35,6 @@ function RecordingsPage({ user }) {
 
     setRecordings(recordings);
     setLoading(false);
-  };
-
-  const handlePublishRecording = async (e, recording) => {
-    const res = await callBBBClient({
-      apiCall: "publishRecordings",
-      publish: `${e.target.checked}`,
-      recordID: recording.recordID,
-    });
-    if (isValid(res)) {
-      toast.success(res.message);
-      getRecordingsData();
-    }
-  };
-
-  const handleDeleteRecording = async (recording) => {
-    const res = await callBBBClient({ recordID: recording.recordID, apiCall: "deleteRecordings" });
-    if (isValid(res)) {
-      toast.info("Recordings deleted successfully");
-      getRecordingsData();
-    }
   };
 
   useEffect(() => {
@@ -86,14 +64,13 @@ function RecordingsPage({ user }) {
                     <TableRow>
                       <TableCell align="left">Meeting name</TableCell>
                       <TableCell align="left">Time</TableCell>
-                      <TableCell align="left">Published</TableCell>
                       <TableCell align="left">Participants</TableCell>
                       <TableCell align="center">Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {recordings?.map((recording) => (
-                      <TableRow key={recording?.internalMeetingID}>
+                      <TableRow key={recording?.recordId}>
                         <TableCell align="left">
                           <IconButton sx={{ background: "#f5f5f5", marginRight: 1 }}>
                             <VideocamIcon color="primary" />
@@ -104,9 +81,6 @@ function RecordingsPage({ user }) {
                           <span className={styles.timeLabel}>From:</span> {formatTime(recording?.startTime)} <br />{" "}
                           <span className={styles.timeLabel}>To:</span> {formatTime(recording?.endTime)}
                         </TableCell>
-                        <TableCell align="left" sx={{ textTransform: "capitalize" }}>
-                          <Switch checked={recording?.state === "published"} onChange={(e) => handlePublishRecording(e, recording)} />
-                        </TableCell>
                         <TableCell align="left">{recording?.participants}</TableCell>
                         <TableCell align="center">
                           <CopyToClipboard text={recording?.url} onCopy={() => toast.success("Copied recording url")}>
@@ -116,14 +90,6 @@ function RecordingsPage({ user }) {
                               </IconButton>
                             </Tooltip>
                           </CopyToClipboard>
-
-                          {user?.myRoomIds?.includes(recording?.meetingID) && (
-                            <Tooltip title="Delete recording">
-                              <IconButton color="error" onClick={() => handleDeleteRecording(recording)}>
-                                <DeleteIcon />
-                              </IconButton>
-                            </Tooltip>
-                          )}
                         </TableCell>
                       </TableRow>
                     ))}

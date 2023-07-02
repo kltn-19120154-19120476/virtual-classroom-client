@@ -13,7 +13,7 @@ import TableRow from "@mui/material/TableRow";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
-import { callBBBClient } from "src/client/bbb-client";
+import { deleteRecording, updateRecording } from "src/client/room";
 import { getRecordings } from "src/service";
 import { formatTime, isValid } from "src/utils";
 import { NoData } from "../NoDataNotification";
@@ -32,11 +32,7 @@ export default function RoomRecordings({ room }) {
   };
 
   const handlePublishRecording = async (e, recording) => {
-    const res = await callBBBClient({
-      apiCall: "publishRecordings",
-      publish: `${e.target.checked}`,
-      recordID: recording.recordID,
-    });
+    const res = await updateRecording({ data: { published: e.target.checked }, roomId: room?._id, recordId: recording.recordId });
     if (isValid(res)) {
       toast.success(res.message);
       getRecordingsData();
@@ -44,7 +40,7 @@ export default function RoomRecordings({ room }) {
   };
 
   const handleDeleteRecording = async (recording) => {
-    const res = await callBBBClient({ recordID: recording.recordID, apiCall: "deleteRecordings" });
+    const res = await deleteRecording({ recordId: recording.recordId, roomId: room?._id });
     if (isValid(res)) {
       toast.info("Recordings deleted successfully");
       getRecordingsData();
@@ -85,7 +81,7 @@ export default function RoomRecordings({ room }) {
                   </TableHead>
                   <TableBody>
                     {recordings?.map((recording) => (
-                      <TableRow key={recording?.internalMeetingID}>
+                      <TableRow key={recording?.recordId}>
                         <TableCell align="left">
                           <IconButton sx={{ background: "#f5f5f5", marginRight: 1 }}>
                             <VideocamIcon color="primary" />
@@ -97,7 +93,7 @@ export default function RoomRecordings({ room }) {
                           <span className={styles.timeLabel}>To:</span> {formatTime(recording?.endTime)}
                         </TableCell>
                         <TableCell align="left" sx={{ textTransform: "capitalize" }}>
-                          <Switch checked={recording?.state === "published"} onChange={(e) => handlePublishRecording(e, recording)} />
+                          <Switch checked={recording?.published} onChange={(e) => handlePublishRecording(e, recording)} />
                         </TableCell>
                         <TableCell align="left">{recording?.participants}</TableCell>
                         <TableCell align="center">

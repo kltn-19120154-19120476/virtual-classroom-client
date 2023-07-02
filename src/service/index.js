@@ -1,8 +1,8 @@
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
-import { updateRoom } from "src/client/room";
+import { createRecording, getRecordingsByRoomId, updateRoom } from "src/client/room";
 import { BBB_DEFAULT_ATTENDEE_PASSWORD, WEB_CLIENT_HOST } from "src/sysconfig";
-import { isValid } from "src/utils";
+import { getData, isValid } from "src/utils";
 
 export const getDefaultMeetingSettings = (room) => ({
   name: room?.name,
@@ -138,7 +138,7 @@ export const getRecordings = async ({ meetingID }) => {
     recordings = [];
   }
 
-  return recordings.map((recording) => {
+  const bbbRecordings = recordings.map((recording) => {
     const { startTime, endTime, published, participants, size, isBreakout, playback } = recording;
     return {
       ...recording,
@@ -151,6 +151,30 @@ export const getRecordings = async ({ meetingID }) => {
       url: playback.format.url,
     };
   });
+
+  try {
+    await Promise.all(
+      bbbRecordings.map(({ recordID, meetingID, startTime, endTime, url, name, participants }) =>
+        createRecording({
+          recordId: recordID,
+          meetingId: meetingID,
+          startTime,
+          endTime,
+          playbackUrl: url,
+          name,
+          participants,
+          published: true,
+        }),
+      ),
+    );
+  } catch (e) {}
+
+  try {
+    const lmsRecordings = await getRecordingsByRoomId(meetingID);
+    return getData(lmsRecordings);
+  } catch (e) {
+    return [];
+  }
 };
 
 export const endMeeting = (password, meetingID) => callBBBClient({ apiCall: "end", password, meetingID });
