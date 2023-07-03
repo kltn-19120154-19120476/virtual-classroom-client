@@ -2,7 +2,9 @@ import axios from "axios";
 import sha1 from "js-sha1";
 import { getMeetingInfo, isMeetingRunning } from "src/service";
 import { BBB_SECRET, BBB_SERVER } from "src/sysconfig";
+import { getData } from "src/utils";
 import convert from "xml-js";
+import { getDocuments } from "./room";
 
 const RETURN_CODE = {
   FAILED: "FAILED",
@@ -152,16 +154,27 @@ export const callBBBClient = async (params = {}, body = "") => {
     let bbbBody = body;
 
     if (files) {
+      const uploadedDocuments = getData(await getDocuments());
+
       const filesXML = JSON.parse(files)
         ?.map((f) => `<module name="presentation"><document url="${f.url}" filename="${f.name}" downloadable="true" /></module>`)
         ?.join("");
-      bbbBody = `<?xml version="1.0" encoding="UTF-8"?><modules>${filesXML}</modules>`;
+
+      let uploadedDocumentsXML = "";
+      if (apiCall === "create") {
+        uploadedDocumentsXML = uploadedDocuments
+          ?.map((doc) => `<module name="library-document"><document presId="${doc.presId}" filename="${doc.filename}"/></module>`)
+          ?.join("");
+      }
+
+      bbbBody = `<?xml version="1.0" encoding="UTF-8"?><modules>${filesXML}${uploadedDocumentsXML}</modules>`;
     }
 
     const result = await makeBBBRequest(apiCall, bbbParams, bbbBody);
 
     return result;
   } catch (err) {
+    console.log(err);
     return {
       returncode: "FAILED",
       message: err.message,

@@ -27,7 +27,7 @@ const navMenu = [
   },
   {
     path: "/documents",
-    label: "Documents",
+    label: "My documents",
   },
 ];
 

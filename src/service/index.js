@@ -93,7 +93,7 @@ export const handleJoinMeeting = async ({ room, user }) => {
       if (isValid(res)) {
         window.open(res.joinUrl);
         window.focus();
-        window.location.reload();
+        // window.location.reload();
       } else {
         toast.error(res.message);
       }
