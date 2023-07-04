@@ -44,10 +44,6 @@ function DocumentsPage({ user, getUser }) {
         uploadUrl: fileUrls[index],
       }));
 
-      try {
-        await Promise.all(uploadedFiles.map((file) => createDocument(file)));
-      } catch (e) {}
-
       const res = await callBBBClient(
         {
           apiCall: "insertDocumentToCommonLibrary",
@@ -56,6 +52,13 @@ function DocumentsPage({ user, getUser }) {
       );
 
       if (isValid(res)) {
+        console.log(getData(res));
+        try {
+          await Promise.all(getData(res).map((file) => createDocument(file)));
+        } catch (e) {
+          console.log(e);
+        }
+
         toast.success(res.message);
       }
     }
