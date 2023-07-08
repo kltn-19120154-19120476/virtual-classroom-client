@@ -59,8 +59,8 @@ const Header = () => {
           <a href="/" className={styles.logo}>
             <Image
               src={isMobile ? "/images/logo.png" : "/images/bbb-logo.png"}
-              width={isMobile ? 60 : 360}
-              height={60}
+              width={isMobile ? 100 : 360}
+              height={isMobile ? 100 : 60}
               objectFit="contain"
               alt="bbb-logo"
             />
@@ -146,11 +146,9 @@ const Header = () => {
           ) : (
             <>
               {!isLoadingAuth && (
-                <div>
+                <div className={styles.notLoginBtnGroup}>
                   <Link href="/register">
-                    <Button variant="outlined" sx={{ mr: 2 }}>
-                      Register
-                    </Button>
+                    <Button variant="outlined">Register</Button>
                   </Link>
                   <Link href="/login">
                     <Button variant="contained">Login</Button>

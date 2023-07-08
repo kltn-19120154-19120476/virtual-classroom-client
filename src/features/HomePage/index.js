@@ -52,7 +52,7 @@ const HomePage = () => {
       icon: <LineAxisIcon />,
       label: "Real-time learning dashboard",
       description:
-        "Experience the convenience and efficiency of BigBlueButton's learning dashboard, a centralized hub that empowers educators and learners with easy access to course materials, progress tracking, and collaboration tools.",
+        "Learning dashboard is a centralized hub that empowers educators and learners with easy access to course materials, progress tracking, and collaboration tools.",
     },
     {
       icon: <PlagiarismIcon />,
@@ -67,8 +67,8 @@ const HomePage = () => {
   ];
 
   return (
-    <Container maxWidth="xl">
-      <Typography variant="h1" color="primary" textTransform="uppercase" fontSize="4rem" letterSpacing="1px" fontWeight={600}>
+    <Container maxWidth="xl" className={styles.homePageWrapper}>
+      <Typography variant="h1" color="primary" textTransform="uppercase" letterSpacing="1px" fontWeight={600}>
         welcome to BigBlueButton LMS
       </Typography>
       <p className={styles.description}>
@@ -89,30 +89,29 @@ const HomePage = () => {
         <br />
         Join us on the journey to revolutionize online education. With BigBlueButtonLMS, collaboration, interactivity, and engagement are
         just a click away.
+        <br />
+        <br />
+        <a href="https://bigbluebutton.org/" target="_blank" className={styles.learnMore}>
+          Learn more about BigBlueButton
+        </a>
       </p>
 
       <Link href="/register">
-        <Button variant="contained" sx={{ mt: 4 }}>
-          <Typography variant="h4" fontWeight={600} color="white" letterSpacing={1}>
+        <Button variant="contained" sx={{ margin: "50px auto", display: "block" }}>
+          <Typography variant="h5" fontWeight={600} color="white" letterSpacing={1}>
             JOIN NOW
           </Typography>
         </Button>
       </Link>
 
-      <a href="https://bigbluebutton.org/" target="_blank">
-        <Typography color={"primary"} className={styles.learnMore} marginTop={3}>
-          Learn more about BigBlueButton
-        </Typography>
-      </a>
-
       <div>
-        <Typography variant="h1" color="primary" textTransform="uppercase" fontSize="3rem" fontWeight={600} marginTop={6} marginBottom={3}>
+        <Typography variant="h2" color="primary" textTransform="uppercase" fontWeight={600} marginBottom={3}>
           our features
         </Typography>
 
         <Grid container spacing={2}>
           {FEATURES.map((item) => (
-            <Grid item sm={12} xs={6} md={4} lg={3} key={item.label}>
+            <Grid item sm={6} xs={12} md={4} lg={3} key={item.label}>
               <FeatureCard item={item} />
             </Grid>
           ))}

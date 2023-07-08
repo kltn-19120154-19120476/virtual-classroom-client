@@ -5,6 +5,12 @@
   background-color: #fff;
 }
 
+.notLoginBtnGroup {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 15px;
+}
+
 .content {
   flex-direction: row;
   justify-content: space-between;
