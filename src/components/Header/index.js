@@ -12,8 +12,9 @@ import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useContext } from "react";
 import { isMobile } from "react-device-detect";
+import { AuthContext } from "src/context/authContext";
 import styles from "./styles.module.scss";
 
 const navMenu = [
@@ -33,7 +34,11 @@ const navMenu = [
 
 const navPaths = ["/", "/rooms", "/recordings", "/documents"];
 
-const Header = ({ logout, user }) => {
+const pathNotShowHeader = ["/login", "/register"];
+
+const Header = () => {
+  const { logout, user, isLoadingAuth } = useContext(AuthContext);
+
   const [anchorEllAvatar, setanchorEllAvatar] = React.useState(null);
   const router = useRouter();
   const openAvatar = Boolean(anchorEllAvatar);
@@ -43,6 +48,10 @@ const Header = ({ logout, user }) => {
   const handleCloseAvatar = () => {
     setanchorEllAvatar(null);
   };
+
+  if (pathNotShowHeader.includes(router.pathname)) {
+    return <></>;
+  }
   return (
     <div className={styles.headerWrapper}>
       <Container className={styles.content} maxWidth="xl" sx={{ display: "flex" }}>
@@ -59,97 +68,118 @@ const Header = ({ logout, user }) => {
         </div>
 
         <div className={styles.rightContent}>
-          <Avatar
-            className={styles.avatar}
-            aria-controls={openAvatar ? "basic-menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={openAvatar ? "true" : undefined}
-            onClick={handleClickAvatar}
-          >
-            {user?.name[0]}
-          </Avatar>
-          <Menu
-            id="basic-menu"
-            anchorEl={anchorEllAvatar}
-            open={openAvatar}
-            onClose={handleCloseAvatar}
-            MenuListProps={{
-              "aria-labelledby": "basic-button",
-            }}
-            PaperProps={{
-              elevation: 0,
-              sx: {
-                overflow: "visible",
-                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-                mt: 1.5,
-                "& .MuiAvatar-root": {
-                  width: 32,
-                  height: 32,
-                  ml: -0.5,
-                  mr: 1,
-                },
-                "&:before": {
-                  content: '""',
-                  display: "block",
-                  position: "absolute",
-                  top: 0,
-                  right: 14,
-                  width: 10,
-                  height: 10,
-                  bgcolor: "background.paper",
-                  transform: "translateY(-50%) rotate(45deg)",
-                  zIndex: 0,
-                },
-              },
-            }}
-            transformOrigin={{
-              horizontal: "right",
-              vertical: "top",
-            }}
-            anchorOrigin={{
-              horizontal: "right",
-              vertical: "bottom",
-            }}
-          >
-            <Link href="/profile">
-              <MenuItem onClick={handleCloseAvatar}>
-                <ListItemIcon>
-                  <PersonIcon fontSize="small" />
-                </ListItemIcon>
-                Profile
-              </MenuItem>
-            </Link>
-            <MenuItem
-              onClick={() => {
-                logout();
-                handleCloseAvatar();
-              }}
-            >
-              <ListItemIcon>
-                <Logout fontSize="small" />
-              </ListItemIcon>
-              Logout
-            </MenuItem>
-          </Menu>
+          {user ? (
+            <>
+              <Avatar
+                className={styles.avatar}
+                aria-controls={openAvatar ? "basic-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={openAvatar ? "true" : undefined}
+                onClick={handleClickAvatar}
+              >
+                {user?.name[0]}
+              </Avatar>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEllAvatar}
+                open={openAvatar}
+                onClose={handleCloseAvatar}
+                MenuListProps={{
+                  "aria-labelledby": "basic-button",
+                }}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: "visible",
+                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                    mt: 1.5,
+                    "& .MuiAvatar-root": {
+                      width: 32,
+                      height: 32,
+                      ml: -0.5,
+                      mr: 1,
+                    },
+                    "&:before": {
+                      content: '""',
+                      display: "block",
+                      position: "absolute",
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: "background.paper",
+                      transform: "translateY(-50%) rotate(45deg)",
+                      zIndex: 0,
+                    },
+                  },
+                }}
+                transformOrigin={{
+                  horizontal: "right",
+                  vertical: "top",
+                }}
+                anchorOrigin={{
+                  horizontal: "right",
+                  vertical: "bottom",
+                }}
+              >
+                <Link href="/profile">
+                  <MenuItem onClick={handleCloseAvatar}>
+                    <ListItemIcon>
+                      <PersonIcon fontSize="small" />
+                    </ListItemIcon>
+                    Profile
+                  </MenuItem>
+                </Link>
+                <MenuItem
+                  onClick={() => {
+                    logout();
+                    handleCloseAvatar();
+                  }}
+                >
+                  <ListItemIcon>
+                    <Logout fontSize="small" />
+                  </ListItemIcon>
+                  Logout
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <>
+              {!isLoadingAuth && (
+                <div>
+                  <Link href="/register">
+                    <Button variant="outlined" sx={{ mr: 2 }}>
+                      Register
+                    </Button>
+                  </Link>
+                  <Link href="/login">
+                    <Button variant="contained">Login</Button>
+                  </Link>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </Container>
-      <Container className={styles.navBar} maxWidth="xl">
-        {navPaths.includes(router.pathname) ? (
-          navMenu.map((item) => (
-            <Link href={item.path} key={item.path}>
-              <Button className={clsx(styles.navBtn, router.pathname === item.path && styles.active)}>{item.label}</Button>
+      {user && (
+        <Container className={styles.navBar} maxWidth="xl">
+          {navPaths.includes(router.pathname) ? (
+            navMenu.map((item) => (
+              <Link href={item.path} key={item.path}>
+                <Button className={clsx(styles.navBtn, router.pathname === item.path && styles.active)}>{item.label}</Button>
+              </Link>
+            ))
+          ) : (
+            <Link href="/rooms">
+              <Tooltip title="Dashboard">
+                <Box sx={{ padding: "20px 0 5px 0" }}>
+                  <HomeIcon className={styles.homeIcon} />
+                </Box>
+              </Tooltip>
             </Link>
-          ))
-        ) : (
-          <Link href="/rooms">
-            <Tooltip title="Dashboard">
-              <Box sx={{ padding: "20px 0 5px 0" }}>
-                <HomeIcon className={styles.homeIcon} />
-              </Box>
-            </Tooltip>
-          </Link>
-        )}
-      </Container>
+          )}
+        </Container>
+      )}
     </div>
   );
 };

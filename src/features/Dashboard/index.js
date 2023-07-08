@@ -81,8 +81,10 @@ const Dashboard = ({ user, getUser }) => {
     </Grid>
   );
 
-  const RoomCard = ({ room }) =>
-    room ? (
+  const RoomCard = ({ room }) => {
+    const [meetingLoading, setMeetingLoading] = useState(false);
+
+    return room ? (
       <Grid item xs={12} sm={6} md={4} lg={3} key={room?._id}>
         <Link href={`/rooms/${room?._id}`}>
           <Card className={styles.card}>
@@ -112,15 +114,17 @@ const Dashboard = ({ user, getUser }) => {
               </CopyToClipboard>
 
               <Tooltip title={`${room?.isOwner && !room?.isMeetingRunning ? "Start" : "Join"} meeting`}>
-                <Button
+                <LoadingButton
                   variant="outlined"
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
-                    handleJoinMeeting({ room, user });
+                    setMeetingLoading(true);
+                    await handleJoinMeeting({ room, user });
                   }}
+                  loading={meetingLoading}
                 >
                   {room?.isOwner && !room?.isMeetingRunning ? "Start" : "Join"}
-                </Button>
+                </LoadingButton>
               </Tooltip>
             </div>
           </Card>
@@ -129,6 +133,7 @@ const Dashboard = ({ user, getUser }) => {
     ) : (
       <></>
     );
+  };
 
   return (
     <Container maxWidth="xl">

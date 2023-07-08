@@ -1,13 +1,19 @@
-import { withLogin } from "src/components/HOC/withLogin";
-import Dashboard from "src/features/Dashboard";
+import { getCookie } from "cookies-next";
+import HomePage from "src/features/HomePage";
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx) {
+  if (getCookie("access_token", ctx)) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/rooms",
+      },
+    };
+  }
+
   return {
-    redirect: {
-      permanent: false,
-      destination: "/rooms",
-    },
+    props: {},
   };
 }
 
-export default withLogin(Dashboard);
+export default HomePage;

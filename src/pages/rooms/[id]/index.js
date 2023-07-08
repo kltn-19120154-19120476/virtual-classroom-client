@@ -1,6 +1,7 @@
 import { StopCircleSharp } from "@mui/icons-material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import VideoCameraFrontIcon from "@mui/icons-material/VideoCameraFront";
+import { LoadingButton } from "@mui/lab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
@@ -31,6 +32,8 @@ const RoomDetailPage = () => {
   const { user, getUser } = useContext(AuthContext);
 
   const isOwner = user?._id === room?.ownerId;
+
+  const [meetingLoading, setMeetingLoading] = useState(false);
 
   const getInfoOfRoom = async () => {
     if (router?.query?.id) {
@@ -113,27 +116,35 @@ const RoomDetailPage = () => {
               </div>
 
               <div className={styles.roomHeaderBtn}>
-                <Button
+                <LoadingButton
                   onClick={async () => {
-                    await handleJoinMeeting({ room, user });
-                    getUser();
+                    try {
+                      setMeetingLoading(true);
+                      await handleJoinMeeting({ room, user });
+                      getUser();
+                    } catch (e) {
+                      setMeetingLoading(false);
+                    }
                   }}
+                  loading={meetingLoading}
                   variant="contained"
                   color="primary"
                   startIcon={<VideoCameraFrontIcon />}
                   sx={{ marginRight: room?.isMeetingRunning ? 2 : 0, marginTop: 1 }}
                 >
                   {isOwner && !room?.isMeetingRunning ? "Start" : "Join"} meeting
-                </Button>
+                </LoadingButton>
 
                 {room?.isMeetingRunning && isOwner && (
                   <Button
                     onClick={async () => {
-                      const res = await endMeeting(user?._id, room?._id);
-                      if (isValid(res)) {
-                        toast.success("Meeting was ended successfully");
-                      }
-                      getUser();
+                      try {
+                        const res = await endMeeting(user?._id, room?._id);
+                        if (isValid(res)) {
+                          toast.success("Meeting was ended successfully");
+                        }
+                        getUser();
+                      } catch (e) {}
                     }}
                     variant="contained"
                     color="error"

@@ -1,3 +1,4 @@
+import { deleteCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/router";
 import { createContext, useEffect, useState } from "react";
 import { loginFunc, loginGoogleFunc, registerFunc, resetAccount } from "src/client/auth";
@@ -11,7 +12,7 @@ const AuthContext = createContext();
 
 const notGetUserPaths = ["/login", "/register"];
 
-const notRequiredLoginPaths = ["/join"];
+const notRequiredLoginPaths = ["/join", "/"];
 
 const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -76,6 +77,7 @@ const AuthContextProvider = ({ children }) => {
           setUser({ ...user, ...userInfo });
 
           localStorage.setItem("access_token", userInfo?.access_token || "");
+          setCookie("access_token", userInfo?.access_token || "");
         } else {
           router.push("/login");
           setIsAuthenticated(false);
@@ -101,6 +103,7 @@ const AuthContextProvider = ({ children }) => {
       const res = await loginFunc(data);
       if (res?.status === "OK") {
         localStorage.setItem("access_token", getFirst(res)?.access_token || "");
+        setCookie("access_token", getFirst(res)?.access_token || "");
         window.location.href = "/";
       } else {
         await customToast("ERROR", res?.message);
@@ -121,6 +124,7 @@ const AuthContextProvider = ({ children }) => {
         setUser(userInfo);
         setIsAuthenticated(true);
         localStorage.setItem("access_token", userInfo?.access_token || "");
+        setCookie("access_token", userInfo?.access_token || "");
         await customToast("SUCCESS", "Login successful!");
         window.location.href = "/";
       } else {
@@ -138,6 +142,7 @@ const AuthContextProvider = ({ children }) => {
       setIsLoadingAuth(true);
       const res = await registerFunc(data);
       localStorage.setItem("access_token", getFirst(res)?.access_token || "");
+      setCookie("access_token", getFirst(res)?.access_token || "");
       await customToast("SUCCESS", "Register successful!");
       window.location.href = "/";
       setIsLoadingAuth(false);
@@ -163,7 +168,8 @@ const AuthContextProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("access_token");
-    window.location.href = "/login";
+    deleteCookie("access_token");
+    window.location.href = "/";
   };
 
   return (
