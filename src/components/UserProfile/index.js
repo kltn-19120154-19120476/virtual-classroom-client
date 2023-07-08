@@ -40,7 +40,7 @@ const UserProfile = ({ user }) => {
       try {
         const res = await updateUserInfo(formData);
         if (isValid(res)) {
-          toast.success("Update information successfully!");
+          toast.success("Update information successfully");
           setUpdateMode(false);
           reset();
         } else {

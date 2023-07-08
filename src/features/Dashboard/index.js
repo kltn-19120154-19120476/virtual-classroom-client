@@ -100,7 +100,10 @@ const Dashboard = ({ user, getUser }) => {
               <p>Current session: {formatTime(room.meetingInfo.startTime)}</p>
             </div>
             <div className={styles.cardFooter}>
-              <CopyToClipboard text={getMeetingInviteLink(room, user)} onCopy={() => toast.success("Copied meeting invite link")}>
+              <CopyToClipboard
+                text={getMeetingInviteLink(room, user)}
+                onCopy={() => toast.success("Meeting invite link has been copied to clipboard")}
+              >
                 <IconButton onClick={(e) => e.stopPropagation()} size="large">
                   <Tooltip title="Copy invite meeting link">
                     <ContentCopyIcon />

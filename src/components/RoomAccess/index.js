@@ -42,7 +42,7 @@ export default function RoomAccess({ room, getUser }) {
       const res = await addUserToRoom(submitData);
 
       if (isValid(res)) {
-        toast.success("Added user to room");
+        toast.success("Add user to room successfully");
         getUser();
         reset();
       }
@@ -63,7 +63,7 @@ export default function RoomAccess({ room, getUser }) {
       const res = await removeUserFromRoom(submitData);
 
       if (isValid(res)) {
-        toast.success("User removed from room");
+        toast.success("Remove user from room successfully");
         getUser();
         reset();
       }

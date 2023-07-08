@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
-import { createDocument, getDocuments } from "src/client/room";
+import { createDocument, deleteDocument, getDocuments } from "src/client/room";
 import FileUpload from "src/components/FileUpload";
 import withLogin from "src/components/HOC/withLogin";
 import { getData, isValid, uploadImageToFirebase } from "src/utils";
@@ -39,27 +39,25 @@ function DocumentsPage({ user, getUser }) {
       const fileUrls = await Promise.all(filesCanUpload.map((file) => uploadImageToFirebase(file, file.name)));
 
       const uploadedFiles = filesCanUpload.map((file, index) => ({
-        presId: fileUrls[index].replace("https://", ""),
-        filename: file.name,
-        uploadUrl: fileUrls[index],
+        name: file.name,
+        url: fileUrls[index],
       }));
 
       const res = await callBBBClient(
         {
           apiCall: "insertDocumentToCommonLibrary",
         },
-        { files: JSON.stringify(uploadedFiles.map((file) => ({ url: file.uploadUrl, name: file.filename }))) },
+        { files: JSON.stringify(uploadedFiles) },
       );
 
       if (isValid(res)) {
-        console.log(getData(res));
         try {
           await Promise.all(getData(res).map((file) => createDocument(file)));
         } catch (e) {
           console.log(e);
         }
 
-        toast.success(res.message);
+        toast.success("Documents uploaded successfully");
       }
     }
     getUser();
@@ -71,7 +69,15 @@ function DocumentsPage({ user, getUser }) {
   }, [user]);
 
   const handleDeletePresentation = async (presentation) => {
-    console.log(presentation);
+    try {
+      const res = await deleteDocument(presentation.presId);
+      if (isValid(res)) {
+        toast.success(res.message);
+        getUser();
+      }
+    } catch (e) {
+      toast.error(e.message);
+    }
   };
 
   return (
@@ -90,8 +96,11 @@ function DocumentsPage({ user, getUser }) {
                 <TableRow key={presentation.url}>
                   <TableCell align="left">{presentation.filename}</TableCell>
                   <TableCell align="center">
-                    <CopyToClipboard text={presentation?.uploadUrl} onCopy={() => toast.success("Copied presentation url")}>
-                      <Tooltip title="Copy presentation url">
+                    <CopyToClipboard
+                      text={presentation?.uploadUrl}
+                      onCopy={() => toast.success("Presentation URL has been copied to clipboard")}
+                    >
+                      <Tooltip title="Copy presentation URL">
                         <IconButton>
                           <ContentCopyIcon />
                         </IconButton>

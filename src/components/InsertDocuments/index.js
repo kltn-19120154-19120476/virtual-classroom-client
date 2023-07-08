@@ -84,8 +84,8 @@ export default function InsertDocuments({ room, getUser }) {
                 <TableRow key={presentation.url}>
                   <TableCell align="left">{presentation.name}</TableCell>
                   <TableCell align="center">
-                    <CopyToClipboard text={presentation?.url} onCopy={() => toast.success("Copied presentation url")}>
-                      <Tooltip title="Copy presentation url">
+                    <CopyToClipboard text={presentation?.url} onCopy={() => toast.success("Presentation URL has been copied to clipboard")}>
+                      <Tooltip title="Copy presentation URL">
                         <IconButton>
                           <ContentCopyIcon />
                         </IconButton>

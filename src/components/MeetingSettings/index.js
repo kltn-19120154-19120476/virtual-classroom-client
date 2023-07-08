@@ -33,8 +33,7 @@ const BBB_BOOLEAN_SETTINGS = [
   {
     key: "record",
     label: "Record",
-    description:
-      "Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for later playback.",
+    description: "Setting true instructs the BigBlueButton server to record the media and events in the session for later playback.",
   },
   {
     key: "autoStartRecording",
@@ -49,8 +48,7 @@ const BBB_BOOLEAN_SETTINGS = [
   {
     key: "webcamsOnlyForModerator",
     label: "Webcam only for moderators",
-    description:
-      "Setting webcamsOnlyForModerator=true will cause all webcams shared by viewers during this meeting to only appear for moderators",
+    description: "Setting true will cause all webcams shared by viewers during this meeting to only appear for moderators",
   },
   {
     key: "muteOnStart",
@@ -98,26 +96,14 @@ const BBB_BOOLEAN_SETTINGS = [
     description: "Setting to false will not apply lock setting to users when they join",
   },
   {
-    key: "lockSettingsLockOnJoinConfigurable",
-    label: "Lock on join configurable",
-    description: "Setting to true will allow applying of lockSettingsLockOnJoin",
-  },
-  {
     key: "lockSettingsHideViewersCursor",
     label: "Hide viewers cursor",
     description: "Setting to true will prevent viewers to see other viewers cursor when multi-user whiteboard is on",
   },
   {
-    key: "meetingKeepEvents",
-    label: "Meeting keep events",
-    description:
-      "Defaults to the value of defaultKeepEvents. If meetingKeepEvents is true BigBlueButton saves meeting events even if the meeting is not recorded",
-  },
-  {
     key: "endWhenNoModerator",
     label: "End when no moderator",
-    description:
-      "Default endWhenNoModerator=false. If endWhenNoModerator is true the meeting will end automatically after a delay - see endWhenNoModeratorDelayInMinute",
+    description: `If set this value to true, the meeting will end automatically after a delay`,
   },
   {
     key: "allowModsToEjectCameras",
@@ -138,8 +124,7 @@ const BBB_BOOLEAN_SETTINGS = [
   {
     key: "notifyRecordingIsOn",
     label: "Notify recording is on",
-    description:
-      "If it is true, a modal will be displayed to collect recording consent from users when meeting recording starts (only if remindRecordingIsOn=true)",
+    description: "If it is true, a modal will be displayed to collect recording consent from users when meeting recording starts",
   },
 ];
 
@@ -157,12 +142,12 @@ const BBB_STRING_SETTINGS = [
   {
     key: "bannerText",
     label: "Banner text",
-    description: "Will set the banner text in the client",
+    description: "Banner text in the meeting",
   },
   {
     key: "bannerColor",
     label: "Banner color",
-    description: "Will set the banner background color in the client",
+    description: "Banner background color in the meeting",
   },
 ];
 
@@ -191,12 +176,12 @@ const BBB_NUMERIC_SETTINGS = [
   {
     key: "userCameraCap",
     label: "Max number of webcams a single user can share simultaneously",
-    description: "efines the max number of webcams a single user can share simultaneously",
+    description: "The max number of webcams a single user can share simultaneously",
   },
   {
     key: "meetingCameraCap",
     label: "Max number of webcams a meeting can have simultaneously",
-    description: "Defines the max number of webcams a meeting can have simultaneously",
+    description: "The max number of webcams a meeting can have simultaneously",
   },
   {
     key: "meetingExpireIfNoUserJoinedInMinutes",
@@ -265,7 +250,7 @@ export default function MeetingSettings({ room, user, getUser }) {
 
       if (isValid(res)) {
         await getUser();
-        await customToast("SUCCESS", "The settings will be applied after the new meeting is created", 2500);
+        await customToast("SUCCESS", "The settings will be applied after the new meeting is started", 2500);
       }
     } catch (err) {
       console.log(err);
@@ -277,7 +262,7 @@ export default function MeetingSettings({ room, user, getUser }) {
     try {
       const res = await deleteRoomById(room?._id);
       if (isValid(res)) {
-        toast.success(`Delete room ${room.name} successfully!`);
+        toast.success(`Room ${room.name} deleted successfully`);
         endMeeting(user?._id, room?._id);
         setOpenConfirmDelete(false);
         router.push("/rooms");

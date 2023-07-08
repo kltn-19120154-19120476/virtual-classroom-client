@@ -36,7 +36,7 @@ export default function FileUpload({ onFilesChange, isUploading = false }) {
             <CloudUploadIcon />
           </IconButton>
 
-          <h2>{isUploading ? "Uploading documents..." : "Click to Upload or drag and drop"}</h2>
+          <h2>{isUploading ? "Uploading documents..." : "Click to upload or drag and drop"}</h2>
 
           <p>
             Upload any office document or PDF file. Depending on the size of the file, it may require additional time to upload before it

@@ -91,7 +91,10 @@ const RoomDetailPage = () => {
               <div>
                 <h1>
                   {room?.name}{" "}
-                  <CopyToClipboard text={getMeetingInviteLink(room, user)} onCopy={() => toast.success("Copied meeting invite link")}>
+                  <CopyToClipboard
+                    text={getMeetingInviteLink(room, user)}
+                    onCopy={() => toast.success("Meeting invite link has been copied to clipboard")}
+                  >
                     <Tooltip title="Copy meeting invite link">
                       <IconButton>
                         <ContentCopyIcon color="primary" />

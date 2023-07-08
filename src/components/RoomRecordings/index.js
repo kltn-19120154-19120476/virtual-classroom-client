@@ -97,8 +97,8 @@ export default function RoomRecordings({ room }) {
                         </TableCell>
                         <TableCell align="left">{recording?.participants}</TableCell>
                         <TableCell align="center">
-                          <CopyToClipboard text={recording?.url} onCopy={() => toast.success("Copied recording url")}>
-                            <Tooltip title="Copy recording urls">
+                          <CopyToClipboard text={recording?.url} onCopy={() => toast.success("Recording URL has been copied to clipboard")}>
+                            <Tooltip title="Copy recording URL">
                               <IconButton>
                                 <ContentCopyIcon />
                               </IconButton>
