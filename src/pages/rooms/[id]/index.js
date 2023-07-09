@@ -121,6 +121,7 @@ const RoomDetailPage = () => {
                     try {
                       setMeetingLoading(true);
                       await handleJoinMeeting({ room, user });
+                      setMeetingLoading(false);
                       getUser();
                     } catch (e) {
                       setMeetingLoading(false);

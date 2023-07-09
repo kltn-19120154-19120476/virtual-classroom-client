@@ -120,6 +120,7 @@ const Dashboard = ({ user, getUser }) => {
                     e.stopPropagation();
                     setMeetingLoading(true);
                     await handleJoinMeeting({ room, user });
+                    setMeetingLoading(false);
                   }}
                   loading={meetingLoading}
                 >
