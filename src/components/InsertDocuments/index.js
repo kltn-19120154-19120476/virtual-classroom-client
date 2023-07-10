@@ -90,6 +90,10 @@ export default function InsertDocuments({ room, getUser }) {
       {room?.presentation?.length > 0 && (
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }}>
+            <colgroup>
+              <col width="80%"></col>
+              <col width="20%"></col>
+            </colgroup>
             <TableHead className="tableHead">
               <TableRow>
                 <TableCell align="left">Name</TableCell>

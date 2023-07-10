@@ -274,13 +274,13 @@ export default function MeetingSettings({ room, user, getUser }) {
   };
 
   return (
-    <Container maxWidth="xl" className={styles.recordWrapper}>
-      <Card component={"form"} onSubmit={handleSubmit(onUpdateMeetingSetings)} className={styles.form} sx={{ p: 2 }}>
+    <Container maxWidth="xl">
+      <Card component={"form"} onSubmit={handleSubmit(onUpdateMeetingSetings)} className={styles.form}>
         <CardContent>
           <Grid container spacing={4}>
             <Grid container item xs={12} md={6} lg={4} rowSpacing={3} alignContent={"flex-start"}>
               <Grid item xs={12}>
-                <Tooltip title={<p className={styles.tooltip}>The name of the room</p>} placement="right">
+                <Tooltip title={<p className={styles.tooltip}>The name of the room</p>}>
                   <TextField
                     {...register("roomName")}
                     placeholder="Enter room name"
@@ -297,7 +297,7 @@ export default function MeetingSettings({ room, user, getUser }) {
               </Grid>
 
               <Grid item xs={12}>
-                <Tooltip title={<p className={styles.tooltip}>The name of the meeting</p>} placement="right">
+                <Tooltip title={<p className={styles.tooltip}>The name of the meeting</p>}>
                   <TextField
                     {...register("name")}
                     label="Meeting name"
@@ -313,7 +313,7 @@ export default function MeetingSettings({ room, user, getUser }) {
               </Grid>
 
               <Grid item xs={12} key={"publishMeeting"}>
-                <Tooltip title={<p className={styles.tooltip}>Guest can join the meeting without password</p>} placement="right">
+                <Tooltip title={<p className={styles.tooltip}>Guest can join the meeting without password</p>}>
                   <FormControlLabel
                     control={<Switch color="success" />}
                     label={"Publish meeting"}
@@ -332,7 +332,7 @@ export default function MeetingSettings({ room, user, getUser }) {
 
               {!watch("publishMeeting") && (
                 <Grid item xs={12}>
-                  <Tooltip title={<p className={styles.tooltip}>Guest must use this password to join the meeting</p>} placement="right">
+                  <Tooltip title={<p className={styles.tooltip}>Guest must use this password to join the meeting</p>}>
                     <TextField
                       {...register("attendeePW")}
                       type="password"
@@ -348,23 +348,12 @@ export default function MeetingSettings({ room, user, getUser }) {
                   </Tooltip>
                 </Grid>
               )}
-
-              <Grid item xs={12}>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: 20, width: "100%" }}>
-                  <Button variant="outlined" color="error" onClick={() => setOpenConfirmDelete(true)} startIcon={<DeleteForever />}>
-                    Delete Room
-                  </Button>
-                  <LoadingButton variant="contained" type="submit" startIcon={<SaveIcon />}>
-                    SAVE
-                  </LoadingButton>
-                </div>
-              </Grid>
             </Grid>
 
             <Grid container item xs={12} md={6} lg={4} rowSpacing={3} alignContent={"flex-start"}>
               {BBB_STRING_SETTINGS.map((setting) => (
                 <Grid item xs={12} key={setting.key}>
-                  <Tooltip title={<p className={styles.tooltip}>{setting.description}</p>} placement="right">
+                  <Tooltip title={<p className={styles.tooltip}>{setting.description}</p>}>
                     <TextField
                       {...register(setting.key)}
                       id={setting.key}
@@ -382,7 +371,7 @@ export default function MeetingSettings({ room, user, getUser }) {
               ))}
               {BBB_NUMERIC_SETTINGS.map((setting) => (
                 <Grid item xs={12} key={setting.key}>
-                  <Tooltip title={<p className={styles.tooltip}>{setting.description}</p>} placement="right">
+                  <Tooltip title={<p className={styles.tooltip}>{setting.description}</p>}>
                     <TextField
                       {...register(setting.key)}
                       id={setting.key}
@@ -407,7 +396,7 @@ export default function MeetingSettings({ room, user, getUser }) {
             <Grid container item xs={12} md={6} lg={4} rowSpacing={3} alignContent={"flex-start"}>
               {BBB_BOOLEAN_SETTINGS.map((setting) => (
                 <Grid item xs={12} key={setting.key}>
-                  <Tooltip title={<p className={styles.tooltip}>{setting.description}</p>} placement="right">
+                  <Tooltip title={<p className={styles.tooltip}>{setting.description}</p>}>
                     <FormControlLabel
                       control={<Switch color="primary" />}
                       label={setting.label}
@@ -419,6 +408,17 @@ export default function MeetingSettings({ room, user, getUser }) {
                   </Tooltip>
                 </Grid>
               ))}
+            </Grid>
+
+            <Grid item xs={12}>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 20, width: "100%" }}>
+                <Button variant="outlined" color="error" onClick={() => setOpenConfirmDelete(true)} startIcon={<DeleteForever />}>
+                  Delete Room
+                </Button>
+                <LoadingButton variant="contained" type="submit" startIcon={<SaveIcon />}>
+                  SAVE
+                </LoadingButton>
+              </div>
             </Grid>
           </Grid>
         </CardContent>

@@ -27,6 +27,7 @@ import { callBBBClient } from "src/client/bbb-client";
 import { createDocument, deleteDocument, getDocuments, updateDocument } from "src/client/room";
 import FileUpload from "src/components/FileUpload";
 import withLogin from "src/components/HOC/withLogin";
+import { USER_TYPE } from "src/sysconfig";
 import { getData, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
 
 function DocumentsPage({ user, getUser }) {
@@ -100,6 +101,7 @@ function DocumentsPage({ user, getUser }) {
 
   useEffect(() => {
     getDocumentsList();
+    if (user && user.type !== USER_TYPE.ADMIN) window.location.href = "/";
   }, [user]);
 
   const handleDeleteDocument = async (document) => {
@@ -114,18 +116,14 @@ function DocumentsPage({ user, getUser }) {
     }
   };
 
-  const DocumentTable = ({ documents, label }) => (
-    <div style={{ marginBottom: 30 }}>
+  return (
+    <Container maxWidth="xl">
       <Typography variant="h5" color="primary" fontWeight={600} marginBottom={1}>
-        {label}
+        Public documents
       </Typography>
       {documents?.length > 0 && (
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }}>
-            <colgroup>
-              <col width="80%"></col>
-              <col width="20%"></col>
-            </colgroup>
             <TableHead className="tableHead">
               <TableRow>
                 <TableCell align="left">Name</TableCell>
@@ -168,13 +166,6 @@ function DocumentsPage({ user, getUser }) {
           </Table>
         </TableContainer>
       )}
-    </div>
-  );
-
-  return (
-    <Container maxWidth="xl">
-      <DocumentTable documents={documents.filter((item) => item.isPublic)} label="Public documents" />
-      <DocumentTable documents={documents.filter((item) => !item.isPublic)} label="My documents" />
       <FileUpload onFilesChange={(files) => handleUploadDocuments(files)} isUploading={loading} />
 
       <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)} fullWidth>
