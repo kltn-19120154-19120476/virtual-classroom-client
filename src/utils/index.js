@@ -84,3 +84,19 @@ export const formatTime = (time, type = "vi-VN") => {
   const result = new Date(+time).toLocaleString(type);
   return result !== "Invalid Date" ? result : "N/A";
 };
+
+export const splitFilenameAndExtension = (filename) => {
+  if (!filename) return { name: "", extension: "" };
+  // Find the last occurrence of a period (.) in the filename
+  const lastDotIndex = filename.lastIndexOf(".");
+
+  if (lastDotIndex !== -1) {
+    // Split the filename and extension using the last dot index
+    const name = filename.substring(0, lastDotIndex);
+    const extension = filename.substring(lastDotIndex + 1);
+    return { name, extension };
+  }
+
+  // If there is no extension, return the whole filename as the name and an empty string for the extension
+  return { name: filename, extension: "" };
+};

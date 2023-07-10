@@ -1,7 +1,8 @@
-import { DeleteOutline } from "@mui/icons-material";
+import { DeleteOutline, Edit } from "@mui/icons-material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { Container, IconButton, Tooltip } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -15,11 +16,13 @@ import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import { updateRoom } from "src/client/room";
 import FileUpload from "src/components/FileUpload";
-import { isValid, uploadImageToFirebase } from "src/utils";
+import { isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
 import { NoData } from "../NoDataNotification";
 
 export default function InsertDocuments({ room, getUser }) {
   const [loading, setLoading] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState(null);
 
   const handleUploadDocuments = async (files) => {
     setLoading(true);
@@ -64,8 +67,22 @@ export default function InsertDocuments({ room, getUser }) {
 
   const handleDeletePresentation = async (presentation) => {
     const newPresentationList = room?.presentation.filter((p) => p.url !== presentation.url);
-    await updateRoom({ id: room?._id, presentation: JSON.stringify(newPresentationList) });
+    const res = await updateRoom({ id: room?._id, presentation: JSON.stringify(newPresentationList) });
+    if (isValid(res)) {
+      toast.success("Presentation deleted successfully");
+    }
     getUser();
+  };
+
+  const handleEditDocument = async () => {
+    const updateDocumentIndex = room?.presentation.findIndex((item) => item.url === selectedDocument.url);
+    room.presentation[updateDocumentIndex] = selectedDocument;
+    const res = await updateRoom({ id: room?._id, presentation: JSON.stringify(room?.presentation) });
+    if (isValid(res)) {
+      toast.success("Presentation updated successfully");
+    }
+    getUser();
+    setOpenEditModal(false);
   };
 
   return (
@@ -84,6 +101,17 @@ export default function InsertDocuments({ room, getUser }) {
                 <TableRow key={presentation.url}>
                   <TableCell align="left">{presentation.name}</TableCell>
                   <TableCell align="center">
+                    <Tooltip title="Edit presentation">
+                      <IconButton
+                        onClick={() => {
+                          setSelectedDocument(presentation);
+                          setOpenEditModal(true);
+                        }}
+                      >
+                        <Edit />
+                      </IconButton>
+                    </Tooltip>
+
                     <CopyToClipboard text={presentation?.url} onCopy={() => toast.success("Presentation URL has been copied to clipboard")}>
                       <Tooltip title="Copy presentation URL">
                         <IconButton>
@@ -115,6 +143,40 @@ export default function InsertDocuments({ room, getUser }) {
           onRefresh={getUser}
         />
       )}
+
+      <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)} fullWidth>
+        <DialogTitle id="alert-dialog-title" sx={{ fontSize: "1.4rem" }}>
+          Edit document
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            sx={{ marginTop: 1 }}
+            fullWidth
+            label="Presentation's name"
+            placeholder="Enter presentation's name"
+            value={splitFilenameAndExtension(selectedDocument?.name).name}
+            onChange={(e) => {
+              setSelectedDocument({
+                ...selectedDocument,
+                name: `${e.target.value}.${splitFilenameAndExtension(selectedDocument?.name).extension}`,
+              });
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={() => setOpenEditModal(false)}>
+            Cancel
+          </Button>
+          <LoadingButton
+            disabled={!splitFilenameAndExtension(selectedDocument?.name).name}
+            variant="contained"
+            onClick={() => handleEditDocument()}
+            loading={loading}
+          >
+            Save
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }

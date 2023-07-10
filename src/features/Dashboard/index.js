@@ -64,23 +64,6 @@ const Dashboard = ({ user, getUser }) => {
     setLoadingCreateRoom(false);
   };
 
-  const NoRoomsWrapper = () => (
-    <Grid item xs={12}>
-      <Card className={styles.noRecordWrapper}>
-        <IconButton className={styles.camIcon} color="primary">
-          <GroupsIcon />
-        </IconButton>
-        <h2>You don&apos;t have any rooms yet!</h2>
-
-        <p>Create your first room by clicking on the button below and entering a room name.</p>
-
-        <Button onClick={() => setOpenCreateRoomForm(true)} variant="contained" startIcon={<VideoCallIcon />}>
-          new room
-        </Button>
-      </Card>
-    </Grid>
-  );
-
   const RoomCard = ({ room }) => {
     const [meetingLoading, setMeetingLoading] = useState(false);
 

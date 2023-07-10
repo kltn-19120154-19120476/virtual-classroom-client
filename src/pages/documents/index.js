@@ -1,6 +1,7 @@
-import { DeleteOutline } from "@mui/icons-material";
+import { DeleteOutline, Edit } from "@mui/icons-material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { Container, IconButton, Tooltip } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,18 +13,40 @@ import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
-import { createDocument, deleteDocument, getDocuments } from "src/client/room";
+import { createDocument, deleteDocument, getDocuments, updateDocument } from "src/client/room";
 import FileUpload from "src/components/FileUpload";
 import withLogin from "src/components/HOC/withLogin";
-import { getData, isValid, uploadImageToFirebase } from "src/utils";
+import { getData, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
 
 function DocumentsPage({ user, getUser }) {
   const [loading, setLoading] = useState(false);
-  const [presentations, setPresentations] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [openEditModal, setOpenEditModal] = useState(false);
 
-  const getPresentations = async () => {
+  const [loadingEditDocument, setLoadingEditDocument] = useState(false);
+
+  const handleEditDocument = async () => {
+    setLoadingEditDocument(true);
+    try {
+      const res = await updateDocument(selectedDocument.presId, { filename: selectedDocument.filename });
+      if (isValid(res)) {
+        toast.success(res.message);
+        getUser();
+      } else {
+        toast.error(res?.message);
+      }
+    } catch (e) {
+      toast.error(e?.message || e);
+      setLoadingEditDocument(false);
+    }
+    setOpenEditModal(false);
+    setLoadingEditDocument(false);
+  };
+
+  const getDocumentsList = async () => {
     const uploadedDocuments = getData(await getDocuments());
-    setPresentations(uploadedDocuments);
+    setDocuments(uploadedDocuments);
   };
 
   const handleUploadDocuments = async (files) => {
@@ -65,12 +88,12 @@ function DocumentsPage({ user, getUser }) {
   };
 
   useEffect(() => {
-    getPresentations();
+    getDocumentsList();
   }, [user]);
 
-  const handleDeletePresentation = async (presentation) => {
+  const handleDeleteDocument = async (document) => {
     try {
-      const res = await deleteDocument(presentation.presId);
+      const res = await deleteDocument(document.presId);
       if (isValid(res)) {
         toast.success(res.message);
         getUser();
@@ -82,7 +105,7 @@ function DocumentsPage({ user, getUser }) {
 
   return (
     <Container maxWidth="xl">
-      {presentations?.length > 0 && (
+      {documents?.length > 0 && (
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }}>
             <TableHead className="tableHead">
@@ -92,23 +115,31 @@ function DocumentsPage({ user, getUser }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {presentations?.map((presentation) => (
-                <TableRow key={presentation.url}>
-                  <TableCell align="left">{presentation.filename}</TableCell>
+              {documents?.map((document) => (
+                <TableRow key={document.url}>
+                  <TableCell align="left">{document.filename}</TableCell>
                   <TableCell align="center">
-                    <CopyToClipboard
-                      text={presentation?.uploadUrl}
-                      onCopy={() => toast.success("Presentation URL has been copied to clipboard")}
-                    >
-                      <Tooltip title="Copy presentation URL">
+                    <Tooltip title="Edit document">
+                      <IconButton
+                        onClick={() => {
+                          setSelectedDocument(document);
+                          setOpenEditModal(true);
+                        }}
+                      >
+                        <Edit />
+                      </IconButton>
+                    </Tooltip>
+
+                    <CopyToClipboard text={document?.uploadUrl} onCopy={() => toast.success("Document URL has been copied to clipboard")}>
+                      <Tooltip title="Copy document URL">
                         <IconButton>
                           <ContentCopyIcon />
                         </IconButton>
                       </Tooltip>
                     </CopyToClipboard>
 
-                    <Tooltip title="Delete presentation">
-                      <IconButton color="error" onClick={() => handleDeletePresentation(presentation)}>
+                    <Tooltip title="Delete document">
+                      <IconButton color="error" onClick={() => handleDeleteDocument(document)}>
                         <DeleteOutline />
                       </IconButton>
                     </Tooltip>
@@ -120,6 +151,40 @@ function DocumentsPage({ user, getUser }) {
         </TableContainer>
       )}
       <FileUpload onFilesChange={(files) => handleUploadDocuments(files)} isUploading={loading} />
+
+      <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)} fullWidth>
+        <DialogTitle id="alert-dialog-title" sx={{ fontSize: "1.4rem" }}>
+          Edit document
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            sx={{ marginTop: 1 }}
+            fullWidth
+            label="Document's name"
+            placeholder="Enter document's name"
+            value={splitFilenameAndExtension(selectedDocument?.filename).name}
+            onChange={(e) => {
+              setSelectedDocument({
+                ...selectedDocument,
+                filename: `${e.target.value}.${splitFilenameAndExtension(selectedDocument?.filename).extension}`,
+              });
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={() => setOpenEditModal(false)}>
+            Cancel
+          </Button>
+          <LoadingButton
+            disabled={!splitFilenameAndExtension(selectedDocument?.filename).name}
+            variant="contained"
+            onClick={() => handleEditDocument()}
+            loading={loadingEditDocument}
+          >
+            Save
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }

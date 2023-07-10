@@ -32,3 +32,5 @@ export const createDocument = async ({ presId, filename, uploadUrl }) =>
 export const getDocuments = async (ids = []) => request("POST", "/document/list", { ids });
 
 export const deleteDocument = async (id) => request("DELETE", `/document/delete?id=${id}`);
+
+export const updateDocument = async (id, data) => request("PUT", `/document/update?id=${id}`, data);
