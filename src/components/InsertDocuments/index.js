@@ -18,6 +18,7 @@ import { updateRoom } from "src/client/room";
 import FileUpload from "src/components/FileUpload";
 import { isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
 import { NoData } from "../NoDataNotification";
+import { MyCardHeader } from "../atoms/CustomCardHeader";
 
 export default function InsertDocuments({ room, getUser }) {
   const [loading, setLoading] = useState(false);
@@ -89,6 +90,7 @@ export default function InsertDocuments({ room, getUser }) {
     <Container maxWidth="xl">
       {room?.presentation?.length > 0 && (
         <TableContainer component={Paper}>
+          <MyCardHeader label="presentation" />
           <Table sx={{ minWidth: 650 }}>
             <colgroup>
               <col width="80%"></col>

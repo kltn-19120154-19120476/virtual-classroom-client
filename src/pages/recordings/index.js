@@ -1,7 +1,7 @@
 import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import { Button, Container, IconButton, Tooltip } from "@mui/material";
+import { Container, IconButton, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -14,6 +14,8 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import withLogin from "src/components/HOC/withLogin";
 import { NoData } from "src/components/NoDataNotification";
+import { MyCardHeader } from "src/components/atoms/CustomCardHeader";
+import { WhiteButton } from "src/components/atoms/WhiteButton";
 import { getRecordings } from "src/service";
 import { formatTime } from "src/utils";
 import styles from "./styles.module.scss";
@@ -43,9 +45,9 @@ function RecordingsPage({ user }) {
   }, [user]);
 
   const RefreshButton = (props) => (
-    <Button startIcon={<CachedIcon />} onClick={() => getRecordingsData()} variant="contained" {...props}>
+    <WhiteButton startIcon={<CachedIcon />} onClick={() => getRecordingsData()} {...props}>
       Refresh
-    </Button>
+    </WhiteButton>
   );
 
   return (
@@ -54,11 +56,10 @@ function RecordingsPage({ user }) {
         <>
           {recordings?.length > 0 ? (
             <>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <RefreshButton sx={{ marginBottom: 2, marginLeft: "auto" }} />
-              </div>
-
               <TableContainer component={Paper}>
+                <MyCardHeader label="Recordings">
+                  <RefreshButton variant="outlined" sx={{ background: "#fff" }} />
+                </MyCardHeader>
                 <Table sx={{ minWidth: 650 }}>
                   <TableHead className="tableHead">
                     <TableRow>

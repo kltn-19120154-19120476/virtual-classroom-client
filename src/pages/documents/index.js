@@ -1,18 +1,7 @@
 import { DeleteOutline, Edit } from "@mui/icons-material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { LoadingButton } from "@mui/lab";
-import {
-  Button,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Button, Card, Container, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -25,6 +14,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import { createDocument, deleteDocument, getDocuments, updateDocument } from "src/client/room";
+import { MyCardHeader } from "src/components/atoms/CustomCardHeader";
 import FileUpload from "src/components/FileUpload";
 import withLogin from "src/components/HOC/withLogin";
 import { getData, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
@@ -115,10 +105,8 @@ function DocumentsPage({ user, getUser }) {
   };
 
   const DocumentTable = ({ documents, label }) => (
-    <div style={{ marginBottom: 30 }}>
-      <Typography variant="h5" color="primary" fontWeight={600} marginBottom={1}>
-        {label}
-      </Typography>
+    <Card style={{ marginBottom: 30 }}>
+      <MyCardHeader label={label} />
       {documents?.length > 0 && (
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }}>
@@ -156,11 +144,13 @@ function DocumentsPage({ user, getUser }) {
                       </Tooltip>
                     </CopyToClipboard>
 
-                    <Tooltip title="Delete document">
-                      <IconButton color="error" onClick={() => handleDeleteDocument(document)}>
-                        <DeleteOutline />
-                      </IconButton>
-                    </Tooltip>
+                    {!document?.isPublic && (
+                      <Tooltip title="Delete document">
+                        <IconButton color="error" onClick={() => handleDeleteDocument(document)}>
+                          <DeleteOutline />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -168,7 +158,7 @@ function DocumentsPage({ user, getUser }) {
           </Table>
         </TableContainer>
       )}
-    </div>
+    </Card>
   );
 
   return (

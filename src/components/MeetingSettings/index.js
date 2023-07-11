@@ -27,6 +27,7 @@ import { endMeeting, getDefaultMeetingSettings } from "src/service";
 import { BBB_DEFAULT_ATTENDEE_PASSWORD } from "src/sysconfig";
 import { customToast, isValid } from "src/utils";
 import * as yup from "yup";
+import { MyCardHeader } from "../atoms/CustomCardHeader";
 import styles from "./styles.module.scss";
 
 const BBB_BOOLEAN_SETTINGS = [
@@ -276,7 +277,17 @@ export default function MeetingSettings({ room, user, getUser }) {
   return (
     <Container maxWidth="xl">
       <Card component={"form"} onSubmit={handleSubmit(onUpdateMeetingSetings)} className={styles.form}>
-        <CardContent>
+        <MyCardHeader label="Meeting settings">
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 20, width: "100%" }}>
+            <Button color="error" variant="contained" onClick={() => setOpenConfirmDelete(true)} startIcon={<DeleteForever />}>
+              Delete Room
+            </Button>
+            <LoadingButton variant="contained" color="success" type="submit" startIcon={<SaveIcon />}>
+              SAVE
+            </LoadingButton>
+          </div>
+        </MyCardHeader>
+        <CardContent sx={{ pt: 3 }}>
           <Grid container spacing={4}>
             <Grid container item xs={12} md={6} lg={4} rowSpacing={3} alignContent={"flex-start"}>
               <Grid item xs={12}>
@@ -408,17 +419,6 @@ export default function MeetingSettings({ room, user, getUser }) {
                   </Tooltip>
                 </Grid>
               ))}
-            </Grid>
-
-            <Grid item xs={12}>
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 20, width: "100%" }}>
-                <Button variant="outlined" color="error" onClick={() => setOpenConfirmDelete(true)} startIcon={<DeleteForever />}>
-                  Delete Room
-                </Button>
-                <LoadingButton variant="contained" type="submit" startIcon={<SaveIcon />}>
-                  SAVE
-                </LoadingButton>
-              </div>
             </Grid>
           </Grid>
         </CardContent>

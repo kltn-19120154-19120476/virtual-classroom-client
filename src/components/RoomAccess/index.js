@@ -15,6 +15,8 @@ import { toast } from "react-toastify";
 import { addUserToRoom, removeUserFromRoom } from "src/client/room";
 import { isValid } from "src/utils";
 import * as yup from "yup";
+import { MyCardHeader } from "../atoms/CustomCardHeader";
+import { WhiteButton } from "../atoms/WhiteButton";
 import styles from "./styles.module.scss";
 
 export default function RoomAccess({ room, getUser }) {
@@ -101,22 +103,15 @@ export default function RoomAccess({ room, getUser }) {
               </DialogActions>
             </form>
           </Dialog>
-
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setOpenInviteMemberForm(true)}
-              startIcon={<PersonAddIcon />}
-              sx={{ marginLeft: "auto", mb: 2, mt: 4 }}
-            >
-              Add user
-            </Button>
-          </div>
         </>
       )}
 
       <TableContainer component={Paper}>
+        <MyCardHeader label="user list">
+          <WhiteButton onClick={() => setOpenInviteMemberForm(true)} startIcon={<PersonAddIcon />}>
+            Add user
+          </WhiteButton>
+        </MyCardHeader>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead className={"tableHead"}>
             <TableRow>

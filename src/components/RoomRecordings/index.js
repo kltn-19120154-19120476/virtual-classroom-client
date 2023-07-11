@@ -2,7 +2,7 @@ import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import { Button, Container, IconButton, Switch, Tooltip } from "@mui/material";
+import { Container, IconButton, Switch, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -17,6 +17,8 @@ import { deleteRecording, updateRecording } from "src/client/room";
 import { getRecordings } from "src/service";
 import { formatTime, isValid } from "src/utils";
 import { NoData } from "../NoDataNotification";
+import { MyCardHeader } from "../atoms/CustomCardHeader";
+import { WhiteButton } from "../atoms/WhiteButton";
 import styles from "./styles.module.scss";
 
 export default function RoomRecordings({ room }) {
@@ -53,9 +55,9 @@ export default function RoomRecordings({ room }) {
   }, []);
 
   const RefreshButton = (props) => (
-    <Button startIcon={<CachedIcon />} onClick={() => getRecordingsData()} variant="contained" {...props}>
+    <WhiteButton startIcon={<CachedIcon />} onClick={() => getRecordingsData()} {...props}>
       Refresh
-    </Button>
+    </WhiteButton>
   );
 
   return (
@@ -64,11 +66,10 @@ export default function RoomRecordings({ room }) {
         <>
           {recordings?.length > 0 ? (
             <>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <RefreshButton sx={{ marginBottom: 2, marginLeft: "auto" }} />
-              </div>
-
               <TableContainer component={Paper}>
+                <MyCardHeader label="recordings">
+                  <RefreshButton />
+                </MyCardHeader>
                 <Table sx={{ minWidth: 650 }}>
                   <TableHead className="tableHead">
                     <TableRow>

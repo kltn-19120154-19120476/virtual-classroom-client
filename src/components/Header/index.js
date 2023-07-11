@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import HomeIcon from "@mui/icons-material/Home";
 import Logout from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
@@ -15,8 +16,8 @@ import { useRouter } from "next/router";
 import React, { useContext } from "react";
 import { isMobile } from "react-device-detect";
 import { AuthContext } from "src/context/authContext";
+import { USER_TYPE } from "src/sysconfig";
 import styles from "./styles.module.scss";
-
 const navMenu = [
   {
     path: "/rooms",
@@ -122,6 +123,16 @@ const Header = () => {
                   vertical: "bottom",
                 }}
               >
+                {user && user?.type === USER_TYPE.ADMIN && (
+                  <Link href="/admin">
+                    <MenuItem onClick={handleCloseAvatar}>
+                      <ListItemIcon>
+                        <AdminPanelSettingsIcon fontSize="small" />
+                      </ListItemIcon>
+                      Administrator Panel
+                    </MenuItem>
+                  </Link>
+                )}
                 <Link href="/profile">
                   <MenuItem onClick={handleCloseAvatar}>
                     <ListItemIcon>
