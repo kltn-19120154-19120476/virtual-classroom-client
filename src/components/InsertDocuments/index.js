@@ -107,16 +107,18 @@ export default function InsertDocuments({ room, getUser }) {
                 <TableRow key={presentation.url}>
                   <TableCell align="left">{presentation.name}</TableCell>
                   <TableCell align="center">
-                    <Tooltip title="Edit presentation">
-                      <IconButton
-                        onClick={() => {
-                          setSelectedDocument(presentation);
-                          setOpenEditModal(true);
-                        }}
-                      >
-                        <Edit />
-                      </IconButton>
-                    </Tooltip>
+                    {room?.isOwner && (
+                      <Tooltip title="Edit presentation">
+                        <IconButton
+                          onClick={() => {
+                            setSelectedDocument(presentation);
+                            setOpenEditModal(true);
+                          }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </Tooltip>
+                    )}
 
                     <CopyToClipboard text={presentation?.url} onCopy={() => toast.success("Presentation URL has been copied to clipboard")}>
                       <Tooltip title="Copy presentation URL">
