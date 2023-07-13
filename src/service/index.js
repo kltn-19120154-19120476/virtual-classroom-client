@@ -204,8 +204,9 @@ export const updateLearningDashboards = async (room, data) => {
   return learningDashboards;
 };
 
-export const getLearningDashboardFromInternalMeetingId = (internalMeetingID) =>
+export const getLearningDashboardFromInternalMeetingId = (internalMeetingID, userID) =>
   callBBBClient({
-    meeting: internalMeetingID || "",
+    meetingID: internalMeetingID || "",
+    userID,
     apiCall: "learningDashboardFromMeetingId",
   });

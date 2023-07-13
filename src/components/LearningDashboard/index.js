@@ -11,11 +11,11 @@ import { WhiteButton } from "../atoms/WhiteButton";
 import LearningDashboardDetail from "./LearningDashBoardDetail";
 let intervalID;
 
-export default function LearningDashboards({ room, getUser }) {
+export default function LearningDashboards({ room, getUser, user }) {
   const [learningDashboard, setLearningDashboard] = useState(null);
 
   const getLearningDashboard = async () => {
-    const res = await getLearningDashboardFromInternalMeetingId(room.meetingInfo?.internalMeetingID || "");
+    const res = await getLearningDashboardFromInternalMeetingId(room.meetingInfo?.internalMeetingID || "", user._id);
     if (isValid(res)) {
       setLearningDashboard(res.data);
       await updateLearningDashboards(room, res.data);

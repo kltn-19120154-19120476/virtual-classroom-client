@@ -60,6 +60,7 @@ const AuthContextProvider = ({ children }) => {
               if (internalMeetingID) {
                 const meetingLearningDashboard = await getLearningDashboardFromInternalMeetingId(
                   roomListMap[id]?.meetingInfo?.internalMeetingID,
+                  userInfo._id,
                 );
                 if (meetingLearningDashboard.data) updateLearningDashboards(roomListMap[id], meetingLearningDashboard.data);
               }

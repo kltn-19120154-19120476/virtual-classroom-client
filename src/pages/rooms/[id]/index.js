@@ -182,7 +182,7 @@ const RoomDetailPage = () => {
                 </TabPanel>
                 {isOwner && (
                   <TabPanel value="learningDashboard" className={styles.tabPanel}>
-                    <LearningDashboards room={room} getUser={getUser} />
+                    <LearningDashboards room={room} getUser={getUser} user={user} />
                   </TabPanel>
                 )}
                 <TabPanel value="access" className={styles.tabPanel}>
