@@ -1,5 +1,6 @@
 import { DeleteOutline, Edit } from "@mui/icons-material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import KeyIcon from "@mui/icons-material/Key";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import { LoadingButton } from "@mui/lab";
@@ -10,8 +11,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Grid,
   IconButton,
+  Switch,
   TextField,
   Tooltip,
   Typography,
@@ -29,14 +32,17 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import { createDocument, deleteDocument, getDocuments, updateDocument } from "src/client/room";
+import { adminDeleteUser, adminGetUserList, adminResetUserPassword, adminUpdateUser } from "src/client/user";
 import FileUpload from "src/components/FileUpload";
 import withLogin from "src/components/HOC/withLogin";
+import ConfirmModal from "src/components/atoms/ConfirmModal";
 import { MyCardHeader } from "src/components/atoms/CustomCardHeader";
 import { USER_TYPE } from "src/sysconfig";
-import { getData, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
+import { getData, getFirst, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
+
 const TABS = [
   {
-    label: "Document management",
+    label: "Public Documents management",
     value: "document-management",
     icon: <SummarizeIcon />,
   },
@@ -55,11 +61,22 @@ const TAB_VALUES = {
 function DocumentsPage({ user, getUser }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
   const [documents, setDocuments] = useState([]);
+  const [users, setUsers] = useState([]);
+
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [openEditModal, setOpenEditModal] = useState(false);
 
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [openEditUserModal, setOpenEditUserModal] = useState(false);
+
   const [loadingEditDocument, setLoadingEditDocument] = useState(false);
+  const [loadingEditUser, setLoadingEditUser] = useState(false);
+
+  const [newPassword, setNewPassword] = useState("");
+
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
 
   const [tabItem, setTabItem] = useState(router.query?.tab || TAB_VALUES.DOCUMENT_MANAGEMENT);
 
@@ -81,9 +98,10 @@ function DocumentsPage({ user, getUser }) {
     setLoadingEditDocument(false);
   };
 
-  const getDocumentsList = async () => {
-    const uploadedDocuments = getData(await getDocuments());
-    setDocuments(uploadedDocuments);
+  const getDocumentsAndUserList = async () => {
+    const [documentRes, userRes] = await Promise.all([getDocuments(), adminGetUserList()]);
+    setDocuments(getData(documentRes));
+    setUsers(getData(userRes));
   };
 
   const handleUploadDocuments = async (files) => {
@@ -124,12 +142,6 @@ function DocumentsPage({ user, getUser }) {
     setLoading(false);
   };
 
-  useEffect(() => {
-    getDocumentsList();
-    if (user && user.type !== USER_TYPE.ADMIN) window.location.href = "/";
-    setTabItem(router.query?.tab || TAB_VALUES.DOCUMENT_MANAGEMENT);
-  }, [user, router]);
-
   const handleDeleteDocument = async (document) => {
     try {
       const res = await deleteDocument(document.presId);
@@ -141,6 +153,57 @@ function DocumentsPage({ user, getUser }) {
       toast.error(e.message);
     }
   };
+
+  const handleUpdateUser = async (user, data) => {
+    setLoadingEditUser(true);
+    try {
+      const res = await adminUpdateUser(user._id, data);
+      if (isValid(res)) {
+        toast.success(res.message);
+        getUser();
+      }
+    } catch (e) {
+      toast.error(e.message);
+      setLoadingEditUser(false);
+      setOpenEditUserModal(false);
+    }
+    setLoadingEditUser(false);
+    setOpenEditUserModal(false);
+  };
+
+  const handleDeleteUser = async () => {
+    setLoadingEditUser(true);
+    try {
+      const res = await adminDeleteUser(selectedUser?._id);
+      if (isValid(res)) {
+        toast.success(res.message);
+        getUser();
+      }
+    } catch (e) {
+      toast.error(e.message);
+      setLoadingEditUser(false);
+      setOpenConfirmDelete(false);
+    }
+    setLoadingEditUser(false);
+    setOpenConfirmDelete(false);
+  };
+
+  const handleResetPassword = async (user) => {
+    try {
+      const newPassword = getFirst(await adminResetUserPassword(user?._id))?.newPassword;
+      if (newPassword) {
+        setNewPassword(newPassword);
+      }
+    } catch (e) {
+      toast.error(e.message);
+    }
+  };
+
+  useEffect(() => {
+    getDocumentsAndUserList();
+    if (user && user.type !== USER_TYPE.ADMIN) window.location.href = "/";
+    setTabItem(router.query?.tab || TAB_VALUES.DOCUMENT_MANAGEMENT);
+  }, [user, router]);
 
   return (
     <Container maxWidth="xl">
@@ -167,7 +230,7 @@ function DocumentsPage({ user, getUser }) {
             <>
               {documents?.length > 0 && (
                 <TableContainer component={Paper}>
-                  <MyCardHeader label="Document management" />
+                  <MyCardHeader label="Public document management" />
                   <Table sx={{ minWidth: 650 }}>
                     <TableHead className="tableHead">
                       <TableRow>
@@ -225,16 +288,103 @@ function DocumentsPage({ user, getUser }) {
                 <Table sx={{ minWidth: 650 }}>
                   <TableHead className="tableHead">
                     <TableRow>
+                      <TableCell align="left">Email</TableCell>
                       <TableCell align="left">Name</TableCell>
+                      <TableCell align="left">Status</TableCell>
                       <TableCell align="center">Actions</TableCell>
                     </TableRow>
                   </TableHead>
+                  <TableBody>
+                    {users?.map((user) => (
+                      <TableRow key={user.email}>
+                        <TableCell align="left">{user.email}</TableCell>
+                        <TableCell align="left">{user.name}</TableCell>
+                        <TableCell align="left">
+                          <FormControlLabel
+                            control={<Switch color="success" />}
+                            name={"activateUser"}
+                            id={"activateUser"}
+                            checked={user.isActive}
+                            onChange={async (e) => {
+                              handleUpdateUser(user, { isActive: e.target.checked });
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Tooltip title="Edit user">
+                            <IconButton
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setOpenEditUserModal(true);
+                              }}
+                            >
+                              <Edit />
+                            </IconButton>
+                          </Tooltip>
+
+                          <Tooltip title="Reset user password">
+                            <IconButton
+                              onClick={() => {
+                                handleResetPassword(user);
+                              }}
+                            >
+                              <KeyIcon />
+                            </IconButton>
+                          </Tooltip>
+
+                          <Tooltip title="Delete user">
+                            <IconButton
+                              color="error"
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setOpenConfirmDelete(true);
+                              }}
+                            >
+                              <DeleteOutline />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
                 </Table>
               </TableContainer>
             </>
           )}
         </Grid>
       </Grid>
+
+      <ConfirmModal
+        show={openConfirmDelete}
+        setShow={() => setOpenConfirmDelete(false)}
+        label={"Are you sure to delete this user ?"}
+        content="This action can not be undone."
+        onConfirm={handleDeleteUser}
+        onCancel={() => setOpenConfirmDelete(false)}
+      />
+
+      <Dialog open={newPassword} onClose={() => setNewPassword("")} fullWidth>
+        <DialogTitle id="alert-dialog-title" sx={{ fontSize: "1.4rem" }}>
+          Reset user password
+        </DialogTitle>
+        <DialogContent>
+          New password: <b>{newPassword}</b>{" "}
+        </DialogContent>
+        <DialogActions>
+          <CopyToClipboard
+            text={newPassword}
+            onCopy={() => {
+              toast.success("Password has been copied to clipboard");
+              setNewPassword("");
+            }}
+          >
+            <Button color="primary" variant="contained">
+              Copy new password
+            </Button>
+          </CopyToClipboard>
+        </DialogActions>
+      </Dialog>
+
       <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)} fullWidth>
         <DialogTitle id="alert-dialog-title" sx={{ fontSize: "1.4rem" }}>
           Edit document
@@ -268,6 +418,42 @@ function DocumentsPage({ user, getUser }) {
           </LoadingButton>
         </DialogActions>
       </Dialog>
+
+      {selectedUser && (
+        <Dialog open={openEditUserModal} onClose={() => setOpenEditUserModal(false)} fullWidth>
+          <DialogTitle id="alert-dialog-title" sx={{ fontSize: "1.4rem" }}>
+            Edit user
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              sx={{ marginTop: 1 }}
+              fullWidth
+              label="User's name"
+              placeholder="Enter user's name"
+              value={selectedUser.name}
+              onChange={(e) => {
+                setSelectedUser({
+                  ...selectedUser,
+                  name: e.target.value,
+                });
+              }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button variant="outlined" onClick={() => setOpenEditUserModal(false)}>
+              Cancel
+            </Button>
+            <LoadingButton
+              disabled={!user.name}
+              variant="contained"
+              onClick={() => handleUpdateUser(selectedUser, { name: selectedUser.name })}
+              loading={loadingEditUser}
+            >
+              Save
+            </LoadingButton>
+          </DialogActions>
+        </Dialog>
+      )}
     </Container>
   );
 }

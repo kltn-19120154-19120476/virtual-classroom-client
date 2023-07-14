@@ -89,6 +89,10 @@ const AuthContextProvider = ({ children }) => {
       console.log(e);
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
+
+      if (e?.response?.data?.message === "ACCOUNT_NOT_ACTIVATED") {
+        router.push("/403");
+      }
     }
   };
 

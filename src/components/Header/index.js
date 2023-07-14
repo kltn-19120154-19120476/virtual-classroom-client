@@ -35,7 +35,7 @@ const navMenu = [
 
 const navPaths = ["/", "/rooms", "/recordings", "/documents"];
 
-const pathNotShowHeader = ["/login", "/register"];
+const pathNotShowHeader = ["/login", "/register", "/403"];
 
 const Header = () => {
   const { logout, user, isLoadingAuth } = useContext(AuthContext);

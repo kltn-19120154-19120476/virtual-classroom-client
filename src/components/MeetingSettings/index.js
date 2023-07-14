@@ -2,22 +2,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { DeleteForever } from "@mui/icons-material";
 import SaveIcon from "@mui/icons-material/Save";
 import { LoadingButton } from "@mui/lab";
-import {
-  Button,
-  Card,
-  CardContent,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  FormControlLabel,
-  Grid,
-  Switch,
-  TextField,
-  Tooltip,
-} from "@mui/material";
+import { Button, Card, CardContent, Container, FormControlLabel, Grid, Switch, TextField, Tooltip } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -27,6 +12,7 @@ import { endMeeting, getDefaultMeetingSettings } from "src/service";
 import { BBB_DEFAULT_ATTENDEE_PASSWORD } from "src/sysconfig";
 import { customToast, isValid } from "src/utils";
 import * as yup from "yup";
+import ConfirmModal from "../atoms/ConfirmModal";
 import { MyCardHeader } from "../atoms/CustomCardHeader";
 import styles from "./styles.module.scss";
 
@@ -424,20 +410,14 @@ export default function MeetingSettings({ room, user, getUser }) {
         </CardContent>
       </Card>
 
-      <Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)} fullWidth>
-        <DialogTitle id="alert-dialog-title">Are you sure to delete this room?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>This action can not be undone.</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={() => setOpenConfirmDelete(false)}>
-            Cancel
-          </Button>
-          <Button color="error" variant="contained" type="submit" onClick={handleDeleteRoom}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmModal
+        show={openConfirmDelete}
+        setShow={() => setOpenConfirmDelete(false)}
+        label={"Are you sure to delete this room ?"}
+        content="This action can not be undone."
+        onConfirm={handleDeleteRoom}
+        onCancel={() => setOpenConfirmDelete(false)}
+      />
     </Container>
   );
 }

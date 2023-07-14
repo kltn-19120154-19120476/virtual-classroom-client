@@ -1,6 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { Button, Container, Dialog, DialogActions, DialogContent, TextField } from "@mui/material";
 import { GoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -101,27 +101,12 @@ function Login() {
       </div>
 
       <Dialog open={openModal} onClose={() => setOpenModal(false)} style={{ width: "100%" }}>
-        <form onSubmit={forgotPasswordForm.handleSubmit(handleForgotPassword)}>
-          <DialogTitle id="alert-dialog-title">Enter your email</DialogTitle>
-          <DialogContent style={{ overflowY: "initial" }}>
-            <TextField
-              label="Email"
-              placeholder="Your email"
-              {...forgotPasswordForm.register("email")}
-              fullWidth
-              error={!!forgotPasswordForm.formState.errors?.email}
-              helperText={forgotPasswordForm.formState.errors?.email?.message}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button variant="contained" onClick={() => setOpenCreateRoomForm(false)}>
-              Cancel
-            </Button>
-            <Button variant="contained" type="submit">
-              Submit
-            </Button>
-          </DialogActions>
-        </form>
+        <DialogContent style={{ overflowY: "initial" }}>Please contact your administrator to reset your password.</DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={() => setOpenModal(false)}>
+            Close
+          </Button>
+        </DialogActions>
       </Dialog>
     </Container>
   );
