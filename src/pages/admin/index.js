@@ -42,7 +42,7 @@ import { getData, getFirst, isValid, splitFilenameAndExtension, uploadImageToFir
 
 const TABS = [
   {
-    label: "Public Documents management",
+    label: "Public document management",
     value: "document-management",
     icon: <SummarizeIcon />,
   },
