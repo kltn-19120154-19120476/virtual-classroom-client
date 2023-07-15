@@ -40,7 +40,7 @@ export default function FileUpload({ onFilesChange, isUploading = false }) {
 
           <p>
             Upload any office document or PDF file. Depending on the size of the file, it may require additional time to upload before it
-            can be used
+            can be used.
           </p>
         </Card>
       )}

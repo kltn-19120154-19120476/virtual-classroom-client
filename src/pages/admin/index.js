@@ -2,10 +2,12 @@ import { DeleteOutline, Edit } from "@mui/icons-material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import KeyIcon from "@mui/icons-material/Key";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import SearchIcon from "@mui/icons-material/Search";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import { LoadingButton } from "@mui/lab";
 import {
   Button,
+  Card,
   Container,
   Dialog,
   DialogActions,
@@ -14,6 +16,7 @@ import {
   FormControlLabel,
   Grid,
   IconButton,
+  InputAdornment,
   Switch,
   TextField,
   Tooltip,
@@ -37,6 +40,7 @@ import FileUpload from "src/components/FileUpload";
 import withLogin from "src/components/HOC/withLogin";
 import ConfirmModal from "src/components/atoms/ConfirmModal";
 import { MyCardHeader } from "src/components/atoms/CustomCardHeader";
+import { Show } from "src/components/atoms/Show";
 import { USER_TYPE } from "src/sysconfig";
 import { getData, getFirst, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
 
@@ -228,17 +232,30 @@ function DocumentsPage({ user, getUser }) {
         <Grid item xs={12} md={9}>
           {tabItem === TAB_VALUES.DOCUMENT_MANAGEMENT && (
             <>
-              {documents?.length > 0 && (
-                <TableContainer component={Paper}>
-                  <MyCardHeader label="Public document management" />
-                  <Table sx={{ minWidth: 650 }}>
-                    <TableHead className="tableHead">
-                      <TableRow>
-                        <TableCell align="left">Name</TableCell>
-                        <TableCell align="center">Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
+              <TableContainer component={Paper}>
+                <MyCardHeader label="Public document management" />
+                <Table sx={{ minWidth: 650 }}>
+                  <colgroup>
+                    <col width="70%" />
+                    <col width="30%" />
+                  </colgroup>
+                  <TableHead className="tableHead">
+                    <TableRow>
+                      <TableCell align="left">Name</TableCell>
+                      <TableCell align="center">Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <Show
+                      when={documents?.length > 0}
+                      fallback={
+                        <TableRow>
+                          <TableCell align="center" colSpan={4}>
+                            Not found any documents
+                          </TableCell>
+                        </TableRow>
+                      }
+                    >
                       {documents?.map((document) => (
                         <TableRow key={document.url}>
                           <TableCell align="left">{document.filename}</TableCell>
@@ -273,10 +290,10 @@ function DocumentsPage({ user, getUser }) {
                           </TableCell>
                         </TableRow>
                       ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
+                    </Show>
+                  </TableBody>
+                </Table>
+              </TableContainer>
               <FileUpload onFilesChange={(files) => handleUploadDocuments(files)} isUploading={loading} />
             </>
           )}
@@ -284,8 +301,36 @@ function DocumentsPage({ user, getUser }) {
           {tabItem === TAB_VALUES.USER_MANAGEMENT && (
             <>
               <TableContainer component={Paper}>
-                <MyCardHeader label="User management" />
+                <MyCardHeader label="User management">
+                  <Card>
+                    <TextField
+                      placeholder="Enter user name or email"
+                      onChange={async (e) => {
+                        const search = e.target.value || "";
+                        try {
+                          const data = getData(await adminGetUserList(search));
+                          setUsers(data);
+                        } catch (e) {
+                          setUsers([]);
+                        }
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Card>
+                </MyCardHeader>
                 <Table sx={{ minWidth: 650 }}>
+                  <colgroup>
+                    <col width="30%" />
+                    <col width="30%" />
+                    <col width="15%" />
+                    <col width="25%" />
+                  </colgroup>
                   <TableHead className="tableHead">
                     <TableRow>
                       <TableCell align="left">Email</TableCell>
@@ -295,57 +340,68 @@ function DocumentsPage({ user, getUser }) {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {users?.map((user) => (
-                      <TableRow key={user.email}>
-                        <TableCell align="left">{user.email}</TableCell>
-                        <TableCell align="left">{user.name}</TableCell>
-                        <TableCell align="left">
-                          <FormControlLabel
-                            control={<Switch color="success" />}
-                            name={"activateUser"}
-                            id={"activateUser"}
-                            checked={user.isActive}
-                            onChange={async (e) => {
-                              handleUpdateUser(user, { isActive: e.target.checked });
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell align="center">
-                          <Tooltip title="Edit user">
-                            <IconButton
-                              onClick={() => {
-                                setSelectedUser(user);
-                                setOpenEditUserModal(true);
+                    <Show
+                      when={users?.length > 0}
+                      fallback={
+                        <TableRow>
+                          <TableCell align="center" colSpan={4}>
+                            Not found any users
+                          </TableCell>
+                        </TableRow>
+                      }
+                    >
+                      {users?.map((user) => (
+                        <TableRow key={user.email}>
+                          <TableCell align="left">{user.email}</TableCell>
+                          <TableCell align="left">{user.name}</TableCell>
+                          <TableCell align="left">
+                            <FormControlLabel
+                              control={<Switch color="success" />}
+                              name={"activateUser"}
+                              id={"activateUser"}
+                              checked={user.isActive}
+                              onChange={async (e) => {
+                                handleUpdateUser(user, { isActive: e.target.checked });
                               }}
-                            >
-                              <Edit />
-                            </IconButton>
-                          </Tooltip>
+                            />
+                          </TableCell>
+                          <TableCell align="center">
+                            <Tooltip title="Edit user">
+                              <IconButton
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setOpenEditUserModal(true);
+                                }}
+                              >
+                                <Edit />
+                              </IconButton>
+                            </Tooltip>
 
-                          <Tooltip title="Reset user password">
-                            <IconButton
-                              onClick={() => {
-                                handleResetPassword(user);
-                              }}
-                            >
-                              <KeyIcon />
-                            </IconButton>
-                          </Tooltip>
+                            <Tooltip title="Reset user password">
+                              <IconButton
+                                onClick={() => {
+                                  handleResetPassword(user);
+                                }}
+                              >
+                                <KeyIcon />
+                              </IconButton>
+                            </Tooltip>
 
-                          <Tooltip title="Delete user">
-                            <IconButton
-                              color="error"
-                              onClick={() => {
-                                setSelectedUser(user);
-                                setOpenConfirmDelete(true);
-                              }}
-                            >
-                              <DeleteOutline />
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                            <Tooltip title="Delete user">
+                              <IconButton
+                                color="error"
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setOpenConfirmDelete(true);
+                                }}
+                              >
+                                <DeleteOutline />
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </Show>
                   </TableBody>
                 </Table>
               </TableContainer>

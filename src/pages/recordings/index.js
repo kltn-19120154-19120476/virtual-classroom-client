@@ -102,7 +102,7 @@ function RecordingsPage({ user }) {
             <NoData
               onRefresh={getRecordingsData}
               title="You don't have any recordings yet!"
-              description="Recordings will appear here after you start a meeting and record it."
+              description="Your available recordings will appear here."
               icon={<VideocamIcon />}
             />
           )}

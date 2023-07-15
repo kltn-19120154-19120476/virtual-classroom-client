@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import { createDocument, deleteDocument, getDocuments, updateDocument } from "src/client/room";
 import { MyCardHeader } from "src/components/atoms/CustomCardHeader";
+import { Show } from "src/components/atoms/Show";
 import FileUpload from "src/components/FileUpload";
 import withLogin from "src/components/HOC/withLogin";
 import { getData, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
@@ -107,20 +108,29 @@ function DocumentsPage({ user, getUser }) {
   const DocumentTable = ({ documents, label }) => (
     <Card style={{ marginBottom: 30 }}>
       <MyCardHeader label={label} />
-      {documents?.length > 0 && (
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }}>
-            <colgroup>
-              <col width="80%"></col>
-              <col width="20%"></col>
-            </colgroup>
-            <TableHead className="tableHead">
-              <TableRow>
-                <TableCell align="left">Name</TableCell>
-                <TableCell align="center">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }}>
+          <colgroup>
+            <col width="80%"></col>
+            <col width="20%"></col>
+          </colgroup>
+          <TableHead className="tableHead">
+            <TableRow>
+              <TableCell align="left">Name</TableCell>
+              <TableCell align="center">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <Show
+              when={documents?.length > 0}
+              fallback={
+                <TableRow>
+                  <TableCell align="center" colSpan={4}>
+                    Not found any documents
+                  </TableCell>
+                </TableRow>
+              }
+            >
               {documents?.map((document) => (
                 <TableRow key={document.url}>
                   <TableCell align="left">{document.filename}</TableCell>
@@ -154,10 +164,10 @@ function DocumentsPage({ user, getUser }) {
                   </TableCell>
                 </TableRow>
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+            </Show>
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Card>
   );
 
