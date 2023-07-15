@@ -1,7 +1,8 @@
+import { Close, PlayArrow } from "@mui/icons-material";
 import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import { Container, IconButton, Tooltip } from "@mui/material";
+import { AppBar, Container, Dialog, IconButton, Toolbar, Tooltip, Typography } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -23,6 +24,7 @@ import styles from "./styles.module.scss";
 function RecordingsPage({ user }) {
   const [recordings, setRecordings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedRecording, setSelectedRecording] = useState(null);
 
   const getRecordingsData = async () => {
     const roomIDs = [...(user?.myRoomIds || []), ...(user?.joinedRoomIds || [])];
@@ -61,6 +63,12 @@ function RecordingsPage({ user }) {
                   <RefreshButton variant="outlined" sx={{ background: "#fff" }} />
                 </MyCardHeader>
                 <Table sx={{ minWidth: 650 }}>
+                  <colgroup>
+                    <col width="40%"></col>
+                    <col width="20%"></col>
+                    <col width="20%"></col>
+                    <col width="20%"></col>
+                  </colgroup>
                   <TableHead className="tableHead">
                     <TableRow>
                       <TableCell align="left">Meeting name</TableCell>
@@ -84,7 +92,15 @@ function RecordingsPage({ user }) {
                         </TableCell>
                         <TableCell align="left">{recording?.participants}</TableCell>
                         <TableCell align="center">
-                          <CopyToClipboard text={recording?.url} onCopy={() => toast.success("Recording URL has been copied to clipboard")}>
+                          <Tooltip title="Play recording">
+                            <IconButton onClick={() => setSelectedRecording(recording)}>
+                              <PlayArrow />
+                            </IconButton>
+                          </Tooltip>
+                          <CopyToClipboard
+                            text={recording?.playbackUrl}
+                            onCopy={() => toast.success("Recording URL has been copied to clipboard")}
+                          >
                             <Tooltip title="Copy recording URL">
                               <IconButton>
                                 <ContentCopyIcon />
@@ -107,6 +123,25 @@ function RecordingsPage({ user }) {
             />
           )}
         </>
+      )}
+
+      {selectedRecording && (
+        <Dialog fullScreen open={selectedRecording?.playbackUrl} onClose={() => setSelectedRecording(null)}>
+          <AppBar sx={{ position: "relative" }}>
+            <Toolbar>
+              <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+                <b>Recording {selectedRecording.name}</b> <br />
+                <span style={{ fontSize: "0.9rem" }}>
+                  From {formatTime(selectedRecording?.startTime)} to {formatTime(selectedRecording?.endTime)}
+                </span>
+              </Typography>
+              <IconButton autoFocus color="inherit" onClick={() => setSelectedRecording(null)} sx={{ ml: "auto" }}>
+                <Close />
+              </IconButton>
+            </Toolbar>
+          </AppBar>
+          <iframe style={{ height: "100%" }} src={selectedRecording?.playbackUrl}></iframe>
+        </Dialog>
       )}
     </Container>
   );

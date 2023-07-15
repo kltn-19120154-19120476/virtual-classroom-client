@@ -134,10 +134,20 @@ class UsersTable extends React.Component {
     return (
       <TableContainer>
         <Table>
+          <colgroup>
+            <col width="20%"></col>
+            <col width="10%"></col>
+            <col width="10%"></col>
+            <col width="10%"></col>
+            <col width="10%"></col>
+            <col width="10%"></col>
+            <col width="10%"></col>
+            <col width="10%"></col>
+            <col width="10%"></col>
+          </colgroup>
           <TableHead className="tableHead">
-            <TableRow className="text-xs font-semibold tracking-wide text-left text-gray-700 uppercase border-b bg-gray-100">
+            <TableRow>
               <TableCell
-                className={`px-3.5 2xl:px-4 py-3 col-text-left ${tab === "overview" ? "cursor-pointer" : ""}`}
                 onClick={() => {
                   if (tab === "overview") this.toggleOrder("userOrder");
                 }}
@@ -145,7 +155,6 @@ class UsersTable extends React.Component {
                 User
               </TableCell>
               <TableCell
-                className={`px-3.5 2xl:px-4 py-3 text-center ${tab === "overview" ? "cursor-pointer" : ""}`}
                 onClick={() => {
                   if (tab === "overview") this.toggleOrder("onlineTimeOrder");
                 }}
@@ -153,7 +162,6 @@ class UsersTable extends React.Component {
                 Online time
               </TableCell>
               <TableCell
-                className={`px-3.5 2xl:px-4 py-3 text-center ${tab === "overview" ? "cursor-pointer" : ""}`}
                 onClick={() => {
                   if (tab === "overview") this.toggleOrder("talkTimeOrder");
                 }}
@@ -161,7 +169,6 @@ class UsersTable extends React.Component {
                 Talk time
               </TableCell>
               <TableCell
-                className={`px-3.5 2xl:px-4 py-3 text-center ${tab === "overview" ? "cursor-pointer" : ""}`}
                 onClick={() => {
                   if (tab === "overview") this.toggleOrder("webcamTimeOrder");
                 }}

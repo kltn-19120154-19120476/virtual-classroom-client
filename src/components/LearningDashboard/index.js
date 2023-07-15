@@ -60,6 +60,12 @@ export default function LearningDashboards({ room, getUser, user }) {
           </MyCardHeader>
           <TableContainer>
             <Table>
+              <colgroup>
+                <col width="40%"></col>
+                <col width="20%"></col>
+                <col width="20%"></col>
+                <col width="20%"></col>
+              </colgroup>
               <TableHead className="tableHead">
                 <TableRow>
                   <TableCell>Meeting name</TableCell>

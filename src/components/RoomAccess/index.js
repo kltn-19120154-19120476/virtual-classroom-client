@@ -113,6 +113,12 @@ export default function RoomAccess({ room, getUser }) {
           </WhiteButton>
         </MyCardHeader>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <colgroup>
+            <col width="30%"></col>
+            <col width="30%"></col>
+            <col width="20%"></col>
+            <col width="20%"></col>
+          </colgroup>
           <TableHead className={"tableHead"}>
             <TableRow>
               <TableCell align="left">Name</TableCell>
