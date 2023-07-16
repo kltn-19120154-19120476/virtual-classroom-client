@@ -18,6 +18,7 @@ import { MyCardHeader } from "src/components/atoms/CustomCardHeader";
 import { Show } from "src/components/atoms/Show";
 import FileUpload from "src/components/FileUpload";
 import withLogin from "src/components/HOC/withLogin";
+import { USER_TYPE } from "src/sysconfig";
 import { getData, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
 
 function DocumentsPage({ user, getUser }) {
@@ -135,16 +136,18 @@ function DocumentsPage({ user, getUser }) {
                 <TableRow key={document.url}>
                   <TableCell align="left">{document.filename}</TableCell>
                   <TableCell align="center">
-                    <Tooltip title="Edit document">
-                      <IconButton
-                        onClick={() => {
-                          setSelectedDocument(document);
-                          setOpenEditModal(true);
-                        }}
-                      >
-                        <Edit />
-                      </IconButton>
-                    </Tooltip>
+                    {!document?.isPublic && (
+                      <Tooltip title="Edit document">
+                        <IconButton
+                          onClick={() => {
+                            setSelectedDocument(document);
+                            setOpenEditModal(true);
+                          }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </Tooltip>
+                    )}
 
                     <CopyToClipboard text={document?.uploadUrl} onCopy={() => toast.success("Document URL has been copied to clipboard")}>
                       <Tooltip title="Copy document URL">
@@ -174,7 +177,7 @@ function DocumentsPage({ user, getUser }) {
   return (
     <Container maxWidth="xl">
       <DocumentTable documents={documents.filter((item) => item.isPublic)} label="Public documents" />
-      <DocumentTable documents={documents.filter((item) => !item.isPublic)} label="My documents" />
+      {user?.type !== USER_TYPE.ADMIN && <DocumentTable documents={documents.filter((item) => !item.isPublic)} label="My documents" />}
       <FileUpload onFilesChange={(files) => handleUploadDocuments(files)} isUploading={loading} />
 
       <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)} fullWidth>

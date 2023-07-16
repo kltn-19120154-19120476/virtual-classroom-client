@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import { createRecording, getRecordingsByRoomId, updateRoom } from "src/client/room";
 import { BBB_DEFAULT_ATTENDEE_PASSWORD, WEB_CLIENT_HOST } from "src/sysconfig";
-import { getData, isValid } from "src/utils";
+import { formatTime, getData, isValid } from "src/utils";
 
 export const getDefaultMeetingSettings = (room) => ({
   name: room?.name,
@@ -164,6 +164,7 @@ export const getRecordings = async ({ meetingID }) => {
           endTime,
           playbackUrl: url,
           name,
+          recordName: "Recording - " + formatTime(startTime),
           participants,
           published: true,
         }),

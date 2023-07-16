@@ -42,7 +42,7 @@ export const dataURLtoFile = (dataurl, filename) => {
 };
 
 export const uploadImageToFirebase = async (file) => {
-  const imageRef = ref(storage, `${file.name}`);
+  const imageRef = ref(storage, `/bigbluebutton/${file.name}`);
   const fileToUpload = dataURLtoFile(file.path, file.name);
   await uploadBytes(imageRef, fileToUpload);
   const url = await getDownloadURL(imageRef);

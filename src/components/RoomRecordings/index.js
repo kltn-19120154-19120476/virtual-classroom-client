@@ -1,9 +1,9 @@
-import { Close, PlayArrow } from "@mui/icons-material";
+import { Close, Edit, PlayArrow } from "@mui/icons-material";
 import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import { AppBar, Container, Dialog, IconButton, Switch, Toolbar, Tooltip, Typography } from "@mui/material";
+import { AppBar, Container, Dialog, IconButton, InputAdornment, Switch, TextField, Toolbar, Tooltip, Typography } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -52,6 +52,18 @@ export default function RoomRecordings({ room }) {
     }
   };
 
+  const handleUpdateRecording = async (e, recording) => {
+    const res = await updateRecording({
+      data: { recordName: e.target.value || recording.recordName },
+      roomId: room?._id,
+      recordId: recording.recordId,
+    });
+    if (isValid(res)) {
+      toast.success(res.message);
+      getRecordingsData();
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
     getRecordingsData();
@@ -73,16 +85,18 @@ export default function RoomRecordings({ room }) {
                 <MyCardHeader label="recordings">
                   <RefreshButton />
                 </MyCardHeader>
-                <Table sx={{ minWidth: 650 }}>
+                <Table sx={{ minWidth: 1200 }}>
                   <colgroup>
-                    <col width="30%"></col>
+                    <col width="35%"></col>
+                    <col width="15%"></col>
                     <col width="20%"></col>
-                    <col width="10%"></col>
-                    <col width="10%"></col>
-                    <col width="20%"></col>
+                    <col width="6%"></col>
+                    <col width="6%"></col>
+                    <col width="18%"></col>
                   </colgroup>
                   <TableHead className="tableHead">
                     <TableRow>
+                      <TableCell align="left">Recording name</TableCell>
                       <TableCell align="left">Meeting name</TableCell>
                       <TableCell align="left">Time</TableCell>
                       <TableCell align="left">Published</TableCell>
@@ -96,15 +110,33 @@ export default function RoomRecordings({ room }) {
                         <TableCell align="left">
                           <IconButton sx={{ background: "#f5f5f5", marginRight: 1 }}>
                             <VideocamIcon color="primary" />
-                          </IconButton>{" "}
-                          {recording?.name}
+                          </IconButton>
+                          <TextField
+                            disabled={!room?.isOwner}
+                            placeholder="Enter recording name"
+                            defaultValue={recording?.recordName}
+                            onBlur={(e) => handleUpdateRecording(e, recording)}
+                            size="small"
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <Edit />
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
                         </TableCell>
+                        <TableCell align="left">{recording?.name}</TableCell>
                         <TableCell align="left">
                           <span className={styles.timeLabel}>From:</span> {formatTime(recording?.startTime)} <br />{" "}
                           <span className={styles.timeLabel}>To:</span> {formatTime(recording?.endTime)}
                         </TableCell>
                         <TableCell align="left" sx={{ textTransform: "capitalize" }}>
-                          <Switch checked={recording?.published} onChange={(e) => handlePublishRecording(e, recording)} />
+                          <Switch
+                            disabled={!room?.isOwner}
+                            checked={recording?.published}
+                            onChange={(e) => handlePublishRecording(e, recording)}
+                          />
                         </TableCell>
                         <TableCell align="left">{recording?.participants}</TableCell>
                         <TableCell align="center">
@@ -155,7 +187,7 @@ export default function RoomRecordings({ room }) {
           <AppBar sx={{ position: "relative" }}>
             <Toolbar>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                <b>Recording {selectedRecording.name}</b> <br />
+                <b>{selectedRecording.recordName}</b> <br />
                 <span style={{ fontSize: "0.9rem" }}>
                   From {formatTime(selectedRecording?.startTime)} to {formatTime(selectedRecording?.endTime)}
                 </span>

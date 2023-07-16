@@ -1,1 +1,1 @@
-export const Show = ({ when, fallback, children }) => <>{when ? children : fallback || <></>}</>;
+export const Show = ({ when, fallback = null, children }) => <>{when ? children : fallback || <></>}</>;
