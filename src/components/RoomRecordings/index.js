@@ -1,4 +1,4 @@
-import { Close, Edit, PlayArrow } from "@mui/icons-material";
+import { Close, Download, Edit, PlayArrow } from "@mui/icons-material";
 import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -16,6 +16,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { deleteRecording, updateRecording } from "src/client/room";
 import { getRecordings } from "src/service";
+import { WEB_HOST } from "src/sysconfig";
 import { formatTime, isValid } from "src/utils";
 import { NoData } from "../NoDataNotification";
 import { MyCardHeader } from "../atoms/CustomCardHeader";
@@ -145,7 +146,11 @@ export default function RoomRecordings({ room }) {
                               <PlayArrow />
                             </IconButton>
                           </Tooltip>
-
+                          <Tooltip title="Download recording">
+                            <IconButton onClick={() => window.open(`${WEB_HOST}/recording/${recording.recordId}.mp4`, "_blank")}>
+                              <Download />
+                            </IconButton>
+                          </Tooltip>
                           <CopyToClipboard
                             text={recording?.playbackUrl}
                             onCopy={() => toast.success("Recording URL has been copied to clipboard")}

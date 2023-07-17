@@ -1,4 +1,4 @@
-import { Close, PlayArrow } from "@mui/icons-material";
+import { Close, Download, PlayArrow } from "@mui/icons-material";
 import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import VideocamIcon from "@mui/icons-material/Videocam";
@@ -18,6 +18,7 @@ import { NoData } from "src/components/NoDataNotification";
 import { MyCardHeader } from "src/components/atoms/CustomCardHeader";
 import { WhiteButton } from "src/components/atoms/WhiteButton";
 import { getRecordings } from "src/service";
+import { WEB_HOST } from "src/sysconfig";
 import { formatTime } from "src/utils";
 import styles from "./styles.module.scss";
 
@@ -98,6 +99,11 @@ function RecordingsPage({ user }) {
                           <Tooltip title="Play recording">
                             <IconButton onClick={() => setSelectedRecording(recording)}>
                               <PlayArrow />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Download recording">
+                            <IconButton onClick={() => window.open(`${WEB_HOST}/recording/${recording.recordId}.mp4`, "_blank")}>
+                              <Download />
                             </IconButton>
                           </Tooltip>
                           <CopyToClipboard
