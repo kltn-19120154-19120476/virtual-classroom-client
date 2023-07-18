@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import { deleteRecording, updateRecording } from "src/client/room";
 import { getRecordings } from "src/service";
 import { WEB_HOST } from "src/sysconfig";
-import { formatTime, isValid } from "src/utils";
+import { checkURL, formatTime, isValid } from "src/utils";
 import { NoData } from "../NoDataNotification";
 import { MyCardHeader } from "../atoms/CustomCardHeader";
 import { WhiteButton } from "../atoms/WhiteButton";
@@ -63,6 +63,13 @@ export default function RoomRecordings({ room }) {
       toast.success(res.message);
       getRecordingsData();
     }
+  };
+
+  const handleDownloadRecording = async (recording) => {
+    const isConverted = await checkURL(`${WEB_HOST}/recording/${recording.recordId}.mp4`);
+    if (isConverted) {
+      window.open(`${WEB_HOST}/recording/${recording.recordId}.mp4`, "_blank");
+    } else toast.info("Recording is being coverted to MP4 format. Please try again later.");
   };
 
   useEffect(() => {
@@ -147,7 +154,7 @@ export default function RoomRecordings({ room }) {
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Download recording">
-                            <IconButton onClick={() => window.open(`${WEB_HOST}/recording/${recording.recordId}.mp4`, "_blank")}>
+                            <IconButton onClick={() => handleDownloadRecording(recording)}>
                               <Download />
                             </IconButton>
                           </Tooltip>

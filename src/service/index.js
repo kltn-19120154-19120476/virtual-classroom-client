@@ -187,22 +187,26 @@ export const isMeetingRunning = (meetingID) => callBBBClient({ apiCall: "isMeeti
 export const getMeetingInfo = (meetingID) => callBBBClient({ apiCall: "getMeetingInfo", meetingID });
 
 export const updateLearningDashboards = async (room, data) => {
-  const newData = JSON.parse(data);
-  const learningDashboards = room.learningDashboards;
+  try {
+    const newData = JSON.parse(data);
+    const learningDashboards = room.learningDashboards;
 
-  const dataIndex = learningDashboards.findIndex((dashboard) => {
-    const { extId = "", intId = "" } = JSON.parse(dashboard);
-    return `${extId}-${intId}` === `${newData.extId}-${newData.intId}`;
-  });
+    const dataIndex = learningDashboards.findIndex((dashboard) => {
+      const { extId = "", intId = "" } = JSON.parse(dashboard);
+      return `${extId}-${intId}` === `${newData.extId}-${newData.intId}`;
+    });
 
-  if (dataIndex === -1) {
-    learningDashboards.unshift(JSON.stringify(newData));
-  } else {
-    learningDashboards[dataIndex] = JSON.stringify(newData);
+    if (dataIndex === -1) {
+      learningDashboards.unshift(JSON.stringify(newData));
+    } else {
+      learningDashboards[dataIndex] = JSON.stringify(newData);
+    }
+
+    await updateRoom({ id: room._id, learningDashboards });
+    return learningDashboards;
+  } catch {
+    return [];
   }
-
-  await updateRoom({ id: room._id, learningDashboards });
-  return learningDashboards;
 };
 
 export const getLearningDashboardFromInternalMeetingId = (internalMeetingID, userID) =>

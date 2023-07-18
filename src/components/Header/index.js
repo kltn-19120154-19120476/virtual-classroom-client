@@ -3,7 +3,7 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import HomeIcon from "@mui/icons-material/Home";
 import Logout from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
-import { Box, Button, Tooltip } from "@mui/material";
+import { Box, Button, Tooltip, Typography } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
@@ -175,7 +175,11 @@ const Header = () => {
           {navPaths.includes(router.pathname) ? (
             navMenu.map((item) => (
               <Link href={item.path} key={item.path}>
-                <Button className={clsx(styles.navBtn, router.pathname === item.path && styles.active)}>{item.label}</Button>
+                <Box className={clsx(styles.navBtn, router.pathname === item.path && styles.active)}>
+                  <Typography color="primary" fontWeight={500} textTransform="uppercase" paddingY={1} sx={{ cursor: "pointer" }}>
+                    {item.label}
+                  </Typography>
+                </Box>
               </Link>
             ))
           ) : (

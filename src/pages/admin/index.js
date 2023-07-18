@@ -42,7 +42,7 @@ import ConfirmModal from "src/components/atoms/ConfirmModal";
 import { MyCardHeader } from "src/components/atoms/CustomCardHeader";
 import { Show } from "src/components/atoms/Show";
 import { USER_TYPE } from "src/sysconfig";
-import { getData, getFirst, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
+import { formatTime, getData, getFirst, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
 
 const TABS = [
   {
@@ -236,12 +236,16 @@ function DocumentsPage({ user, getUser }) {
                 <MyCardHeader label="Public document management" />
                 <Table sx={{ minWidth: 650 }}>
                   <colgroup>
-                    <col width="70%" />
-                    <col width="30%" />
+                    <col width="40%" />
+                    <col width="20%" />
+                    <col width="20%" />
+                    <col width="20%" />
                   </colgroup>
                   <TableHead className="tableHead">
                     <TableRow>
                       <TableCell align="left">Name</TableCell>
+                      <TableCell align="left">Created at</TableCell>
+                      <TableCell align="left">Updated at</TableCell>
                       <TableCell align="center">Actions</TableCell>
                     </TableRow>
                   </TableHead>
@@ -259,6 +263,8 @@ function DocumentsPage({ user, getUser }) {
                       {documents?.map((document) => (
                         <TableRow key={document.url}>
                           <TableCell align="left">{document.filename}</TableCell>
+                          <TableCell align="left">{formatTime(document.createdAt)}</TableCell>
+                          <TableCell align="left">{formatTime(document.updatedAt)}</TableCell>
                           <TableCell align="center">
                             <Tooltip title="Edit document">
                               <IconButton
@@ -326,15 +332,19 @@ function DocumentsPage({ user, getUser }) {
                 </MyCardHeader>
                 <Table sx={{ minWidth: 650 }}>
                   <colgroup>
-                    <col width="30%" />
-                    <col width="30%" />
+                    <col width="20%" />
+                    <col width="20%" />
                     <col width="15%" />
-                    <col width="25%" />
+                    <col width="15%" />
+                    <col width="10%" />
+                    <col width="20%" />
                   </colgroup>
                   <TableHead className="tableHead">
                     <TableRow>
                       <TableCell align="left">Email</TableCell>
                       <TableCell align="left">Name</TableCell>
+                      <TableCell align="left">Created at</TableCell>
+                      <TableCell align="left">Updated at</TableCell>
                       <TableCell align="left">Status</TableCell>
                       <TableCell align="center">Actions</TableCell>
                     </TableRow>
@@ -344,7 +354,7 @@ function DocumentsPage({ user, getUser }) {
                       when={users?.length > 0}
                       fallback={
                         <TableRow>
-                          <TableCell align="center" colSpan={4}>
+                          <TableCell align="center" colSpan={6}>
                             Not found any users
                           </TableCell>
                         </TableRow>
@@ -354,6 +364,8 @@ function DocumentsPage({ user, getUser }) {
                         <TableRow key={user.email}>
                           <TableCell align="left">{user.email}</TableCell>
                           <TableCell align="left">{user.name}</TableCell>
+                          <TableCell align="left">{formatTime(user.createdAt)}</TableCell>
+                          <TableCell align="left">{formatTime(user.updatedAt)}</TableCell>
                           <TableCell align="left">
                             <FormControlLabel
                               control={<Switch color="success" />}

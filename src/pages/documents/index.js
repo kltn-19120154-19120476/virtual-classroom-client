@@ -19,7 +19,7 @@ import { Show } from "src/components/atoms/Show";
 import FileUpload from "src/components/FileUpload";
 import withLogin from "src/components/HOC/withLogin";
 import { USER_TYPE } from "src/sysconfig";
-import { getData, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
+import { formatTime, getData, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
 
 function DocumentsPage({ user, getUser }) {
   const [loading, setLoading] = useState(false);
@@ -112,12 +112,16 @@ function DocumentsPage({ user, getUser }) {
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }}>
           <colgroup>
-            <col width="80%"></col>
+            <col width="50%"></col>
+            <col width="15%"></col>
+            <col width="15%"></col>
             <col width="20%"></col>
           </colgroup>
           <TableHead className="tableHead">
             <TableRow>
               <TableCell align="left">Name</TableCell>
+              <TableCell align="left">Created at</TableCell>
+              <TableCell align="left">Updated at</TableCell>
               <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -135,6 +139,8 @@ function DocumentsPage({ user, getUser }) {
               {documents?.map((document) => (
                 <TableRow key={document.url}>
                   <TableCell align="left">{document.filename}</TableCell>
+                  <TableCell align="left">{formatTime(document.createdAt)}</TableCell>
+                  <TableCell align="left">{formatTime(document.updatedAt)}</TableCell>
                   <TableCell align="center">
                     {!document?.isPublic && (
                       <Tooltip title="Edit document">

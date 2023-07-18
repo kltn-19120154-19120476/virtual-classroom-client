@@ -19,7 +19,7 @@ import { MyCardHeader } from "src/components/atoms/CustomCardHeader";
 import { WhiteButton } from "src/components/atoms/WhiteButton";
 import { getRecordings } from "src/service";
 import { WEB_HOST } from "src/sysconfig";
-import { formatTime } from "src/utils";
+import { checkURL, formatTime } from "src/utils";
 import styles from "./styles.module.scss";
 
 function RecordingsPage({ user }) {
@@ -40,6 +40,13 @@ function RecordingsPage({ user }) {
 
     setRecordings(recordings);
     setLoading(false);
+  };
+
+  const handleDownloadRecording = async (recording) => {
+    const isConverted = await checkURL(`${WEB_HOST}/recording/${recording.recordId}.mp4`);
+    if (isConverted) {
+      window.open(`${WEB_HOST}/recording/${recording.recordId}.mp4`, "_blank");
+    } else toast.info("Recording is being coverted to MP4 format. Please try again later.");
   };
 
   useEffect(() => {
@@ -102,7 +109,7 @@ function RecordingsPage({ user }) {
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Download recording">
-                            <IconButton onClick={() => window.open(`${WEB_HOST}/recording/${recording.recordId}.mp4`, "_blank")}>
+                            <IconButton onClick={() => handleDownloadRecording(recording)}>
                               <Download />
                             </IconButton>
                           </Tooltip>

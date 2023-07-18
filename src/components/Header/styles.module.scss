@@ -57,17 +57,22 @@
 .navBar {
   flex-grow: 4;
   display: flex !important;
-  gap: 30px;
+  gap: 40px;
   .navBtn {
     border-radius: 0 !important;
     padding-left: 0;
     padding-right: 0;
     border-bottom: 2px solid transparent;
 
+    transition: 0.1s ease-in-out;
+
     &.active,
     &:hover {
       border-bottom: 2px solid #467fcf;
     }
+  }
+  @media (max-width: 476px) {
+    gap: 15px;
   }
 
   .homeIcon {

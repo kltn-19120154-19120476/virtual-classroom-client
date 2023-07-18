@@ -58,20 +58,26 @@ const AuthContextProvider = ({ children }) => {
             userInfo.myRoomIds.map(async (id) => {
               const internalMeetingID = roomListMap[id]?.meetingInfo?.internalMeetingID;
               if (internalMeetingID) {
-                const meetingLearningDashboard = await getLearningDashboardFromInternalMeetingId(
-                  roomListMap[id]?.meetingInfo?.internalMeetingID,
-                  userInfo._id,
-                );
+                const meetingLearningDashboard = await getLearningDashboardFromInternalMeetingId(internalMeetingID, userInfo._id);
                 if (meetingLearningDashboard.data) updateLearningDashboards(roomListMap[id], meetingLearningDashboard.data);
+
+                setInterval(async () => {
+                  const meetingLearningDashboard = await getLearningDashboardFromInternalMeetingId(internalMeetingID, userInfo._id);
+                  if (meetingLearningDashboard.data) updateLearningDashboards(roomListMap[id], meetingLearningDashboard.data);
+                }, 10 * 1000);
               }
             }),
           );
 
-          userInfo.myRooms = userInfo.myRoomIds?.map((code) => roomListMap[code]) || [];
+          userInfo.myRooms =
+            userInfo.myRoomIds
+              ?.map((code) => roomListMap[code])
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
 
-          userInfo.joinedRooms = userInfo.joinedRoomIds?.map((code) => roomListMap[code]) || [];
-
-          userInfo.memberRooms = userInfo.joinedRooms?.filter((room) => room.memberIds?.includes(userInfo._id)) || [];
+          userInfo.joinedRooms =
+            userInfo.joinedRoomIds
+              ?.map((code) => roomListMap[code])
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
 
           setIsAuthenticated(true);
 

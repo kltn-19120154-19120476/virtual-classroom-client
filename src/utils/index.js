@@ -81,7 +81,7 @@ export const getData = (res) => res?.data || [];
 
 export const formatTime = (time, type = "vi-VN") => {
   if (!time) return "N/A";
-  const result = new Date(+time).toLocaleString(type);
+  const result = new Date(isNaN(+time) ? time : +time).toLocaleString(type);
   return result !== "Invalid Date" ? result : "N/A";
 };
 
@@ -100,3 +100,13 @@ export const splitFilenameAndExtension = (filename) => {
   // If there is no extension, return the whole filename as the name and an empty string for the extension
   return { name: filename, extension: "" };
 };
+
+export async function checkURL(url) {
+  try {
+    const response = await fetch(url);
+    if (response.status === 200) return true;
+    else return false;
+  } catch (e) {
+    return false;
+  }
+}
