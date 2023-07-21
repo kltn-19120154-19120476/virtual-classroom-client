@@ -4,7 +4,7 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SaveIcon from "@mui/icons-material/Save";
 import { Avatar, Button, TextField } from "@mui/material";
 import Box from "@mui/material/Box";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { updateUserInfo } from "src/client/user";
@@ -12,12 +12,12 @@ import { isValid } from "src/utils";
 import * as yup from "yup";
 import styles from "./styles.module.scss";
 
-const UserProfile = ({ user }) => {
+const UserProfile = ({ user, getUser }) => {
+  console.log({ user });
   const [updateMode, setUpdateMode] = useState(false);
   const schema = yup
     .object({
       password: yup.string().required("Password is required"),
-      newPassword: yup.string().required("New password is required"),
       confirmedNewPassword: yup.string().oneOf([yup.ref("newPassword"), null], "Password and confirm password does not match"),
     })
     .required();
@@ -26,23 +26,24 @@ const UserProfile = ({ user }) => {
     control,
     handleSubmit,
     reset,
-  } = useForm({ resolver: yupResolver(schema), defaultValues: { name: user.name, email: user.email } });
+    setValue,
+  } = useForm({ resolver: yupResolver(schema) });
 
   const handleUpdateUserInfo = async (data) => {
     if (!updateMode) {
       setUpdateMode(true);
     } else {
       const formData = {
-        name: data.name,
-        password: data.password,
-        newPassword: data.newPassword,
+        name: data?.name,
+        password: data?.password || "",
+        newPassword: data?.newPassword || "",
       };
       try {
         const res = await updateUserInfo(formData);
         if (isValid(res)) {
           toast.success("Update information successfully");
           setUpdateMode(false);
-          reset();
+          getUser();
         } else {
           toast.error(res.message);
         }
@@ -56,10 +57,15 @@ const UserProfile = ({ user }) => {
     setUpdateMode(mode);
   };
 
+  useEffect(() => {
+    setValue("name", user?.name);
+    setValue("email", user?.email);
+  }, [user]);
+
   return (
     <div className={styles.wapper}>
       <div className={styles.profile}>
-        <Avatar className={styles.avatar}>{user?.name[0]}</Avatar>
+        <Avatar className={styles.avatar}>{user?.name?.[0]}</Avatar>
         <Box
           className={styles.info}
           component="form"
@@ -70,7 +76,6 @@ const UserProfile = ({ user }) => {
           <Box>
             <Controller
               name="name"
-              defaultValue={name}
               control={control}
               render={({ field }) => (
                 <TextField
@@ -81,13 +86,25 @@ const UserProfile = ({ user }) => {
                   disabled={!updateMode}
                   style={{ display: "inline-flex" }}
                   {...field}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 />
               )}
             />
-            <TextField className={styles.infoField} id="email" label="Email" variant="outlined" value={user?.email} disabled />
+            <TextField
+              className={styles.infoField}
+              id="email"
+              label="Email"
+              variant="outlined"
+              value={user?.email}
+              disabled
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
             <Controller
               name="password"
-              defaultValue=""
               control={control}
               render={({ field }) => (
                 <TextField
@@ -108,6 +125,9 @@ const UserProfile = ({ user }) => {
                         }
                   }
                   {...field}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 />
               )}
             />

@@ -12,7 +12,7 @@ function NotfoundPage() {
     <Container>
       <NoData
         title="403"
-        description={"Your account is not activated. Please contact your administrator."}
+        description={"Your account is not exist or be activated. Please contact your administrator."}
         icon={<NoAccountsIcon />}
         onRefresh={() => logout()}
         refreshBtnText="Logout"

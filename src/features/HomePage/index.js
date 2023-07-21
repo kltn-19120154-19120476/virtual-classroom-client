@@ -41,7 +41,7 @@ const HomePage = () => {
     {
       icon: <MovieCreation />,
       label: "Record your meetings",
-      description: "Record the BigBlueButton meetings and share them with the students to review and reflect on the material.",
+      description: "Record meetings and share them with the students",
     },
     {
       icon: <GroupsIcon />,
@@ -50,19 +50,19 @@ const HomePage = () => {
     },
     {
       icon: <LineAxisIcon />,
-      label: "Real-time learning dashboard",
-      description:
-        "Learning dashboard is a centralized hub that empowers educators and learners with easy access to course materials, progress tracking, and collaboration tools.",
+      label: "Learning dashboard",
+      description: "Tracking students attendance and activities in real-time with monitoring screen and downloadable logs",
     },
     {
       icon: <PlagiarismIcon />,
       label: "Document management",
-      description: "Configure, share your documents to other users and pre-upload them before the meeting starts",
+      description: "Configure, share your documents to other users and pre-upload them before the meeting is started",
     },
     {
       icon: <Settings />,
       label: "And more!",
-      description: "BigBlueButton offers built-in tools for applied learning and is designed to save you time during class",
+      description:
+        "BigBlueButtonLMS offers BigBlueButton's built-in tools for applied learning and is designed to save you time during class",
     },
   ];
 
@@ -78,13 +78,12 @@ const HomePage = () => {
         <br />
         <br />
         BigBlueButtonLMS offers a range of interactive features to create dynamic learning environments. With real-time audio and video
-        conferencing, screen sharing, whiteboarding, and interactive chat, educators can deliver immersive lessons and facilitate meaningful
-        discussions. Breakout rooms enable collaborative activities and projects, promoting teamwork and critical thinking.
+        conferencing, screen sharing, whiteboarding, breakout rooms and interactive chat, educators can deliver immersive lessons and
+        facilitate meaningful discussions from BigBlueButton.
         <br />
         <br />
-        Seamless integration with other learning management systems allows for a smooth transition and easy management of content, grades,
-        and enrollment. Our user-friendly interface simplifies navigation and enhances the teaching experience, empowering educators to
-        focus on delivering high-quality education.
+        Our user-friendly management interface simplifies navigation and enhances the teaching experience with integrated BigBlueButton,
+        empowering educators to focus on delivering high-quality education.
         <br />
         <br />
         Join us on the journey to revolutionize online education. With BigBlueButtonLMS, collaboration, interactivity, and engagement are

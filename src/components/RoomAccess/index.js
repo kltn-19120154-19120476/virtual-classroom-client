@@ -115,10 +115,10 @@ export default function RoomAccess({ room, getUser }) {
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 750 }} aria-label="simple table">
             <colgroup>
-              <col width="30%"></col>
+              <col width={`${30 + (isOwner ? 0 : 25)}%`}></col>
               <col width="30%"></col>
               <col width="15%"></col>
-              <col width="25%"></col>
+              {isOwner && <col width="25%"></col>}
             </colgroup>
             <TableHead className={"tableHead"}>
               <TableRow>
