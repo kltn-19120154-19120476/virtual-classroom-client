@@ -32,6 +32,7 @@ import TableRow from "@mui/material/TableRow";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import { isMobile } from "react-device-detect";
 import { toast } from "react-toastify";
 import { callBBBClient } from "src/client/bbb-client";
 import { createDocument, deleteDocument, getDocuments, updateDocument } from "src/client/room";
@@ -212,7 +213,7 @@ function DocumentsPage({ user, getUser }) {
 
   return (
     <Container maxWidth="xl">
-      <Typography variant="h4" fontWeight={600} color="primary" textAlign="left" marginBottom={10}>
+      <Typography variant="h4" fontWeight={600} color="primary" textAlign="left" marginBottom={isMobile ? 4 : 10}>
         ADMINISTRATOR PANEL
       </Typography>
       <Grid container spacing={3}>
