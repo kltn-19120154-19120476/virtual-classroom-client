@@ -2,13 +2,15 @@ import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import TabUnstyled from "@mui/base/TabUnstyled";
 import TabsListUnstyled from "@mui/base/TabsListUnstyled";
 import TabsUnstyled from "@mui/base/TabsUnstyled";
+import { Download } from "@mui/icons-material";
 import DownloadIcon from "@mui/icons-material/Download";
 import GroupsIcon from "@mui/icons-material/Groups";
 import PollIcon from "@mui/icons-material/Poll";
-import { Button, Chip, Typography } from "@mui/material";
+import { Button, Chip, IconButton, Typography } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import React from "react";
+import { isMobile } from "react-device-detect";
 import { emojiConfigs } from "src/service/EmojiService";
 import { downloadSessionData, tsToHHmmss } from "src/service/UserService";
 import { formatTime } from "src/utils";
@@ -303,9 +305,15 @@ export default class LearningDashboardDetail extends React.Component {
               )}
             </p>
           </div>
-          <Button color="primary" variant="contained" onClick={this.handleSaveSessionData.bind(this)} startIcon={<DownloadIcon />}>
-            Download Session Data
-          </Button>
+          {isMobile ? (
+            <IconButton onClick={this.handleSaveSessionData.bind(this)} color="primary">
+              <Download />
+            </IconButton>
+          ) : (
+            <Button color="primary" variant="contained" onClick={this.handleSaveSessionData.bind(this)} startIcon={<DownloadIcon />}>
+              Download Session Data
+            </Button>
+          )}
         </div>
       </div>
     );

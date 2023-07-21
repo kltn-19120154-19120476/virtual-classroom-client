@@ -2,7 +2,7 @@ import { DeleteOutline, Edit } from "@mui/icons-material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { LoadingButton } from "@mui/lab";
-import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip } from "@mui/material";
+import { Button, Card, Container, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -89,58 +89,63 @@ export default function InsertDocuments({ room, getUser }) {
   return (
     <Container maxWidth="xl">
       {room?.presentation?.length > 0 && (
-        <TableContainer component={Paper}>
+        <Card>
           <MyCardHeader label="presentation" />
-          <Table sx={{ minWidth: 650 }}>
-            <colgroup>
-              <col width="80%"></col>
-              <col width="20%"></col>
-            </colgroup>
-            <TableHead className="tableHead">
-              <TableRow>
-                <TableCell align="left">Name</TableCell>
-                <TableCell align="center">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {room?.presentation?.map((presentation) => (
-                <TableRow key={presentation.url}>
-                  <TableCell align="left">{presentation.name}</TableCell>
-                  <TableCell align="center">
-                    {room?.isOwner && (
-                      <Tooltip title="Edit presentation">
-                        <IconButton
-                          onClick={() => {
-                            setSelectedDocument(presentation);
-                            setOpenEditModal(true);
-                          }}
-                        >
-                          <Edit />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-
-                    <CopyToClipboard text={presentation?.url} onCopy={() => toast.success("Presentation URL has been copied to clipboard")}>
-                      <Tooltip title="Copy presentation URL">
-                        <IconButton>
-                          <ContentCopyIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </CopyToClipboard>
-
-                    {room?.isOwner && (
-                      <Tooltip title="Delete presentation">
-                        <IconButton color="error" onClick={() => handleDeletePresentation(presentation)}>
-                          <DeleteOutline />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                  </TableCell>
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 750 }}>
+              <colgroup>
+                <col width="70%"></col>
+                <col width="30%"></col>
+              </colgroup>
+              <TableHead className="tableHead">
+                <TableRow>
+                  <TableCell align="left">Name</TableCell>
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {room?.presentation?.map((presentation) => (
+                  <TableRow key={presentation.url}>
+                    <TableCell align="left">{presentation.name}</TableCell>
+                    <TableCell align="center">
+                      {room?.isOwner && (
+                        <Tooltip title="Edit presentation">
+                          <IconButton
+                            onClick={() => {
+                              setSelectedDocument(presentation);
+                              setOpenEditModal(true);
+                            }}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+
+                      <CopyToClipboard
+                        text={presentation?.url}
+                        onCopy={() => toast.success("Presentation URL has been copied to clipboard")}
+                      >
+                        <Tooltip title="Copy presentation URL">
+                          <IconButton>
+                            <ContentCopyIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </CopyToClipboard>
+
+                      {room?.isOwner && (
+                        <Tooltip title="Delete presentation">
+                          <IconButton color="error" onClick={() => handleDeletePresentation(presentation)}>
+                            <DeleteOutline />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
       )}
       {room?.isOwner && <FileUpload onFilesChange={(files) => handleUploadDocuments(files)} isUploading={loading} />}
       {!room?.isOwner && !room?.presentation?.length && (

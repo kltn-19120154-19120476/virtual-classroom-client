@@ -110,11 +110,11 @@ function DocumentsPage({ user, getUser }) {
     <Card style={{ marginBottom: 30 }}>
       <MyCardHeader label={label} />
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }}>
+        <Table sx={{ minWidth: 750 }}>
           <colgroup>
-            <col width="50%"></col>
-            <col width="15%"></col>
-            <col width="15%"></col>
+            <col width="40%"></col>
+            <col width="20%"></col>
+            <col width="20%"></col>
             <col width="20%"></col>
           </colgroup>
           <TableHead className="tableHead">

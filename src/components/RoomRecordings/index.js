@@ -3,7 +3,19 @@ import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import { AppBar, Container, Dialog, IconButton, InputAdornment, Switch, TextField, Toolbar, Tooltip, Typography } from "@mui/material";
+import {
+  AppBar,
+  Card,
+  Container,
+  Dialog,
+  IconButton,
+  InputAdornment,
+  Switch,
+  TextField,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -88,11 +100,11 @@ export default function RoomRecordings({ room }) {
       {!loading && (
         <>
           {recordings?.length > 0 ? (
-            <>
+            <Card>
+              <MyCardHeader label="recordings">
+                <RefreshButton />
+              </MyCardHeader>
               <TableContainer component={Paper}>
-                <MyCardHeader label="recordings">
-                  <RefreshButton />
-                </MyCardHeader>
                 <Table sx={{ minWidth: 1200 }}>
                   <colgroup>
                     <col width="35%"></col>
@@ -182,7 +194,7 @@ export default function RoomRecordings({ room }) {
                   </TableBody>
                 </Table>
               </TableContainer>
-            </>
+            </Card>
           ) : (
             <NoData
               onRefresh={getRecordingsData}

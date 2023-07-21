@@ -43,6 +43,7 @@ import { MyCardHeader } from "src/components/atoms/CustomCardHeader";
 import { Show } from "src/components/atoms/Show";
 import { USER_TYPE } from "src/sysconfig";
 import { formatTime, getData, getFirst, isValid, splitFilenameAndExtension, uploadImageToFirebase } from "src/utils";
+import styles from "./styles.module.scss";
 
 const TABS = [
   {
@@ -231,15 +232,16 @@ function DocumentsPage({ user, getUser }) {
         </Grid>
         <Grid item xs={12} md={9}>
           {tabItem === TAB_VALUES.DOCUMENT_MANAGEMENT && (
-            <>
+            <Card>
+              <MyCardHeader label="Public document management" />
+
               <TableContainer component={Paper}>
-                <MyCardHeader label="Public document management" />
-                <Table sx={{ minWidth: 650 }}>
+                <Table sx={{ minWidth: 750 }}>
                   <colgroup>
-                    <col width="40%" />
+                    <col width="35%" />
                     <col width="20%" />
                     <col width="20%" />
-                    <col width="20%" />
+                    <col width="25%" />
                   </colgroup>
                   <TableHead className="tableHead">
                     <TableRow>
@@ -301,14 +303,14 @@ function DocumentsPage({ user, getUser }) {
                 </Table>
               </TableContainer>
               <FileUpload onFilesChange={(files) => handleUploadDocuments(files)} isUploading={loading} />
-            </>
+            </Card>
           )}
 
           {tabItem === TAB_VALUES.USER_MANAGEMENT && (
             <>
               <TableContainer component={Paper}>
                 <MyCardHeader label="User management">
-                  <Card>
+                  <Card className={styles.searchBox}>
                     <TextField
                       placeholder="Enter user name or email"
                       onChange={async (e) => {
@@ -330,7 +332,7 @@ function DocumentsPage({ user, getUser }) {
                     />
                   </Card>
                 </MyCardHeader>
-                <Table sx={{ minWidth: 650 }}>
+                <Table sx={{ minWidth: 750 }}>
                   <colgroup>
                     <col width="20%" />
                     <col width="20%" />

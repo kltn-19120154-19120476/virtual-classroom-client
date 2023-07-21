@@ -1,7 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip } from "@mui/material";
+import { Button, Card, Container, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -106,62 +106,64 @@ export default function RoomAccess({ room, getUser }) {
         </>
       )}
 
-      <TableContainer component={Paper}>
+      <Card>
         <MyCardHeader label="user list">
           <WhiteButton onClick={() => setOpenInviteMemberForm(true)} startIcon={<PersonAddIcon />}>
             Add user
           </WhiteButton>
         </MyCardHeader>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <colgroup>
-            <col width="30%"></col>
-            <col width="30%"></col>
-            <col width="20%"></col>
-            <col width="20%"></col>
-          </colgroup>
-          <TableHead className={"tableHead"}>
-            <TableRow>
-              <TableCell align="left">Name</TableCell>
-              <TableCell align="left">Email</TableCell>
-              <TableCell align="left">Role</TableCell>
-              {isOwner && <TableCell align="left">Action</TableCell>}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow key={room?.ownerId} className={styles.ownerRow}>
-              <TableCell align="left">{room?.owner?.name}</TableCell>
-              <TableCell align="left">{room?.owner?.email}</TableCell>
-              <TableCell align="left">MODERATOR</TableCell>
-              {isOwner && (
-                <TableCell align="left">
-                  <Tooltip title="Add new member">
-                    <IconButton onClick={() => setOpenInviteMemberForm(true)}>
-                      <PersonAddIcon />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              )}
-            </TableRow>
-
-            {room?.members?.map((member) => (
-              <TableRow key={member?._id} className={styles.memberRow}>
-                <TableCell align="left">{member?.name}</TableCell>
-                <TableCell align="left">{member?.email}</TableCell>
-                <TableCell align="left">ATTENDEE</TableCell>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 750 }} aria-label="simple table">
+            <colgroup>
+              <col width="30%"></col>
+              <col width="30%"></col>
+              <col width="15%"></col>
+              <col width="25%"></col>
+            </colgroup>
+            <TableHead className={"tableHead"}>
+              <TableRow>
+                <TableCell align="left">Name</TableCell>
+                <TableCell align="left">Email</TableCell>
+                <TableCell align="left">Role</TableCell>
+                {isOwner && <TableCell align="left">Action</TableCell>}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow key={room?.ownerId} className={styles.ownerRow}>
+                <TableCell align="left">{room?.owner?.name}</TableCell>
+                <TableCell align="left">{room?.owner?.email}</TableCell>
+                <TableCell align="left">MODERATOR</TableCell>
                 {isOwner && (
                   <TableCell align="left">
-                    <Tooltip title="Remove this member">
-                      <IconButton color="error" onClick={() => handleRemoveMember(member)}>
-                        <DeleteIcon />
+                    <Tooltip title="Add new member">
+                      <IconButton onClick={() => setOpenInviteMemberForm(true)}>
+                        <PersonAddIcon />
                       </IconButton>
                     </Tooltip>
                   </TableCell>
                 )}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+
+              {room?.members?.map((member) => (
+                <TableRow key={member?._id} className={styles.memberRow}>
+                  <TableCell align="left">{member?.name}</TableCell>
+                  <TableCell align="left">{member?.email}</TableCell>
+                  <TableCell align="left">ATTENDEE</TableCell>
+                  {isOwner && (
+                    <TableCell align="left">
+                      <Tooltip title="Remove this member">
+                        <IconButton color="error" onClick={() => handleRemoveMember(member)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Card>
     </Container>
   );
 }

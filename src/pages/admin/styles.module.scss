@@ -1,0 +1,12 @@
+.searchBox {
+  @media (max-width: 576px) {
+    max-width: 50px;
+    &:hover {
+      max-width: 280px;
+    }
+
+    input {
+      padding: 10px;
+    }
+  }
+}

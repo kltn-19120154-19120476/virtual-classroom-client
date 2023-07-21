@@ -11,6 +11,7 @@ import Tab from "@mui/material/Tab";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
+import { isMobile } from "react-device-detect";
 import { toast } from "react-toastify";
 import { getRoomDetail } from "src/client/room";
 import { getUserByIds } from "src/client/user";
@@ -88,7 +89,7 @@ const RoomDetailPage = () => {
   return (
     <div className={styles.wrapper}>
       {room && (
-        <Grid container spacing={6}>
+        <Grid container spacing={isMobile ? 4 : 6}>
           <Grid item xs={12} sx={{ background: "#fff" }}>
             <Container maxWidth="xl" className={styles.roomHeader}>
               <div>

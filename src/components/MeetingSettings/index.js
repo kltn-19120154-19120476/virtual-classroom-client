@@ -5,6 +5,7 @@ import { LoadingButton } from "@mui/lab";
 import { Button, Card, CardContent, Container, FormControlLabel, Grid, Switch, TextField, Tooltip } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { isMobile } from "react-device-detect";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { deleteRoomById, updateRoom } from "src/client/room";
@@ -265,11 +266,11 @@ export default function MeetingSettings({ room, user, getUser }) {
       <Card component={"form"} onSubmit={handleSubmit(onUpdateMeetingSetings)} className={styles.form}>
         <MyCardHeader label="Meeting settings">
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 20, width: "100%" }}>
-            <Button color="error" variant="contained" onClick={() => setOpenConfirmDelete(true)} startIcon={<DeleteForever />}>
-              Delete Room
+            <Button color="error" variant="contained" onClick={() => setOpenConfirmDelete(true)} startIcon={!isMobile && <DeleteForever />}>
+              {isMobile ? <DeleteForever /> : "Delete Room"}
             </Button>
-            <LoadingButton variant="contained" color="success" type="submit" startIcon={<SaveIcon />}>
-              SAVE
+            <LoadingButton variant="contained" color="success" type="submit" startIcon={!isMobile && <SaveIcon />}>
+              {isMobile ? <SaveIcon /> : "SAVE"}
             </LoadingButton>
           </div>
         </MyCardHeader>

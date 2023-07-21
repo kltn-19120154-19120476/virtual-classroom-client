@@ -25,11 +25,11 @@ const navMenu = [
   },
   {
     path: "/recordings",
-    label: "Available recordings",
+    label: isMobile ? "Recordings" : "Available recordings",
   },
   {
     path: "/documents",
-    label: "My documents",
+    label: isMobile ? "Documents" : "My documents",
   },
 ];
 
@@ -185,7 +185,7 @@ const Header = () => {
           ) : (
             <Link href="/rooms">
               <Tooltip title="Dashboard">
-                <Box sx={{ padding: "20px 0 5px 0" }}>
+                <Box sx={{ padding: isMobile ? "0px 0 5px 0" : "20px 0 5px 0" }}>
                   <HomeIcon className={styles.homeIcon} />
                 </Box>
               </Tooltip>

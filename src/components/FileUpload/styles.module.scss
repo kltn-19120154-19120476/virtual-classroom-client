@@ -31,6 +31,10 @@
 
   h2 {
     color: #467fcf;
+
+    @media (max-width: 476px) {
+      font-size: 1.2rem;
+    }
   }
 
   p {

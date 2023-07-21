@@ -2,7 +2,7 @@ import { Close, Download, PlayArrow } from "@mui/icons-material";
 import CachedIcon from "@mui/icons-material/Cached";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import { AppBar, Container, Dialog, IconButton, Toolbar, Tooltip, Typography } from "@mui/material";
+import { AppBar, Card, Container, Dialog, IconButton, Toolbar, Tooltip, Typography } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,6 +12,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import { isMobile } from "react-device-detect";
 import { toast } from "react-toastify";
 import withLogin from "src/components/HOC/withLogin";
 import { NoData } from "src/components/NoDataNotification";
@@ -65,18 +66,18 @@ function RecordingsPage({ user }) {
       {!loading && (
         <>
           {recordings?.length > 0 ? (
-            <>
+            <Card>
+              <MyCardHeader label="Recordings">
+                <RefreshButton variant="outlined" sx={{ background: "#fff" }} />
+              </MyCardHeader>
               <TableContainer component={Paper}>
-                <MyCardHeader label="Recordings">
-                  <RefreshButton variant="outlined" sx={{ background: "#fff" }} />
-                </MyCardHeader>
-                <Table sx={{ minWidth: 650 }}>
+                <Table sx={{ minWidth: 750 }}>
                   <colgroup>
                     <col width="30%"></col>
                     <col width="20%"></col>
                     <col width="20%"></col>
-                    <col width="10%"></col>
-                    <col width="20%"></col>
+                    <col width="5%"></col>
+                    <col width="25%"></col>
                   </colgroup>
                   <TableHead className="tableHead">
                     <TableRow>
@@ -91,9 +92,11 @@ function RecordingsPage({ user }) {
                     {recordings?.map((recording) => (
                       <TableRow key={recording?.recordId}>
                         <TableCell align="left">
-                          <IconButton sx={{ background: "#f5f5f5", marginRight: 1 }}>
-                            <VideocamIcon color="primary" />
-                          </IconButton>{" "}
+                          {!isMobile && (
+                            <IconButton sx={{ background: "#f5f5f5", marginRight: 1 }}>
+                              <VideocamIcon color="primary" />
+                            </IconButton>
+                          )}
                           {recording?.recordName}
                         </TableCell>
                         <TableCell align="left">{recording?.name}</TableCell>
@@ -129,7 +132,7 @@ function RecordingsPage({ user }) {
                   </TableBody>
                 </Table>
               </TableContainer>
-            </>
+            </Card>
           ) : (
             <NoData
               onRefresh={getRecordingsData}
