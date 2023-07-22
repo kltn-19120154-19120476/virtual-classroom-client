@@ -81,7 +81,7 @@ export default function RoomRecordings({ room }) {
     const isConverted = await checkURL(`${WEB_HOST}/recording/${recording.recordId}.mp4`);
     if (isConverted) {
       window.open(`${WEB_HOST}/recording/${recording.recordId}.mp4`, "_blank");
-    } else toast.info("Recording is being coverted to MP4 format. Please try again later.");
+    } else toast.info("Recording is being converted to MP4 format. Please try again later.");
   };
 
   useEffect(() => {
