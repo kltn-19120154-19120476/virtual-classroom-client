@@ -108,9 +108,11 @@ export default function RoomAccess({ room, getUser }) {
 
       <Card>
         <MyCardHeader label="user list">
-          <WhiteButton onClick={() => setOpenInviteMemberForm(true)} startIcon={<PersonAddIcon />}>
-            Add user
-          </WhiteButton>
+          {isOwner && (
+            <WhiteButton onClick={() => setOpenInviteMemberForm(true)} startIcon={<PersonAddIcon />}>
+              Add user
+            </WhiteButton>
+          )}
         </MyCardHeader>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 750 }} aria-label="simple table">
