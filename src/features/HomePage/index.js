@@ -28,9 +28,9 @@ const HomePage = () => {
   const { user } = useContext(AuthContext);
   const router = useRouter();
 
-  if (user) {
-    router.push("/rooms");
-  }
+  // if (user) {
+  //   router.push("/rooms");
+  // }
 
   const FEATURES = [
     {

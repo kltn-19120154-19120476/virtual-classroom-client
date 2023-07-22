@@ -73,11 +73,12 @@ const JoinPage = () => {
   return (
     <Container className={styles.wrapper} maxWidth="xl">
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-        <Image src={"/images/bbb-logo.png"} width={250} height={55} objectFit="contain" alt="bbb-logo" />
+        <Image src={"/images/bbb-logo.png"} width={300} height={75} objectFit="contain" alt="bbb-logo" />
       </div>
       <Card className={styles.loginwrapper}>
         <h2 className={styles.loginTitle}>
-          {router.query?.inviter} invited you to join meeting {router.query?.meetingName}
+          <b style={{ fontWeight: 800 }}>{router.query?.inviter}</b> invited you to join meeting{" "}
+          <b style={{ fontWeight: 800 }}>{router.query?.meetingName}</b>
         </h2>
         <div className={styles.formWrapper}>
           <form onSubmit={handleSubmit(joinBBBMeeting)} className={styles.form}>

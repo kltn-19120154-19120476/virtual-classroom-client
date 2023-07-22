@@ -115,7 +115,7 @@ const AuthContextProvider = ({ children }) => {
       if (res?.status === "OK") {
         localStorage.setItem("access_token", getFirst(res)?.access_token || "");
         setCookie("access_token", getFirst(res)?.access_token || "");
-        window.location.href = "/";
+        window.location.href = "/rooms";
       } else {
         await customToast("ERROR", res?.message);
         setIsLoadingAuth(false);
@@ -136,8 +136,7 @@ const AuthContextProvider = ({ children }) => {
         setIsAuthenticated(true);
         localStorage.setItem("access_token", userInfo?.access_token || "");
         setCookie("access_token", userInfo?.access_token || "");
-        await customToast("SUCCESS", "Login successful!");
-        window.location.href = "/";
+        window.location.href = "/rooms";
       } else {
         await customToast("ERROR", res.message);
         setIsLoadingAuth(false);
@@ -154,8 +153,8 @@ const AuthContextProvider = ({ children }) => {
       const res = await registerFunc(data);
       localStorage.setItem("access_token", getFirst(res)?.access_token || "");
       setCookie("access_token", getFirst(res)?.access_token || "");
-      await customToast("SUCCESS", "Register successful!");
-      window.location.href = "/";
+      await customToast("SUCCESS", "Successfully register. Please wait...!");
+      window.location.href = "/rooms";
       setIsLoadingAuth(false);
     } catch (e) {
       await customToast("ERROR", e?.response?.data?.message || "Register failed!");

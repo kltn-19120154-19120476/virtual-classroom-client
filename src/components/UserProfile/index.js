@@ -1,4 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import { ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
 import DisabledByDefaultIcon from "@mui/icons-material/DisabledByDefault";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -13,8 +14,8 @@ import * as yup from "yup";
 import styles from "./styles.module.scss";
 
 const UserProfile = ({ user, getUser }) => {
-  console.log({ user });
   const [updateMode, setUpdateMode] = useState(false);
+  const [updatePassword, setUpdatePassword] = useState(false);
   const schema = yup
     .object({
       password: yup.string().required("Password is required"),
@@ -27,12 +28,17 @@ const UserProfile = ({ user, getUser }) => {
     handleSubmit,
     reset,
     setValue,
-  } = useForm({ resolver: yupResolver(schema) });
+  } = useForm({ resolver: yupResolver(schema), defaultValues: { password: "", newPassword: "" } });
 
   const handleUpdateUserInfo = async (data) => {
     if (!updateMode) {
       setUpdateMode(true);
     } else {
+      if (updatePassword && !data.newPassword) {
+        toast.error("New password can not be empty");
+        return;
+      }
+
       const formData = {
         name: data?.name,
         password: data?.password || "",
@@ -47,8 +53,10 @@ const UserProfile = ({ user, getUser }) => {
         } else {
           toast.error(res.message);
         }
+        setUpdatePassword(false);
       } catch (error) {
         toast.error(error.response.data.message);
+        setUpdatePassword(false);
       }
     }
   };
@@ -125,65 +133,76 @@ const UserProfile = ({ user, getUser }) => {
                         }
                   }
                   {...field}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
                 />
               )}
             />
 
-            <Controller
-              name="newPassword"
-              defaultValue=""
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  className={styles.infoField}
-                  error={!!errors?.newPassword}
-                  helperText={errors?.newPassword?.message}
-                  label="New password"
-                  variant="outlined"
-                  type="password"
-                  autoComplete="new-password"
-                  disabled={!updateMode}
-                  style={
-                    !updateMode
-                      ? { display: "none" }
-                      : {
-                          display: "inline-flex",
-                          width: "100%",
-                        }
-                  }
-                  {...field}
+            {updateMode && (
+              <Button
+                sx={{ mb: 1, ml: "auto" }}
+                endIcon={updatePassword ? <ArrowDropUp /> : <ArrowDropDown />}
+                onClick={() => setUpdatePassword(!updatePassword)}
+              >
+                Change password
+              </Button>
+            )}
+
+            {updatePassword && (
+              <>
+                <Controller
+                  name="newPassword"
+                  defaultValue=""
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      className={styles.infoField}
+                      error={!!errors?.newPassword}
+                      helperText={errors?.newPassword?.message}
+                      label="New password"
+                      variant="outlined"
+                      type="password"
+                      autoComplete="new-password"
+                      disabled={!updateMode}
+                      style={
+                        !updateMode
+                          ? { display: "none" }
+                          : {
+                              display: "inline-flex",
+                              width: "100%",
+                            }
+                      }
+                      {...field}
+                    />
+                  )}
                 />
-              )}
-            />
-            <Controller
-              name="confirmedNewPassword"
-              defaultValue=""
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  className={styles.infoField}
-                  error={!!errors?.confirmedNewPassword}
-                  helperText={errors?.confirmedNewPassword?.message}
-                  label="Confirm new password"
-                  variant="outlined"
-                  type="password"
-                  autoComplete="confirm-new-password"
-                  disabled={!updateMode}
-                  style={
-                    !updateMode
-                      ? { display: "none" }
-                      : {
-                          display: "inline-flex",
-                          width: "100%",
-                        }
-                  }
-                  {...field}
+                <Controller
+                  name="confirmedNewPassword"
+                  defaultValue=""
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      className={styles.infoField}
+                      error={!!errors?.confirmedNewPassword}
+                      helperText={errors?.confirmedNewPassword?.message}
+                      label="Confirm new password"
+                      variant="outlined"
+                      type="password"
+                      autoComplete="confirm-new-password"
+                      disabled={!updateMode}
+                      style={
+                        !updateMode
+                          ? { display: "none" }
+                          : {
+                              display: "inline-flex",
+                              width: "100%",
+                            }
+                      }
+                      {...field}
+                    />
+                  )}
                 />
-              )}
-            />
+              </>
+            )}
           </Box>
           <div className={styles.btnWrapper}>
             {!updateMode ? (
@@ -202,6 +221,8 @@ const UserProfile = ({ user, getUser }) => {
                   variant="contained"
                   onClick={() => {
                     handleChangeMode(false);
+                    setUpdatePassword(false);
+                    reset();
                   }}
                   color="secondary"
                 >
