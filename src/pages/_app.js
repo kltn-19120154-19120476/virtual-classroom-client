@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps }) {
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <ToastContainer
           position="top-right"
-          autoClose={1500}
+          autoClose={2000}
           hideProgressBar={false}
           newestOnTop={false}
           closeOnClick
