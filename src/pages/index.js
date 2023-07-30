@@ -5,7 +5,7 @@ export async function getServerSideProps(ctx) {
   if (getCookie("access_token", ctx)) {
     return {
       redirect: {
-        permanent: false,
+        permanent: true,
         destination: "/rooms",
       },
     };
